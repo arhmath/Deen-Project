@@ -1,4 +1,6 @@
 import { useState, type ReactNode } from "react";
+import foto1 from "../assets/foto1.jpg";
+import foto2 from "../assets/foto2.jpg";
 
 const COLORS = {
   cream: "#FFFCF3",
@@ -213,7 +215,7 @@ export default function LandingPage() {
 
           {/* Hero image slot — drop your own illustration/photo here, portrait works best */}
           <div className="w-full max-w-sm mx-auto">
-            <ImagePlaceholder ratio="4 / 5" rounded="36px" label="Gambar / ilustrasi kamu di sini — rasio disarankan 4:5" />
+          <img src={foto1} alt="Deen" className="w-full h-full object-cover" style={{ aspectRatio: "4 / 5", borderRadius: "36px" }} />
           </div>
         </div>
       </section>
@@ -221,10 +223,10 @@ export default function LandingPage() {
       {/* TENTANG & FILOSOFI */}
       <section id="tentang" className="px-6 py-24" style={{ background: COLORS.purple }}>
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          <div className="order-2 md:order-1">
+          <div className="order-2 md:order-2">
             <SectionLabel>Tentang Deen</SectionLabel>
-            <h2 className="text-3xl font-semibold mb-6">Apa itu Deen, dan kenapa namanya Deen?</h2>
-            <p className="leading-relaxed mb-5" style={{ color: `${COLORS.cream}CC` }}>
+            <h2 className="text-4xl font-semibold mb-6">Apa itu Deen, dan kenapa namanya Deen?</h2>
+            <p className="leading-relaxed mb-5 " style={{ color: `${COLORS.cream}CC` }}>
               "Deen" dalam bahasa Arab berarti jauh lebih luas dari sekadar "agama" — ia mencakup keseluruhan cara hidup dan hubungan seseorang dengan Allah, sesama, dan dirinya sendiri. Kisah Nabi, sifat-sifat Allah, akhlak, dan fikih bukan topik yang terpisah, melainkan satu kesatuan yang saling terhubung.
             </p>
             <p className="leading-relaxed" style={{ color: `${COLORS.cream}CC` }}>
@@ -233,8 +235,8 @@ export default function LandingPage() {
           </div>
 
           {/* About-section image slot — square works well here */}
-          <div className="order-1 md:order-2 w-full max-w-sm mx-auto">
-            <ImagePlaceholder ratio="1 / 1" rounded="28px" label="Gambar kamu di sini — rasio disarankan 1:1" />
+          <div className="order-1 md:order-1 w-full max-w-sm mx-auto">
+          <img src={foto2} alt="Deen" className="w-full h-full object-cover" style={{ aspectRatio: "4 / 5", borderRadius: "36px" }} />
           </div>
         </div>
       </section>
@@ -243,7 +245,7 @@ export default function LandingPage() {
       <section id="alur" className="px-6 py-24" style={{ background: COLORS.purpleDark }}>
         <div className="max-w-3xl mx-auto">
           <SectionLabel>Alur belajar</SectionLabel>
-          <h2 className="text-3xl font-semibold mb-14">Bagaimana santri belajar di Deen</h2>
+          <h2 className="text-4xl font-semibold mb-14">Bagaimana santri belajar di Deen ?</h2>
 
           <div className="relative">
             <div className="absolute left-[27px] top-2 bottom-2 w-0.5" style={{ background: `${COLORS.cream}26` }} />
@@ -272,7 +274,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="max-w-xl mb-14">
             <SectionLabel>Fitur</SectionLabel>
-            <h2 className="text-3xl font-semibold">Fitur yang bikin santri semangat belajar</h2>
+            <h2 className="text-4xl font-semibold">Fitur yang bikin santri semangat belajar</h2>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-6">
