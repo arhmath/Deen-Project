@@ -1,6 +1,12 @@
-@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap"); /* BARU */
+@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap");
 @import "tailwindcss";
 
+/**
+ * Tailwind v4 is CSS-first: no tailwind.config.ts needed. These tokens
+ * generate utilities automatically, e.g. --color-brand-purple → bg-brand-purple,
+ * text-brand-purple, border-brand-purple; --font-display → font-display;
+ * --animate-float → animate-float.
+ */
 @theme {
   --color-brand-purple: #8231f2;
   --color-brand-purple-dark: #5b1fb0;
@@ -22,13 +28,25 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes twinkle {
-  0%, 100% { opacity: 0.3; transform: scale(0.85); }
-  50% { opacity: 1; transform: scale(1.1); }
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
 }
 
 @layer base {
@@ -37,6 +55,7 @@
   }
 }
 
+/* Respect reduced-motion preference for the ambient float/twinkle effects */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.001ms !important;
