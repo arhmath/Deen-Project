@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthLayout } from "../components/layout/AuthLayout";
 import { LoginForm } from "../features/auth/LoginForm";
 import type { LoginFormValues } from "../lib/validation/authSchemas";
+import heroLogin from "../assets/herologin.jpg";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -20,6 +21,11 @@ export default function LoginPage() {
     <AuthLayout
       title="Selamat datang kembali!"
       subtitle="Masuk untuk lanjut ke petualangan belajarmu."
+      imageSrc={heroLogin}
+      imageAlt="Santri Bermain dan Belajar Bersama"
+      imageHeadline="Yuk Lanjutin perjalanan ngajimu hari ini!"
+      imageCaption="Daily Check-in, XP, dan posisi leaderboard kamu udah nunggu buat di update."
+      imagePosition="right"
       footer={
         <>
           Belum punya akun?{" "}

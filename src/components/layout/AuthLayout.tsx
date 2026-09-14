@@ -2,50 +2,85 @@ import { Link } from "react-router-dom";
 import type { ReactNode } from "react";
 import { Logo } from "./Logo";
 import { StarIcon, SparkleIcon, FlameIcon } from "../landing/DecorativeIcons";
+import { clsx } from "../../lib/clsx";
+
+interface AuthLayoutProps {
+  title: string;
+  subtitle: string;
+  children: ReactNode;
+  footer: ReactNode;
+  /** Path ke ilustrasi/foto untuk panel brand (asset milikmu sendiri). */
+  imageSrc: string;
+  imageAlt: string;
+  imageHeadline: string;
+  imageCaption: string;
+  /**
+   * Sisi panel gambar pada breakpoint `md` ke atas.
+   * Login pakai "right", Register pakai "left".
+   */
+  imagePosition?: "left" | "right";
+}
 
 export function AuthLayout({
   title,
   subtitle,
   children,
   footer,
-}: {
-  title: string;
-  subtitle: string;
-  children: ReactNode;
-  footer: ReactNode;
-}) {
+  imageSrc,
+  imageAlt,
+  imageHeadline,
+  imageCaption,
+  imagePosition = "left",
+}: AuthLayoutProps) {
+  const isImageRight = imagePosition === "right";
+
   return (
     <div className="grid min-h-screen md:grid-cols-2">
-      {/* Brand panel */}
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-brand-purple p-10 text-white md:flex">
+      {/* Image panel */}
+      <div
+        className={clsx(
+          "relative hidden overflow-hidden bg-brand-purple md:flex md:flex-col md:justify-between md:p-10",
+          isImageRight ? "md:order-2" : "md:order-1"
+        )}
+      >
+        <img
+          key={imageSrc}
+          src={imageSrc}
+          alt={imageAlt}
+          className="absolute inset-0 h-full w-full object-cover motion-safe:animate-fade-in-zoom"
+        />
+        {/* Scrim supaya teks/badge tetap kebaca di atas foto apa pun */}
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-purple via-brand-purple/10 to-brand-purple/3" />
+
         <SparkleIcon
-          className="absolute left-16 top-20 h-6 w-6 text-brand-gold motion-safe:animate-twinkle"
+          className="absolute left-16 top-20 z-10 h-6 w-6 text-brand-gold motion-safe:animate-twinkle"
           aria-hidden="true"
         />
         <StarIcon
-          className="absolute right-20 top-40 h-5 w-5 text-brand-yellow motion-safe:animate-twinkle [animation-delay:1s]"
+          className="absolute right-20 top-40 z-10 h-5 w-5 text-brand-yellow motion-safe:animate-twinkle [animation-delay:1s]"
           aria-hidden="true"
         />
 
-        <Link to="/">
+        <Link to="/" className="relative z-10 motion-safe:animate-fade-up">
           <Logo wordmarkClassName="text-white" />
         </Link>
 
-        <div className="relative z-10 max-w-sm">
-          <h2 className="font-display text-3xl font-extrabold leading-tight">
-            Setiap ayat yang dipelajari adalah satu langkah naik level.
+        <div
+          key={imageHeadline}
+          className="relative z-10 max-w-sm motion-safe:animate-fade-up [animation-delay:150ms]"
+        >
+          <h2 className="font-display text-3xl font-extrabold leading-tight text-white">
+            {imageHeadline}
           </h2>
-          <p className="mt-4 font-body text-white/75">
-            Gabung bareng ribuan santri lain yang belajar ngaji sambil main.
-          </p>
+          <p className="mt-4 font-body text-white/75">{imageCaption}</p>
         </div>
 
-        <div className="relative z-10 flex gap-3">
-          <div className="flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1.5 text-sm font-bold">
+        <div className="relative z-10 flex gap-3 motion-safe:animate-fade-up [animation-delay:300ms]">
+          <div className="flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1.5 text-sm font-bold text-white backdrop-blur-sm">
             <FlameIcon className="h-4 w-4 text-brand-amber" />
             Daily Check-in Harian
           </div>
-          <div className="flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1.5 text-sm font-bold">
+          <div className="flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1.5 text-sm font-bold text-white backdrop-blur-sm">
             <StarIcon className="h-4 w-4 text-brand-gold" />
             Leaderboard
           </div>
@@ -53,20 +88,29 @@ export function AuthLayout({
       </div>
 
       {/* Form panel */}
-      <div className="flex flex-col justify-center bg-brand-cream px-6 py-12 sm:px-12">
+      <div
+        className={clsx(
+          "flex flex-col justify-center bg-brand-cream px-6 py-12 sm:px-12",
+          isImageRight ? "md:order-1" : "md:order-2"
+        )}
+      >
         <div className="mx-auto w-full max-w-sm">
           <Link to="/" className="mb-8 flex justify-center md:hidden">
             <Logo />
           </Link>
 
-          <h1 className="font-display text-2xl font-extrabold text-brand-ink">
-            {title}
-          </h1>
-          <p className="mt-1.5 font-body text-brand-ink/60">{subtitle}</p>
+          <div className="motion-safe:animate-fade-up">
+            <h1 className="font-display text-2xl font-extrabold text-brand-ink">
+              {title}
+            </h1>
+            <p className="mt-1.5 font-body text-brand-ink/60">{subtitle}</p>
+          </div>
 
-          <div className="mt-8">{children}</div>
+          <div className="mt-8 motion-safe:animate-fade-up [animation-delay:120ms]">
+            {children}
+          </div>
 
-          <div className="mt-6 text-center font-body text-sm text-brand-ink/60">
+          <div className="mt-6 text-center font-body text-sm text-brand-ink/60 motion-safe:animate-fade-up [animation-delay:220ms]">
             {footer}
           </div>
         </div>

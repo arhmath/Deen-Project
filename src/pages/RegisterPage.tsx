@@ -3,6 +3,7 @@ import { AuthLayout } from "../components/layout/AuthLayout";
 import { RegisterForm } from "../features/auth/RegisterForm";
 import type { RegisterFormValues } from "../lib/validation/authSchemas";
 import type { RegisterRequest } from "../types/auth";
+import heroRegister from "../assets/heroregister1.jpg";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -27,6 +28,11 @@ export default function RegisterPage() {
     <AuthLayout
       title="Buat akun Deen"
       subtitle="Gratis, dan cuma butuh semenit."
+      imageSrc={heroRegister}
+      imageAlt="Santri Belajar Mengaji dengan Gembira"
+      imageHeadline="Setiap Ayat yang dipelajari adalah satu langkah naik level dan lebih baik"
+      imageCaption="Gabung bareng ribuan santri lain yang udah mulai perjalanan belajarnya di Deen."
+      imagePosition="left"
       footer={
         <>
           Sudah punya akun?{" "}
