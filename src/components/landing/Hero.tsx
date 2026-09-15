@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
 import { StarIcon, SparkleIcon, FlameIcon } from "./DecorativeIcons";
-import foto1 from "../../assets/foto1.jpg";
+import foto2 from "../../assets/foto2.png";
 
 export function Hero() {
   return (
@@ -62,9 +62,9 @@ export function Hero() {
         <div className="relative mx-auto w-full max-w-sm">
           <div className="relative aspect-square rounded-[3rem] bg-brand-purple p-4 shadow-[0_10px_0_0_#5B1FB0]">
             <img
-              src={foto1}
+              src={foto2}
               alt="Ilustrasi belajar di Deen"
-              className="h-full w-full rounded-[2rem] object-cover"
+              className="h-full w-full rounded-4xl object-cover"
             />
           </div>
 

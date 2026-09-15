@@ -20,11 +20,6 @@ import { clsx } from "../../lib/clsx";
 import type { UserRole } from "../../types/auth";
 
 interface RegisterFormProps {
-  /**
-   * Wire to the real `POST /auth/register` call once the service layer is
-   * ready. Throw an Error with a user-facing message on failure (e.g. a
-   * 409 "username already taken") — it will be shown above the form.
-   */
   onSubmit: (values: RegisterFormValues) => Promise<void>;
 }
 
@@ -47,6 +42,14 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
   });
 
   const selectedRole = watch("role");
+  
+  // 1. Pantau value password & confirmPassword secara real-time
+  const password = watch("password");
+  const confirmPassword = watch("confirmPassword");
+
+  // 2. Cek apakah password cocok (minimal ada isinya dan tidak ada error dari Zod)
+  const isConfirmFilled = confirmPassword && confirmPassword.length > 0;
+  const isMatch = isConfirmFilled && password === confirmPassword;
 
   const submit = handleSubmit(async (values) => {
     setServerError(null);
@@ -168,16 +171,30 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
         {...register("password")}
       />
 
-      <Input
-        label="Ulangi Password"
-        type={showPassword ? "text" : "password"}
-        icon={<LockIcon className="h-5 w-5" />}
-        placeholder="Ulangi password kamu"
-        autoComplete="new-password"
-        error={errors.confirmPassword?.message}
-        disabled={isSubmitting}
-        {...register("confirmPassword")}
-      />
+      <div>
+        <Input
+          label="Ulangi Password"
+          type={showPassword ? "text" : "password"}
+          icon={<LockIcon className="h-5 w-5" />}
+          placeholder="Ulangi password kamu"
+          autoComplete="new-password"
+          error={errors.confirmPassword?.message}
+          disabled={isSubmitting}
+          {...register("confirmPassword")}
+        />
+
+        {/* 3. Indikator Lampu Hijau & Teks Match */}
+        {isMatch && !errors.confirmPassword && (
+          <div className="mt-2 flex items-center gap-2 text-xs font-bold text-emerald-600 motion-safe:animate-fade-up">
+            {/* Lampu ijo berkedip / pulse dot */}
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+            </span>
+            <span>Password cocok!</span>
+          </div>
+        )}
+      </div>
 
       <div>
         <label className="flex items-start gap-2.5 font-body text-sm text-brand-ink/70">

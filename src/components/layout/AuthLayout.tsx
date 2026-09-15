@@ -50,7 +50,7 @@ export function AuthLayout({
           className="absolute inset-0 h-full w-full object-cover motion-safe:animate-fade-in-zoom"
         />
         {/* Scrim supaya teks/badge tetap kebaca di atas foto apa pun */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-purple via-brand-purple/10 to-brand-purple/3" />
+        <div className="absolute inset-0 bg-linear-to-t from-brand-purple via-brand-purple/10 to-brand-purple/3" />
 
         <SparkleIcon
           className="absolute left-16 top-20 z-10 h-6 w-6 text-brand-gold motion-safe:animate-twinkle"
@@ -90,12 +90,16 @@ export function AuthLayout({
       {/* Form panel */}
       <div
         className={clsx(
-          "flex flex-col justify-center bg-brand-cream px-6 py-12 sm:px-12",
+          "relative flex flex-col justify-center bg-brand-cream p-6 sm:p-12 overflow-hidden",
           isImageRight ? "md:order-1" : "md:order-2"
         )}
       >
-        <div className="mx-auto w-full max-w-sm">
-          <Link to="/" className="mb-8 flex justify-center md:hidden">
+        {/* Background Pattern Tipis (Opsional untuk estetika tambahan) */}
+        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#7c3aed_0.75px,transparent_0.75px)] [bg-size:16px_16px]" />
+
+        {/* --- CONTAINER KOTAK / CARD FORM --- */}
+        <div className="relative z-10 mx-auto w-full max-w-md rounded-3xl bg-white p-6 sm:p-10 border-2 border-brand-purple/15 shadow-[0_20px_50px_rgba(124,58,237,0.12)]">
+          <Link to="/" className="mb-6 flex justify-center md:hidden">
             <Logo />
           </Link>
 
