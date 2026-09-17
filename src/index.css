@@ -46,6 +46,16 @@
   body {
     @apply bg-brand-cream font-body text-brand-ink;
   }
+
+  #smooth-wrapper {
+    overflow: hidden;
+    position: fixed;
+    inset: 0;
+  }
+  #smooth-content {
+    overflow: visible;
+    width: 100%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
