@@ -1,0 +1,27 @@
+import { PageHeader } from "../components/layout/PageHeader";
+import { CourseCard } from "../components/domain/CourseCard";
+import { EmptyState } from "../components/ui/EmptyState";
+import { ErrorState } from "../components/ui/ErrorState";
+import { Skeleton } from "../components/ui/Skeleton";
+import { BookOpenIcon } from "../components/ui/DashIcons";
+import { useMyCourses } from "../features/dashboard/queries";
+
+export default function LearningPage() {
+  const q = useMyCourses();
+  return (
+    <>
+      <PageHeader title="Pembelajaran" subtitle="Semua course dari room yang kamu ikuti." />
+      {q.isPending ? (
+        <div aria-busy="true" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{Array.from({ length: 3 }, (_, i) => <Skeleton key={i} className="h-52 rounded-3xl" />)}</div>
+      ) : q.isError ? (
+        <ErrorState onRetry={() => q.refetch()} />
+      ) : q.data.length === 0 ? (
+        <EmptyState icon={<BookOpenIcon />} title="Belum ada pembelajaran." description="Gabung ke room gurumu, lalu course yang sudah dipublikasikan muncul di sini." />
+      ) : (
+        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {q.data.map((c) => <li key={c.id}><CourseCard course={c} /></li>)}
+        </ul>
+      )}
+    </>
+  );
+}

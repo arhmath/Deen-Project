@@ -5,7 +5,7 @@ import type { RegisterFormValues } from "../lib/validation/authSchemas";
 import type { RegisterRequest } from "../types/auth";
 import heroRegister from "../assets/heroregister1.jpg";
 
-export default function RegisterPage() {
+export function RegisterPage() {
   const navigate = useNavigate();
 
   // TODO: replace with the real auth mutation from `features/auth`
@@ -46,3 +46,5 @@ export default function RegisterPage() {
     </AuthLayout>
   );
 }
+
+export default RegisterPage;

@@ -1,20 +1,25 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { AuthLayout } from "../components/layout/AuthLayout";
 import { LoginForm } from "../features/auth/LoginForm";
+import { homePathFor, useLogin, useMe } from "../features/auth/useAuth";
 import type { LoginFormValues } from "../lib/validation/authSchemas";
+import { USE_MOCK } from "../services/api";
+import { DEMO_PASSWORD } from "../services/mock/data";
 import heroLogin from "../assets/herologin.jpg";
 
-export default function LoginPage() {
+export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const me = useMe();
+  const login = useLogin();
+  const from = (location.state as { from?: string } | null)?.from;
 
-  // TODO: replace with the real auth mutation from `features/auth`
-  // (POST /auth/login via the shared `api` client + TanStack Query),
-  // store the access/refresh token via the auth store, then redirect
-  // based on role (SANTRI/PARENT/ADMIN) per 06-FRONTEND-ARCHITECTURE.md.
+  // Sudah punya sesi valid → langsung ke beranda role-nya
+  if (me.data) return <Navigate to={homePathFor(me.data.role)} replace />;
+
   async function handleLogin(values: LoginFormValues) {
-    await new Promise((resolve) => setTimeout(resolve, 900));
-    console.log("login payload", values);
-    navigate("/dashboard");
+    const res = await login.mutateAsync({ identifier: values.identifier, password: values.password });
+    navigate(from ?? homePathFor(res.user.role), { replace: true });
   }
 
   return (
@@ -28,10 +33,22 @@ export default function LoginPage() {
       imagePosition="right"
       footer={
         <>
-          Belum punya akun?{" "}
-          <Link to="/register" className="font-bold text-brand-purple hover:underline">
-            Daftar di sini
-          </Link>
+          <p>
+            Belum punya akun?{" "}
+            <Link to="/register" className="font-bold text-brand-purple hover:underline">
+              Daftar di sini
+            </Link>
+          </p>
+          {USE_MOCK && (
+            <div className="mt-5 rounded-2xl border-2 border-dashed border-brand-purple/30 bg-brand-purple/5 p-3 text-left text-xs">
+              <p className="font-display font-extrabold text-brand-purple">Akun demo (password: {DEMO_PASSWORD})</p>
+              <ul className="mt-1 space-y-0.5 text-brand-ink/70">
+                <li><strong>ahmad_santri</strong> — Santri</li>
+                <li><strong>bunda_ahmad</strong> — Orang Tua</li>
+                <li><strong>ustadz_hakim</strong> — Guru</li>
+              </ul>
+            </div>
+          )}
         </>
       }
     >
@@ -39,3 +56,5 @@ export default function LoginPage() {
     </AuthLayout>
   );
 }
+
+export default LoginPage;

@@ -8,7 +8,7 @@ import { Testimonials } from "../components/landing/Testimonials";
 import { CtaBanner } from "../components/landing/CtaBanner";
 import { LandingFooter } from "../components/landing/LandingFooter";
 
-export default function LandingPage() {
+export function LandingPage() {
   useEffect(() => {
     // Memaksa GSAP menghitung ulang posisi SETELAH browser selesai menggambar elemen
     const timer = setTimeout(() => {
@@ -32,3 +32,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+export default LandingPage;
