@@ -2,8 +2,6 @@
  * DATA CONTOH (dummy) — ganti/hapus saat backend sudah ada.
  * Judul course di bawah hanya placeholder; materi final ditentukan sendiri.
  */
-import type { ContentType } from "../../types/learning";
-
 export const DEMO_PASSWORD = "deen1234";
 
 export const LEVELS = [
@@ -17,6 +15,11 @@ export const LEVELS = [
 /** Konfigurasi reward — hidup di "server", bukan di komponen UI (BR-007/008, SRS §6). */
 export const REWARD_CONFIG = {
   DAILY_CHECKIN: { xp: 10, point: 10 },
+  LESSON: { xp: 5, point: 5 },
+  QUIZ: { xp: 20, point: 20 },
+  PERFECT_QUIZ: { xp: 30, point: 30 },
+  CHALLENGE: { xp: 50, point: 50 },
+  COURSE: { xp: 100, point: 100 },
 } as const;
 
 export const ROOMS = [
@@ -47,7 +50,7 @@ export interface RosterStudent {
 export const ROSTER: RosterStudent[] = [
   { id: "s-r1", name: "Zahra Nabila", username: "zahra_n", roomId: "r1", xp: 640, streak: 12, courseProgress: 88, avgScore: 94, lastActiveDaysAgo: 0, checkedInToday: true },
   { id: "s-r2", name: "Umar Hakim", username: "umar_h", roomId: "r2", xp: 590, streak: 9, courseProgress: 81, avgScore: 90, lastActiveDaysAgo: 0, checkedInToday: true },
-  { id: "s-aisyah", name: "Aisyah Putri", username: "aisyah_p", roomId: "r2", xp: 535, streak: 7, courseProgress: 74, avgScore: 92, lastActiveDaysAgo: 0, checkedInToday: true },
+  { id: "s-aisyah", name: "Aisyah Putri", username: "aisyah_p", roomId: "r1", xp: 535, streak: 7, courseProgress: 74, avgScore: 92, lastActiveDaysAgo: 0, checkedInToday: true },
   { id: "s-r4", name: "Fatimah Azzahra", username: "fatimah_a", roomId: "r1", xp: 480, streak: 5, courseProgress: 70, avgScore: 86, lastActiveDaysAgo: 1, checkedInToday: false },
   { id: "s-r5", name: "Yusuf Ramadhan", username: "yusuf_r", roomId: "r2", xp: 430, streak: 4, courseProgress: 62, avgScore: 84, lastActiveDaysAgo: 0, checkedInToday: true },
   { id: "s-r6", name: "Khadijah Safira", username: "khadijah_s", roomId: "r1", xp: 385, streak: 3, courseProgress: 58, avgScore: 88, lastActiveDaysAgo: 1, checkedInToday: false },
@@ -63,30 +66,6 @@ export const ROSTER: RosterStudent[] = [
   { id: "s-r16", name: "Faris Naufal", username: "faris_n", roomId: "r1", xp: 70, streak: 0, courseProgress: 10, avgScore: 60, lastActiveDaysAgo: 3, checkedInToday: false },
   { id: "s-r17", name: "Naila Syakira", username: "naila_s", roomId: "r2", xp: 45, streak: 1, courseProgress: 6, avgScore: 70, lastActiveDaysAgo: 1, checkedInToday: false },
   { id: "s-r18", name: "Daffa Ardiansyah", username: "daffa_a", roomId: "r1", xp: 20, streak: 0, courseProgress: 3, avgScore: 55, lastActiveDaysAgo: 7, checkedInToday: false },
-];
-
-export interface CourseSeed {
-  id: string;
-  title: string;
-  description: string;
-  total: number;
-  /** progres Ahmad (jumlah content selesai) */
-  done: number;
-  next: { id: string; title: string; type: ContentType; rewardXp: number } | null;
-}
-
-export const COURSES: CourseSeed[] = [
-  { id: "c1", title: "Mengenal Huruf Hijaiyah", description: "Kenali bentuk dan bunyi huruf satu per satu.", total: 10, done: 10, next: null },
-  { id: "c2", title: "Kisah Para Nabi", description: "Cerita teladan para nabi dengan pilihan yang bisa kamu tentukan sendiri.", total: 10, done: 6, next: { id: "c2-7", title: "Kisah Nabi Ibrahim: Ujian Keimanan", type: "LESSON", rewardXp: 5 } },
-  { id: "c3", title: "Asmaul Husna", description: "Kumpulkan kartu nama-nama Allah dan pahami maknanya.", total: 10, done: 2, next: { id: "c3-3", title: "Ar-Rahman dan Ar-Rahim", type: "FLASHCARD", rewardXp: 5 } },
-  { id: "c4", title: "Akhlak Sehari-hari", description: "Latihan memilih sikap yang baik di berbagai situasi.", total: 10, done: 0, next: { id: "c4-1", title: "Adab Pagi Hari", type: "LESSON", rewardXp: 5 } },
-];
-
-export const QUIZ_SCORES = [
-  { id: "q1", title: "Kuis: Huruf Hijaiyah 1", score: 90, daysAgo: 6 },
-  { id: "q2", title: "Kuis: Huruf Hijaiyah 2", score: 100, daysAgo: 5 },
-  { id: "q3", title: "Kuis: Huruf Hijaiyah 3", score: 80, daysAgo: 4 },
-  { id: "q4", title: "Kuis: Kisah Nabi Adam", score: 85, daysAgo: 2 },
 ];
 
 export const WEEK_LABELS = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];

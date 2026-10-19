@@ -13,6 +13,7 @@ import { CourseCard } from "../components/domain/CourseCard";
 import { XPProgress } from "../components/domain/XPProgress";
 import { CheckInCard } from "../features/gamification/CheckInCard";
 import { MiniLeaderboard } from "../features/dashboard/MiniLeaderboard";
+import { JoinRoomCard } from "../features/rooms/JoinRoomCard";
 import { CoinIcon, TrophyIcon, BookOpenIcon } from "../components/ui/DashIcons";
 import { FlameIcon, SparkleIcon } from "../components/landing/DecorativeIcons";
 import { formatNumber, greeting } from "../utils/format";
@@ -85,11 +86,13 @@ function SantriDashboard() {
                   <StatTile icon={<TrophyIcon />} iconClassName="bg-brand-gold/25 text-brand-gold-dark" label="Skor rata-rata" value={stats.avgScore} />
                 </div>
               </div>
+            ) : q.data.roomCount === 0 ? (
+              <JoinRoomCard />
             ) : (
               <EmptyState
                 title="Belum ada pembelajaran"
-                description="Gabung ke room gurumu dengan kode gabung, lalu course akan muncul di sini."
-                action={<Link to="/learning"><Button size="sm">Lihat pembelajaran</Button></Link>}
+                description="Gurumu belum mempublikasikan course di room kamu. Coba lagi nanti ya."
+                action={<Link to="/learning"><Button size="sm" variant="outline">Lihat pembelajaran</Button></Link>}
               />
             )}
           </section>

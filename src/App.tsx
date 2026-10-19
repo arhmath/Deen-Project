@@ -18,6 +18,12 @@ const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminMonitoring = lazy(() => import("./pages/admin/AdminMonitoring"));
 const ParentStudentsPage = lazy(() => import("./pages/parent/ParentStudentsPage"));
 const ParentStudentDetail = lazy(() => import("./pages/parent/ParentStudentDetail"));
+const CourseDetailPage = lazy(() => import("./pages/learning/CourseDetailPage"));
+const ContentPage = lazy(() => import("./pages/learning/ContentPage"));
+const AdminRooms = lazy(() => import("./pages/admin/AdminRooms"));
+const AdminRoomDetail = lazy(() => import("./pages/admin/AdminRoomDetail"));
+const AdminCourses = lazy(() => import("./pages/admin/AdminCourses"));
+const AdminCourseEditor = lazy(() => import("./pages/admin/AdminCourseEditor"));
 
 const soon = (title: string, description: string) => <ComingSoonPage title={title} description={description} />;
 
@@ -59,8 +65,8 @@ function App() {
             <Route element={<RequireAuth roles={["SANTRI"]} />}>
               <Route path="/maps" element={soon("Maps", "Peta TPA, masjid, dan tempat belajar di sekitarmu akan hadir di sini.")} />
               <Route path="/learning" element={<LearningPage />} />
-              <Route path="/learning/:courseId" element={soon("Detail course", "Daftar modul dan materi course akan tampil di sini.")} />
-              <Route path="/learning/:courseId/content/:contentId" element={soon("Materi", "Pelajaran, kuis, dan kartu belajar akan dibuka di sini.")} />
+              <Route path="/learning/:courseId" element={<CourseDetailPage/>} />
+              <Route path="/learning/:courseId/content/:contentId" element={<ContentPage />} />
             </Route>
 
             <Route element={<RequireAuth roles={["PARENT"]} />}>
@@ -70,10 +76,10 @@ function App() {
 
             <Route element={<RequireAuth roles={["ADMIN"]} />}>
               <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/rooms" element={soon("Rooms", "Buat room, bagikan kode gabung, dan kelola anggota di sini.")} />
-              <Route path="/admin/rooms/:roomId" element={soon("Detail room", "Anggota dan course room akan tampil di sini.")} />
-              <Route path="/admin/courses" element={soon("Pembelajaran", "Buat course, atur modul, dan publikasikan di sini.")} />
-              <Route path="/admin/courses/:courseId" element={soon("Detail course", "Editor modul dan materi akan hadir di sini.")} />
+              <Route path="/admin/rooms" element={<AdminRooms />} />
+              <Route path="/admin/rooms/:roomId" element={<AdminRoomDetail />} />
+              <Route path="/admin/courses" element={<AdminCourses />} />
+              <Route path="/admin/courses/:courseId" element={<AdminCourseEditor />} />
               <Route path="/admin/monitoring" element={<AdminMonitoring />} />
             </Route>
           </Route>

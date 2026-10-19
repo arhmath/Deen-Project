@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authService } from "../../services/authService";
 import { tokenStore } from "../../services/tokenStore";
 import type { Role, SessionUser } from "../../types/user";
+import type { RegisterRequest } from "../../types/auth";
 
 export const ME_KEY = ["auth", "me"] as const;
 
@@ -38,6 +39,22 @@ export function useLogout() {
     onSettled: () => {
       tokenStore.clear();
       qc.clear();
+    },
+  });
+}
+
+/** Daftar, lalu langsung masuk (satu klik untuk pengguna). 409/422 diteruskan ke form sebagai ApiError. */
+export function useRegister() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: RegisterRequest) => {
+      await authService.register(payload);
+      return authService.login({ identifier: payload.username, password: payload.password });
+    },
+    onSuccess: (res) => {
+      tokenStore.set(res.accessToken);
+      qc.clear();
+      qc.setQueryData<SessionUser>(ME_KEY, res.user);
     },
   });
 }

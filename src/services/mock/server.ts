@@ -7,6 +7,7 @@
 import { ApiError } from "../api";
 import { dayKey } from "../../utils/format";
 import type { Role, SessionUser, LoginResponse } from "../../types/user";
+import type { RegisterRequest } from "../../types/auth";
 import type {
   CheckInResult,
   GamificationSummary,
@@ -24,13 +25,44 @@ import type {
   StudentListPage,
   StudentProgress,
 } from "../../types/monitoring";
+import type {
+  ContentDetail,
+  CourseDetail,
+  QuizAttempt,
+  QuizResult,
+  RewardOutcome,
+} from "../../types/content";
+import type { ContentType } from "../../types/learning";
+import type { QuizScore } from "../../types/monitoring";
+import { SEED_COMPLETED, SEED_QUIZ_SCORES } from "./content";
 import {
-  COURSES,
+  activeRoomIds,
+  courseContentsOf,
+  createCourse,
+  createRoom,
+  findContentIn,
+  getWorld,
+  joinRoom,
+  linkChild,
+  linkCodeFor,
+  linkedChildIds,
+  ownedRoomOrThrow,
+  removeMember,
+  resetWorld,
+  roomById,
+  saveCourse,
+  updateRoom,
+  visibleCourses,
+  type CourseRec,
+  type RoomRec,
+  type World,
+} from "./world";
+import type { CourseAdminSummary, CourseDoc, QuestionDoc } from "../../types/courseAdmin";
+import type { RoomAdminSummary, RoomDetail } from "../../types/room";
+import {
   DEMO_PASSWORD,
   LEVELS,
-  QUIZ_SCORES,
   REWARD_CONFIG,
-  ROOMS,
   ROSTER,
   USERS,
   WEEK_LABELS,
@@ -40,13 +72,23 @@ import {
 /* State persisten (localStorage) — meniru tabel ledger & check-in      */
 /* ------------------------------------------------------------------ */
 
-const STATE_KEY = "deen.mock.v1";
+const STATE_KEY = "deen.mock.v2";
 const AHMAD_ID = "s-ahmad";
-const AHMAD_ROOM = "r1";
+
+interface StoredQuizScore {
+  contentId: string;
+  /** skor terbaik */
+  score: number;
+  /** waktu percobaan terakhir */
+  takenAt: string;
+}
 
 interface MockState {
   checkIns: string[];
   ledger: RewardEntry[];
+  /** id content yang sudah selesai (unik per santri/content — SRS §9) */
+  completed: string[];
+  quizScores: StoredQuizScore[];
 }
 
 function daysAgoAt(daysAgo: number, hour: number): Date {
@@ -91,44 +133,126 @@ function seedState(): MockState {
   return {
     checkIns: [dayKey(daysAgoAt(1, 7)), dayKey(daysAgoAt(2, 7)), dayKey(daysAgoAt(3, 7))],
     ledger,
+    completed: [...SEED_COMPLETED],
+    quizScores: SEED_QUIZ_SCORES.map((q) => ({
+      contentId: q.contentId,
+      score: q.score,
+      takenAt: daysAgoAt(q.daysAgo, 16).toISOString(),
+    })),
   };
 }
 
-let memoryState: MockState | null = null;
+/** Santri yang sedang membuat request (diset di route() setelah autentikasi). */
+const ctx = { studentId: AHMAD_ID };
+const states = new Map<string, MockState>();
 
-function loadState(): MockState {
-  if (memoryState) return memoryState;
+const stateKeyFor = (id: string) => (id === AHMAD_ID ? STATE_KEY : `deen.mock.s.${id}.v1`);
+const emptyState = (): MockState => ({ checkIns: [], ledger: [], completed: [], quizScores: [] });
+/** Santri hasil register punya id berawalan "s-u-" dan mulai dari state kosong. */
+const isRegisteredStudent = (id: string) => id.startsWith("s-u-");
+const hasOwnState = (id: string) => id === AHMAD_ID || isRegisteredStudent(id);
+
+function saveStateFor(id: string, s: MockState) {
+  states.set(id, s);
   try {
-    const raw = localStorage.getItem(STATE_KEY);
+    localStorage.setItem(stateKeyFor(id), JSON.stringify(s));
+  } catch {
+    /* noop */
+  }
+}
+
+function stateFor(id: string): MockState {
+  const cached = states.get(id);
+  if (cached) return cached;
+  try {
+    const raw = localStorage.getItem(stateKeyFor(id));
     if (raw) {
-      memoryState = JSON.parse(raw) as MockState;
-      return memoryState;
+      const parsed = JSON.parse(raw) as Partial<MockState>;
+      if (Array.isArray(parsed.completed) && Array.isArray(parsed.quizScores)) {
+        states.set(id, parsed as MockState);
+        return parsed as MockState;
+      }
     }
   } catch {
     /* fallthrough ke seed */
   }
-  memoryState = seedState();
-  saveState(memoryState);
-  return memoryState;
+  const fresh = id === AHMAD_ID ? seedState() : emptyState();
+  saveStateFor(id, fresh);
+  return fresh;
 }
 
-function saveState(s: MockState) {
-  memoryState = s;
-  try {
-    localStorage.setItem(STATE_KEY, JSON.stringify(s));
-  } catch {
-    /* noop */
-  }
-}
+const loadState = () => stateFor(ctx.studentId);
+const saveState = (s: MockState) => saveStateFor(ctx.studentId, s);
 
-/** Dipakai tombol "Reset data demo" di halaman Profil. */
+/** Dipakai tombol "Reset data demo": menghapus PROGRES semua santri. Akun hasil register tetap ada. */
 export function resetMockState() {
-  memoryState = null;
+  resetWorld();
+  states.clear();
   try {
-    localStorage.removeItem(STATE_KEY);
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && (k === STATE_KEY || k.startsWith("deen.mock.s."))) localStorage.removeItem(k);
+    }
   } catch {
     /* noop */
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Akun hasil register (disimpan di localStorage — HANYA untuk mock)    */
+/* ------------------------------------------------------------------ */
+
+interface RegisteredUser {
+  id: string;
+  name: string;
+  username: string;
+  email?: string;
+  /** MOCK ONLY. Backend asli wajib menyimpan hash, bukan password asli (FR-AUTH-3). */
+  password: string;
+  role: "SANTRI" | "PARENT";
+  createdAt: string;
+}
+
+const USERS_KEY = "deen.mock.users.v1";
+
+function loadRegistered(): RegisteredUser[] {
+  try {
+    const raw = localStorage.getItem(USERS_KEY);
+    return raw ? (JSON.parse(raw) as RegisteredUser[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRegistered(list: RegisteredUser[]) {
+  try {
+    localStorage.setItem(USERS_KEY, JSON.stringify(list));
+  } catch {
+    /* noop */
+  }
+}
+
+interface Account {
+  id: string;
+  name: string;
+  username: string;
+  email?: string;
+  role: Role;
+  studentId?: string;
+  children?: string[];
+}
+
+function allAccounts(): Account[] {
+  const demo: Account[] = USERS.map((u) => ({ ...u }));
+  const registered: Account[] = loadRegistered().map((u) => ({
+    id: u.id,
+    name: u.name,
+    username: u.username,
+    email: u.email,
+    role: u.role,
+    studentId: u.role === "SANTRI" ? `s-${u.id}` : undefined,
+  }));
+  return [...demo, ...registered];
 }
 
 /* ------------------------------------------------------------------ */
@@ -224,38 +348,64 @@ function gamificationOf(s: MockState): GamificationSummary {
 /* Data santri / course                                                */
 /* ------------------------------------------------------------------ */
 
-const roomName = (id: string) => ROOMS.find((r) => r.id === id)?.name ?? "-";
 const iso = (daysAgo: number) => daysAgoAt(daysAgo, 12).toISOString();
 
-function allStudents(): StudentProgress[] {
-  const s = loadState();
-  const t = totals(s);
-  const todayChecked = s.checkIns.includes(dayKey());
-  const ahmadLastActive = s.ledger.length
-    ? s.ledger.reduce((a, r) => (r.createdAt > a ? r.createdAt : a), s.ledger[0]!.createdAt)
-    : iso(0);
-  const ahmad: StudentProgress = {
-    id: AHMAD_ID,
-    name: "Ahmad Fauzi",
-    username: "ahmad_santri",
-    roomName: roomName(AHMAD_ROOM),
-    level: levelFor(t.xp).level,
-    levelName: levelFor(t.xp).name,
+const NO_ROOM = "Belum bergabung room";
+
+/** Nama room pertama yang aktif untuk santri (untuk ditampilkan di tabel/kartu). */
+function roomNameOf(studentId: string): string {
+  const w = getWorld();
+  const first = activeRoomIds(w, studentId)[0];
+  return (first && roomById(w, first)?.name) || NO_ROOM;
+}
+
+/** Persentase materi (dari course yang terlihat oleh santri) yang sudah selesai. */
+function progressPct(studentId: string, completed: string[]): number {
+  const ids = visibleCourses(getWorld(), studentId).flatMap((c) => courseContentsOf(c).map((x) => x.id));
+  if (ids.length === 0) return 0;
+  return Math.round((ids.filter((id) => completed.includes(id)).length / ids.length) * 100);
+}
+
+function ownProgress(
+  id: string,
+  name: string,
+  username: string,
+  st: MockState,
+  joinedAt: string
+): StudentProgress {
+  const t = totals(st);
+  const lv = levelFor(t.xp);
+  const lastActive = st.ledger.length
+    ? st.ledger.reduce((a, r) => (r.createdAt > a ? r.createdAt : a), st.ledger[0]!.createdAt)
+    : joinedAt;
+  return {
+    id,
+    name,
+    username,
+    roomName: roomNameOf(id),
+    level: lv.level,
+    levelName: lv.name,
     xp: t.xp,
     point: t.point,
-    streak: currentStreak(s.checkIns),
-    courseProgress: Math.round((COURSES.reduce((a, c) => a + c.done, 0) / (COURSES.length * 10)) * 100),
-    avgScore: Math.round(QUIZ_SCORES.reduce((a, q) => a + q.score, 0) / QUIZ_SCORES.length),
-    lastActiveAt: ahmadLastActive,
-    checkedInToday: todayChecked,
+    streak: currentStreak(st.checkIns),
+    courseProgress: progressPct(id, st.completed),
+    avgScore: st.quizScores.length
+      ? Math.round(st.quizScores.reduce((a, q) => a + q.score, 0) / st.quizScores.length)
+      : 0,
+    lastActiveAt: lastActive,
+    checkedInToday: st.checkIns.includes(dayKey()),
   };
+}
+
+function allStudents(): StudentProgress[] {
+  const ahmad = ownProgress(AHMAD_ID, "Ahmad Fauzi", "ahmad_santri", stateFor(AHMAD_ID), iso(0));
   const others = ROSTER.map<StudentProgress>((r) => {
     const lv = levelFor(r.xp);
     return {
       id: r.id,
       name: r.name,
       username: r.username,
-      roomName: roomName(r.roomId),
+      roomName: roomNameOf(r.id),
       level: lv.level,
       levelName: lv.name,
       xp: r.xp,
@@ -267,40 +417,81 @@ function allStudents(): StudentProgress[] {
       checkedInToday: r.checkedInToday,
     };
   });
-  return [ahmad, ...others];
+  const registered = loadRegistered()
+    .filter((u) => u.role === "SANTRI")
+    .map((u) => ownProgress(`s-${u.id}`, u.name, u.username, stateFor(`s-${u.id}`), u.createdAt));
+  return [ahmad, ...others, ...registered];
 }
 
-const roomIdOf = (st: StudentProgress) =>
-  ROOMS.find((r) => r.name === st.roomName)?.id ?? AHMAD_ROOM;
+const ownStudent = () => allStudents().find((x) => x.id === ctx.studentId)!;
+
+/** Santri yang menjadi anggota room (aktif) milik guru — dasar monitoring (BR-004). */
+function studentsOfOwner(ownerId: string, onlyRoomId?: string): StudentProgress[] {
+  const w = getWorld();
+  const rooms = w.rooms.filter((r) => r.ownerId === ownerId && !r.archived && (!onlyRoomId || r.id === onlyRoomId));
+  const roomIds = new Set(rooms.map((r) => r.id));
+  const ids = new Set(w.memberships.filter((m) => roomIds.has(m.roomId)).map((m) => m.studentId));
+  return allStudents().filter((s) => ids.has(s.id));
+}
+
+const rewardXpFor = (type: ContentType) =>
+  type === "QUIZ" ? REWARD_CONFIG.QUIZ.xp : type === "CHALLENGE" ? REWARD_CONFIG.CHALLENGE.xp : REWARD_CONFIG.LESSON.xp;
 
 function coursesFor(student: StudentProgress): CourseSummary[] {
-  const isAhmad = student.id === AHMAD_ID;
-  let remaining = Math.round((student.courseProgress / 100) * COURSES.length * 10);
-  return COURSES.map((c) => {
+  const w = getWorld();
+  const stateful = hasOwnState(student.id);
+  const completed = stateful ? stateFor(student.id).completed : [];
+  const visible = visibleCourses(w, student.id);
+  const totalAll = visible.reduce((a, c) => a + courseContentsOf(c).length, 0);
+  // Santri dummy (tanpa akun) memakai persentase tetap yang disebar berurutan.
+  let remaining = Math.round((student.courseProgress / 100) * totalAll);
+  return visible.map((c) => {
+    const list = courseContentsOf(c);
     let done: number;
-    if (isAhmad) done = c.done;
+    let next = list.find((x) => !completed.includes(x.id));
+    if (stateful) done = list.filter((x) => completed.includes(x.id)).length;
     else {
-      done = Math.min(c.total, remaining);
+      done = Math.min(list.length, remaining);
       remaining -= done;
+      next = list[done];
     }
-    const nextContent = done >= c.total ? null : c.next ?? null;
     return {
       id: c.id,
       title: c.title,
       description: c.description,
-      roomName: student.roomName,
-      status: "PUBLISHED",
-      totalContents: c.total,
+      roomName: roomById(w, c.roomId)?.name ?? "-",
+      status: c.status,
+      totalContents: list.length,
       completedContents: done,
-      progressPercent: Math.round((done / c.total) * 100),
-      nextContent,
+      progressPercent: list.length ? Math.round((done / list.length) * 100) : 0,
+      nextContent:
+        done >= list.length || !next
+          ? null
+          : { id: next.id, title: next.title, type: next.type, rewardXp: rewardXpFor(next.type) },
     };
   });
 }
 
+function quizScoresFor(st: StudentProgress): QuizScore[] {
+  const title = (id: string) => findContentIn(getWorld(), id)?.content.title ?? id;
+  if (hasOwnState(st.id)) {
+    return [...stateFor(st.id).quizScores]
+      .sort((a, b) => (a.takenAt < b.takenAt ? 1 : -1))
+      .slice(0, 4)
+      .map((q) => ({ id: q.contentId, title: title(q.contentId), score: q.score, takenAt: q.takenAt }));
+  }
+  const ids = ["c1-4", "c1-8", "c1-10", "c2-2"];
+  return ids.map((id, i) => ({
+    id,
+    title: title(id),
+    score: Math.max(40, Math.min(100, st.avgScore + [5, 10, -5, 0][i]!)),
+    takenAt: iso([6, 5, 4, 2][i]!),
+  }));
+}
+
 function rewardsFor(student: StudentProgress, limit = 6): RewardEntry[] {
-  if (student.id === AHMAD_ID) {
-    return [...loadState().ledger]
+  if (hasOwnState(student.id)) {
+    return [...stateFor(student.id).ledger]
       .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
       .slice(0, limit);
   }
@@ -334,12 +525,12 @@ interface MockReq {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-function toSession(u: (typeof USERS)[number]): SessionUser {
+function toSession(u: Account): SessionUser {
   return { id: u.id, name: u.name, username: u.username, email: u.email, role: u.role };
 }
 
-function authUser(token: string | null): (typeof USERS)[number] {
-  const u = token?.startsWith("mock.") ? USERS.find((x) => x.id === token.slice(5)) : undefined;
+function authUser(token: string | null): Account {
+  const u = token?.startsWith("mock.") ? allAccounts().find((x) => x.id === token.slice(5)) : undefined;
   if (!u) throw new ApiError("Sesi berakhir. Silakan masuk lagi.", 401);
   return u;
 }
@@ -355,17 +546,17 @@ function paginate<T>(items: T[], page: number, pageSize: number) {
 
 function leaderboard(
   req: MockReq,
-  user: (typeof USERS)[number]
+  user: Account
 ): LeaderboardPage {
   const page = Math.max(1, Number(req.params.page ?? 1));
   const pageSize = Math.min(50, Math.max(1, Number(req.params.pageSize ?? 10)));
   const roomId = req.params.roomId;
 
   let pool = allStudents();
-  if (roomId) pool = pool.filter((s) => roomIdOf(s) === roomId);
+  if (roomId) pool = pool.filter((s) => activeRoomIds(getWorld(), s.id).includes(roomId));
   pool.sort((a, b) => b.xp - a.xp || a.name.localeCompare(b.name));
 
-  const myId = user.role === "SANTRI" ? AHMAD_ID : null;
+  const myId = user.role === "SANTRI" ? ctx.studentId : null;
   const ranked: LeaderboardEntry[] = pool.map((s, i) => ({
     rank: i + 1,
     studentId: s.id,
@@ -389,16 +580,326 @@ function needsAttention(s: StudentProgress): boolean {
   return days >= 3;
 }
 
+
+/* ------------------------------------------------------------------ */
+/* Konten, kuis, dan reward belajar                                    */
+/* ------------------------------------------------------------------ */
+
+interface Grant {
+  id: string;
+  source: RewardSource;
+  label: string;
+  xp: number;
+  point: number;
+}
+
+/** Terapkan reward ke ledger secara idempotent (id ledger unik → tidak pernah dobel). */
+function applyGrants(
+  state: MockState,
+  patch: Partial<Pick<MockState, "completed" | "quizScores">>,
+  grants: Grant[],
+  courseCompleted: boolean
+): RewardOutcome {
+  const before = levelFor(totals(state).xp);
+  const now = new Date().toISOString();
+  const fresh = grants.filter((g) => !state.ledger.some((r) => r.id === g.id));
+  const next: MockState = {
+    ...state,
+    ...patch,
+    ledger: [
+      ...state.ledger,
+      ...fresh.map<RewardEntry>((g) => ({
+        id: g.id,
+        source: g.source,
+        label: g.label,
+        xp: g.xp,
+        point: g.point,
+        createdAt: now,
+      })),
+    ],
+  };
+  saveState(next);
+  const after = levelFor(totals(next).xp);
+  return {
+    alreadyRewarded: fresh.length === 0,
+    grants: fresh.map((g) => ({ label: g.label, xp: g.xp, point: g.point })),
+    totalXp: fresh.reduce((a, g) => a + g.xp, 0),
+    totalPoint: fresh.reduce((a, g) => a + g.point, 0),
+    levelUp: after.level > before.level ? { from: before.level, to: after.level, name: after.name } : null,
+    courseCompleted: courseCompleted && fresh.some((g) => g.source === "COURSE"),
+    gamification: gamificationOf(next),
+  };
+}
+
+function courseGrant(courseId: string, title: string): Grant {
+  return {
+    id: `course-${courseId}`,
+    source: "COURSE",
+    label: `Menyelesaikan course ${title}`,
+    ...REWARD_CONFIG.COURSE,
+  };
+}
+
+interface AttemptRecord {
+  contentId: string;
+  /** snapshot soal saat attempt dimulai — edit guru di tengah kuis tidak merusak attempt */
+  questions: QuestionDoc[];
+  result?: QuizResult;
+}
+const attempts = new Map<string, AttemptRecord>();
+let attemptSeq = 0;
+
+const NOT_AVAILABLE =
+  "Materi ini belum tersedia untukmu. Pastikan kamu sudah bergabung di room-nya dan course sudah dipublikasikan.";
+
+/** BR-005 & BR-013: hanya course PUBLISHED dari room aktif yang diikuti. */
+function requireVisibleCourse(courseId: string): CourseRec {
+  const w = getWorld();
+  const course = w.courses.find((c) => c.id === courseId);
+  if (!course) throw new ApiError("Course tidak ditemukan.", 404);
+  if (!visibleCourses(w, ctx.studentId).some((c) => c.id === courseId)) throw new ApiError(NOT_AVAILABLE, 403);
+  return course;
+}
+
+function requireContent(contentId: string) {
+  const w = getWorld();
+  const found = findContentIn(w, contentId);
+  if (!found) throw new ApiError("Materi tidak ditemukan.", 404);
+  requireVisibleCourse(found.course.id);
+  return found;
+}
+
+function contentDetail(contentId: string): ContentDetail {
+  const { course, content, index, list } = requireContent(contentId);
+  const state = loadState();
+  const detail: ContentDetail = {
+    id: content.id,
+    courseId: course.id,
+    courseTitle: course.title,
+    title: content.title,
+    type: content.type,
+    rewardXp: rewardXpFor(content.type),
+    completed: state.completed.includes(content.id),
+    position: { index: index + 1, total: list.length },
+    prevId: list[index - 1]?.id ?? null,
+    nextId: list[index + 1]?.id ?? null,
+  };
+  if (content.type === "LESSON") detail.lesson = { sections: content.sections };
+  if (content.type === "FLASHCARD") {
+    detail.flashcards = content.cards.map((c) => ({ id: c.id, front: c.front, back: c.back }));
+  }
+  if (content.type === "QUIZ") {
+    detail.quiz = {
+      questionCount: content.questions.length,
+      bestScore: state.quizScores.find((q) => q.contentId === content.id)?.score ?? null,
+    };
+  }
+  return detail;
+}
+
+function courseDetail(courseId: string): CourseDetail {
+  const course = requireVisibleCourse(courseId);
+  const state = loadState();
+  const list = courseContentsOf(course);
+  const done = list.filter((c) => state.completed.includes(c.id)).length;
+  const nextId = list.find((c) => !state.completed.includes(c.id))?.id;
+  return {
+    id: course.id,
+    title: course.title,
+    description: course.description,
+    roomName: roomById(getWorld(), course.roomId)?.name ?? "-",
+    status: course.status,
+    progressPercent: list.length ? Math.round((done / list.length) * 100) : 0,
+    completedContents: done,
+    totalContents: list.length,
+    modules: course.modules.map((m) => ({
+      id: m.id,
+      title: m.title,
+      contents: m.contents.map((c) => ({
+        id: c.id,
+        title: c.title,
+        type: c.type,
+        rewardXp: rewardXpFor(c.type),
+        completed: state.completed.includes(c.id),
+        isNext: c.id === nextId,
+      })),
+    })),
+  };
+}
+
+function completeContent(contentId: string): RewardOutcome {
+  const { course, content, list } = requireContent(contentId);
+  if (content.type === "QUIZ") {
+    throw new ApiError("Kuis diselesaikan lewat pengiriman jawaban.", 400);
+  }
+  const state = loadState();
+  if (state.completed.includes(content.id)) {
+    return applyGrants(state, {}, [], false); // retry/ulang → tanpa reward baru
+  }
+  const completed = [...state.completed, content.id];
+  const grants: Grant[] = [
+    {
+      id: `content-${content.id}`,
+      source: "LESSON",
+      label: `${content.type === "FLASHCARD" ? "Kartu belajar" : "Pelajaran"}: ${content.title}`,
+      ...REWARD_CONFIG.LESSON,
+    },
+  ];
+  const courseDone = list.every((c) => completed.includes(c.id));
+  if (courseDone) grants.push(courseGrant(course.id, course.title));
+  return applyGrants(state, { completed }, grants, courseDone);
+}
+
+function startAttempt(contentId: string): QuizAttempt {
+  const { content } = requireContent(contentId);
+  if (content.type !== "QUIZ") throw new ApiError("Materi ini bukan kuis.", 400);
+  if (content.questions.length === 0) throw new ApiError("Kuis ini belum punya soal.", 422);
+  const qs = content.questions.map((q) => ({ ...q, options: q.options.map((o) => ({ ...o })) }));
+  const attemptId = `att-${++attemptSeq}-${Date.now()}`;
+  attempts.set(attemptId, { contentId: content.id, questions: qs });
+  return {
+    attemptId,
+    contentId: content.id,
+    // kunci jawaban & penjelasan sengaja TIDAK dikirim (BR-009)
+    questions: qs.map((q) => ({ id: q.id, text: q.text, options: q.options })),
+  };
+}
+
+function submitAttempt(attemptId: string, answers: Record<string, string>): QuizResult {
+  const att = attempts.get(attemptId);
+  if (!att) throw new ApiError("Percobaan kuis tidak ditemukan. Mulai kuisnya lagi ya.", 404);
+  if (att.result) return att.result; // submit ulang → hasil yang sama, tanpa reward baru
+
+  const { course, content, list } = requireContent(att.contentId);
+  const questions = att.questions.map((q) => {
+    const selected = answers[q.id] ?? null;
+    return {
+      questionId: q.id,
+      text: q.text,
+      options: q.options,
+      selectedOptionId: selected,
+      correctOptionId: q.correctOptionId,
+      isCorrect: selected === q.correctOptionId,
+      explanation: q.explanation,
+    };
+  });
+  const correct = questions.filter((q) => q.isCorrect).length;
+  const total = questions.length;
+  const score = total ? Math.round((correct / total) * 100) : 0;
+  const perfect = total > 0 && correct === total;
+
+  const state = loadState();
+  const prev = state.quizScores.find((q) => q.contentId === content.id);
+  const bestScore = Math.max(prev?.score ?? 0, score);
+  const quizScores = [
+    ...state.quizScores.filter((q) => q.contentId !== content.id),
+    { contentId: content.id, score: bestScore, takenAt: new Date().toISOString() },
+  ];
+
+  let outcome: RewardOutcome;
+  if (state.completed.includes(content.id)) {
+    // Sudah pernah selesai: skor terbaik diperbarui, reward tidak diberikan lagi (BR-010)
+    outcome = applyGrants(state, { quizScores }, [], false);
+  } else {
+    const completed = [...state.completed, content.id];
+    const cfg = perfect ? REWARD_CONFIG.PERFECT_QUIZ : REWARD_CONFIG.QUIZ;
+    const grants: Grant[] = [
+      {
+        id: `content-${content.id}`,
+        source: perfect ? "PERFECT_QUIZ" : "QUIZ",
+        label: `${perfect ? "Kuis sempurna" : "Kuis"}: ${content.title}`,
+        ...cfg,
+      },
+    ];
+    const courseDone = list.every((c) => completed.includes(c.id));
+    if (courseDone) grants.push(courseGrant(course.id, course.title));
+    outcome = applyGrants(state, { completed, quizScores }, grants, courseDone);
+  }
+
+  const result: QuizResult = { attemptId, score, correct, total, perfect, bestScore, questions, outcome };
+  att.result = result;
+  return result;
+}
+
+/* ------------------------------------------------------------------ */
+/* Ringkasan untuk halaman guru                                        */
+/* ------------------------------------------------------------------ */
+
+function roomSummaryFor(w: World, r: RoomRec): RoomAdminSummary {
+  return {
+    id: r.id,
+    name: r.name,
+    joinCode: r.joinCode,
+    memberCount: w.memberships.filter((m) => m.roomId === r.id).length,
+    courseCount: w.courses.filter((c) => c.roomId === r.id).length,
+    archived: r.archived,
+    createdAt: r.createdAt,
+  };
+}
+
+function courseSummaryFor(w: World, c: CourseRec): CourseAdminSummary {
+  return {
+    id: c.id,
+    title: c.title,
+    roomId: c.roomId,
+    roomName: roomById(w, c.roomId)?.name ?? "-",
+    status: c.status,
+    moduleCount: c.modules.length,
+    contentCount: courseContentsOf(c).length,
+  };
+}
+
+const courseDocFor = (w: World, c: CourseRec): CourseDoc => ({ ...c, roomName: roomById(w, c.roomId)?.name ?? "-" });
+
 async function route<T>(req: MockReq): Promise<T> {
   const { method, path } = req;
-  const state = loadState();
 
   /* ---- auth ---- */
+  if (method === "POST" && path === "/auth/register") {
+    const b = (req.body ?? {}) as Partial<RegisterRequest>;
+    const name = (b.name ?? "").trim();
+    const username = (b.username ?? "").trim();
+    const email = (b.email ?? "").trim();
+    const password = b.password ?? "";
+    const fieldErrors: Record<string, string> = {};
+    // Validasi server-side (client juga memvalidasi, tapi server tidak boleh percaya klien)
+    if (name.length < 2 || name.length > 100) fieldErrors.name = "Nama harus 2–100 karakter.";
+    if (!/^[a-zA-Z0-9_.]{3,50}$/.test(username)) fieldErrors.username = "Username 3–50 karakter: huruf, angka, titik, underscore.";
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fieldErrors.email = "Format email tidak valid.";
+    if (password.length < 8 || password.length > 128) fieldErrors.password = "Password harus 8–128 karakter.";
+    if (b.role !== "SANTRI" && b.role !== "PARENT") fieldErrors.role = "Peran tidak diizinkan untuk pendaftaran.";
+    if (Object.keys(fieldErrors).length) throw new ApiError("Data pendaftaran belum valid.", 422, fieldErrors);
+
+    // BR-001: username/email unik (tidak peka huruf besar-kecil)
+    const accounts = allAccounts();
+    if (accounts.some((a) => a.username.toLowerCase() === username.toLowerCase())) {
+      throw new ApiError("Username sudah dipakai.", 409, { username: "Username sudah dipakai, coba yang lain." });
+    }
+    if (email && accounts.some((a) => a.email?.toLowerCase() === email.toLowerCase())) {
+      throw new ApiError("Email sudah terdaftar.", 409, { email: "Email ini sudah terdaftar. Coba masuk saja." });
+    }
+
+    const created: RegisteredUser = {
+      id: `u-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+      name,
+      username,
+      email: email || undefined,
+      password,
+      role: b.role,
+      createdAt: new Date().toISOString(),
+    };
+    saveRegistered([...loadRegistered(), created]);
+    const acct = allAccounts().find((a) => a.id === created.id)!;
+    return { user: toSession(acct) } as T;
+  }
+
   if (method === "POST" && path === "/auth/login") {
     const { identifier, password } = (req.body ?? {}) as { identifier?: string; password?: string };
     const id = (identifier ?? "").trim().toLowerCase();
-    const u = USERS.find((x) => x.username === id || x.email === id);
-    if (!u || password !== DEMO_PASSWORD) {
+    const u = allAccounts().find((x) => x.username.toLowerCase() === id || x.email?.toLowerCase() === id);
+    const registered = u ? loadRegistered().find((r) => r.id === u.id) : undefined;
+    const passwordOk = registered ? registered.password === password : password === DEMO_PASSWORD;
+    if (!u || !passwordOk) {
       throw new ApiError("Username/email atau password salah.", 401);
     }
     const res: LoginResponse = { accessToken: `mock.${u.id}`, user: toSession(u) };
@@ -407,23 +908,26 @@ async function route<T>(req: MockReq): Promise<T> {
   if (method === "POST" && path === "/auth/logout") return undefined as T;
 
   const user = authUser(req.token);
+  ctx.studentId = user.role === "SANTRI" ? (user.studentId ?? AHMAD_ID) : AHMAD_ID;
+  const state = loadState();
 
   if (method === "GET" && path === "/auth/me") return toSession(user) as T;
 
   /* ---- santri ---- */
   if (method === "GET" && path === "/me/dashboard") {
     requireRole(user, "SANTRI");
-    const me = allStudents()[0]!;
+    const me = ownStudent();
     const courses = coursesFor(me);
     const lb = leaderboard({ ...req, params: { pageSize: "50" } }, user);
     const res: SantriDashboard = {
+      roomCount: activeRoomIds(getWorld(), ctx.studentId).length,
       gamification: gamificationOf(state),
       rank: { position: lb.me?.rank ?? 0, total: lb.total },
       recentRewards: rewardsFor(me, 5),
       continueLearning: courses.find((c) => c.progressPercent < 100 && c.progressPercent > 0) ?? courses.find((c) => c.progressPercent < 100) ?? null,
       stats: {
         coursesCompleted: courses.filter((c) => c.progressPercent === 100).length,
-        quizzesDone: state.ledger.filter((r) => r.source === "QUIZ" || r.source === "PERFECT_QUIZ").length,
+        quizzesDone: state.quizScores.length,
         avgScore: me.avgScore,
       },
     };
@@ -446,6 +950,7 @@ async function route<T>(req: MockReq): Promise<T> {
     }
     const { xp, point } = REWARD_CONFIG.DAILY_CHECKIN;
     const next: MockState = {
+      ...state,
       checkIns: [...state.checkIns, today],
       ledger: [
         ...state.ledger,
@@ -472,32 +977,78 @@ async function route<T>(req: MockReq): Promise<T> {
 
   if (method === "GET" && path === "/me/courses") {
     requireRole(user, "SANTRI");
-    return coursesFor(allStudents()[0]!) as T;
+    return coursesFor(ownStudent()) as T;
+  }
+
+  const courseM = path.match(/^\/me\/courses\/([^/]+)$/);
+  const contentM = path.match(/^\/me\/contents\/([^/]+)$/);
+  const completeM = path.match(/^\/me\/contents\/([^/]+)\/complete$/);
+  const attemptM = path.match(/^\/me\/quizzes\/([^/]+)\/attempts$/);
+  const submitM = path.match(/^\/me\/quiz-attempts\/([^/]+)\/submit$/);
+  if (courseM || contentM || completeM || attemptM || submitM) requireRole(user, "SANTRI");
+  if (method === "GET" && courseM) return courseDetail(courseM[1]!) as T;
+  if (method === "GET" && contentM) return contentDetail(contentM[1]!) as T;
+  if (method === "POST" && completeM) return completeContent(completeM[1]!) as T;
+  if (method === "POST" && attemptM) return startAttempt(attemptM[1]!) as T;
+  if (method === "POST" && submitM) {
+    const { answers } = (req.body ?? {}) as { answers?: Record<string, string> };
+    return submitAttempt(submitM[1]!, answers ?? {}) as T;
+  }
+
+  /* ---- santri: gabung room & kode untuk orang tua ---- */
+  if (method === "POST" && path === "/me/rooms/join") {
+    requireRole(user, "SANTRI");
+    const { code } = (req.body ?? {}) as { code?: string };
+    const room = joinRoom(getWorld(), ctx.studentId, code);
+    const w2 = getWorld();
+    const res: RoomSummary = { id: room.id, name: room.name, memberCount: w2.memberships.filter((m) => m.roomId === room.id).length };
+    return res as T;
+  }
+
+  if (method === "GET" && path === "/me/link-code") {
+    requireRole(user, "SANTRI");
+    return { code: linkCodeFor(getWorld(), ctx.studentId) } as T;
   }
 
   /* ---- rooms & leaderboard ---- */
   if (method === "GET" && path === "/rooms") {
-    const students = allStudents();
-    const visible = user.role === "SANTRI" ? ROOMS.filter((r) => r.id === AHMAD_ROOM) : ROOMS;
+    const w = getWorld();
+    let visible: RoomRec[] = [];
+    if (user.role === "SANTRI") {
+      const ids = activeRoomIds(w, ctx.studentId);
+      visible = w.rooms.filter((r) => ids.includes(r.id));
+    } else if (user.role === "ADMIN") {
+      visible = w.rooms.filter((r) => r.ownerId === user.id && !r.archived);
+    }
     const res: RoomSummary[] = visible.map((r) => ({
       id: r.id,
       name: r.name,
-      memberCount: students.filter((s) => roomIdOf(s) === r.id).length,
+      memberCount: w.memberships.filter((m) => m.roomId === r.id).length,
     }));
     return res as T;
   }
 
   if (method === "GET" && path === "/leaderboard") {
-    if (user.role === "SANTRI" && req.params.roomId && req.params.roomId !== AHMAD_ROOM) {
-      throw new ApiError("Kamu bukan anggota room ini.", 403);
+    const rid = req.params.roomId;
+    if (rid) {
+      const w = getWorld();
+      const allowed =
+        user.role === "SANTRI"
+          ? activeRoomIds(w, ctx.studentId).includes(rid)
+          : user.role === "ADMIN"
+            ? w.rooms.some((r) => r.id === rid && r.ownerId === user.id)
+            : false;
+      if (!allowed) throw new ApiError("Kamu bukan anggota room ini.", 403);
     }
     return leaderboard(req, user) as T;
   }
 
   /* ---- guru ---- */
+  if (path.startsWith("/admin/")) requireRole(user, "ADMIN");
+
   if (method === "GET" && path === "/admin/overview") {
-    requireRole(user, "ADMIN");
-    const all = allStudents();
+    const all = studentsOfOwner(user.id);
+    const count = Math.max(1, all.length);
     const activeToday = all.filter((s) => dayKey(new Date(s.lastActiveAt)) === dayKey()).length;
     const checkInsToday = all.filter((s) => s.checkedInToday).length;
     const past = [11, 14, 12, 16, 15, 13];
@@ -514,11 +1065,11 @@ async function route<T>(req: MockReq): Promise<T> {
     activity.push({ date: dayKey(), label: "Hari ini", activeStudents: activeToday, checkIns: checkInsToday });
     const res: AdminOverview = {
       totalStudents: all.length,
-      totalRooms: ROOMS.length,
+      totalRooms: getWorld().rooms.filter((r) => r.ownerId === user.id && !r.archived).length,
       activeToday,
       checkInsToday,
-      avgCourseProgress: Math.round(all.reduce((a, s) => a + s.courseProgress, 0) / all.length),
-      avgScore: Math.round(all.reduce((a, s) => a + s.avgScore, 0) / all.length),
+      avgCourseProgress: Math.round(all.reduce((a, s) => a + s.courseProgress, 0) / count),
+      avgScore: Math.round(all.reduce((a, s) => a + s.avgScore, 0) / count),
       activity,
       needsAttention: all.filter(needsAttention).sort((a, b) => (a.lastActiveAt < b.lastActiveAt ? -1 : 1)).slice(0, 5),
     };
@@ -526,15 +1077,15 @@ async function route<T>(req: MockReq): Promise<T> {
   }
 
   if (method === "GET" && path === "/admin/students") {
-    requireRole(user, "ADMIN");
     const page = Math.max(1, Number(req.params.page ?? 1));
     const pageSize = Math.min(50, Math.max(1, Number(req.params.pageSize ?? 8)));
     const q = (req.params.q ?? "").toLowerCase();
-    const room = req.params.room;
     const sort = req.params.sort ?? "xp";
-    let list = allStudents();
+    const w = getWorld();
+    const ownedRooms = w.rooms.filter((r) => r.ownerId === user.id && !r.archived);
+    const roomFilter = ownedRooms.find((r) => r.name === req.params.room);
+    let list = studentsOfOwner(user.id, roomFilter?.id);
     if (q) list = list.filter((s) => s.name.toLowerCase().includes(q) || s.username.includes(q));
-    if (room) list = list.filter((s) => s.roomName === room);
     list.sort((a, b) => {
       if (sort === "name") return a.name.localeCompare(b.name);
       if (sort === "progress") return b.courseProgress - a.courseProgress;
@@ -543,36 +1094,112 @@ async function route<T>(req: MockReq): Promise<T> {
       return b.xp - a.xp;
     });
     const { slice, total } = paginate(list, page, pageSize);
-    const res: StudentListPage = { items: slice, page, pageSize, total, rooms: ROOMS.map((r) => r.name) };
+    const res: StudentListPage = { items: slice, page, pageSize, total, rooms: ownedRooms.map((r) => r.name) };
     return res as T;
+  }
+
+  /* ---- guru: room ---- */
+  if (method === "GET" && path === "/admin/rooms") {
+    const w = getWorld();
+    return w.rooms.filter((r) => r.ownerId === user.id).map((r) => roomSummaryFor(w, r)) as T;
+  }
+  if (method === "POST" && path === "/admin/rooms") {
+    const { name } = (req.body ?? {}) as { name?: string };
+    const room = createRoom(getWorld(), user.id, name);
+    return roomSummaryFor(getWorld(), room) as T;
+  }
+
+  const roomM = path.match(/^\/admin\/rooms\/([^/]+)$/);
+  if (roomM && method === "GET") {
+    const w = getWorld();
+    const room = ownedRoomOrThrow(w, user.id, roomM[1]!);
+    const byId = new Map(allStudents().map((s) => [s.id, s]));
+    const members = w.memberships
+      .filter((m) => m.roomId === room.id)
+      .map((m) => {
+        const st = byId.get(m.studentId);
+        return {
+          studentId: m.studentId,
+          name: st?.name ?? m.studentId,
+          username: st?.username ?? "-",
+          level: st?.level ?? 1,
+          xp: st?.xp ?? 0,
+          joinedAt: m.joinedAt,
+          lastActiveAt: st?.lastActiveAt ?? m.joinedAt,
+        };
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+    const res: RoomDetail = {
+      room: roomSummaryFor(w, room),
+      members,
+      courses: w.courses.filter((c) => c.roomId === room.id).map((c) => courseSummaryFor(w, c)),
+    };
+    return res as T;
+  }
+  if (roomM && method === "PATCH") {
+    const room = updateRoom(getWorld(), user.id, roomM[1]!, (req.body ?? {}) as { name?: unknown; archived?: unknown });
+    return roomSummaryFor(getWorld(), room) as T;
+  }
+
+  const memberM = path.match(/^\/admin\/rooms\/([^/]+)\/members\/([^/]+)$/);
+  if (memberM && method === "DELETE") {
+    removeMember(getWorld(), user.id, memberM[1]!, memberM[2]!);
+    return undefined as T;
+  }
+
+  /* ---- guru: course ---- */
+  if (method === "GET" && path === "/admin/courses") {
+    const w = getWorld();
+    const mine = new Set(w.rooms.filter((r) => r.ownerId === user.id).map((r) => r.id));
+    return w.courses.filter((c) => mine.has(c.roomId)).map((c) => courseSummaryFor(w, c)) as T;
+  }
+  if (method === "POST" && path === "/admin/courses") {
+    const course = createCourse(getWorld(), user.id, (req.body ?? {}) as { roomId?: unknown; title?: unknown; description?: unknown });
+    return courseDocFor(getWorld(), course) as T;
+  }
+
+  const courseAdminM = path.match(/^\/admin\/courses\/([^/]+)$/);
+  if (courseAdminM && method === "GET") {
+    const w = getWorld();
+    const course = w.courses.find((c) => c.id === courseAdminM[1]);
+    if (!course) throw new ApiError("Course tidak ditemukan.", 404);
+    ownedRoomOrThrow(w, user.id, course.roomId); // BR-004
+    return courseDocFor(w, course) as T;
+  }
+  if (courseAdminM && method === "PUT") {
+    const course = saveCourse(getWorld(), user.id, courseAdminM[1]!, (req.body ?? {}) as Partial<CourseDoc>);
+    return courseDocFor(getWorld(), course) as T;
   }
 
   /* ---- orang tua ---- */
   if (method === "GET" && path === "/parent/students") {
     requireRole(user, "PARENT");
-    const ids = (user as { children?: string[] }).children ?? [];
+    const ids = linkedChildIds(getWorld(), user.id);
     return allStudents().filter((s) => ids.includes(s.id)) as T;
+  }
+
+  if (method === "POST" && path === "/parent/students") {
+    requireRole(user, "PARENT");
+    const { code } = (req.body ?? {}) as { code?: string };
+    const studentId = linkChild(getWorld(), user.id, code);
+    return allStudents().find((s) => s.id === studentId) as T;
   }
 
   const detail = path.match(/^\/parent\/students\/([^/]+)$/);
   if (method === "GET" && detail) {
     requireRole(user, "PARENT");
-    const ids = (user as { children?: string[] }).children ?? [];
     const sid = detail[1]!;
     // BR-003: parent hanya boleh melihat anak yang terhubung.
-    if (!ids.includes(sid)) throw new ApiError("Santri ini tidak terhubung dengan akunmu.", 403);
+    if (!linkedChildIds(getWorld(), user.id).includes(sid)) {
+      throw new ApiError("Santri ini tidak terhubung dengan akunmu.", 403);
+    }
     const st = allStudents().find((s) => s.id === sid);
     if (!st) throw new ApiError("Santri tidak ditemukan.", 404);
     const res: StudentDetail = {
       student: st,
       courses: coursesFor(st),
       recentRewards: rewardsFor(st, 6),
-      quizScores: QUIZ_SCORES.map((q, i) => ({
-        id: q.id,
-        title: q.title,
-        score: Math.max(40, Math.min(100, st.avgScore + [5, 10, -5, 0][i]!)),
-        takenAt: iso(q.daysAgo),
-      })),
+      quizScores: quizScoresFor(st),
     };
     return res as T;
   }

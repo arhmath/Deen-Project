@@ -17,6 +17,7 @@ import {
   type RegisterFormValues,
 } from "../../lib/validation/authSchemas";
 import { clsx } from "../../lib/clsx";
+import { ApiError } from "../../services/api";
 import type { UserRole } from "../../types/auth";
 
 interface RegisterFormProps {
@@ -36,6 +37,8 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
     register,
     handleSubmit,
     watch,
+    setError,
+    setFocus,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -56,6 +59,16 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
     try {
       await onSubmit(values);
     } catch (err) {
+      // Error per-field dari server (mis. 409 username/email sudah dipakai) tampil di bawah inputnya
+      if (err instanceof ApiError && err.fieldErrors) {
+        const fields = ["name", "username", "email", "password"] as const;
+        const mapped = fields.filter((f) => err.fieldErrors?.[f]);
+        mapped.forEach((f) => setError(f, { type: "server", message: err.fieldErrors![f] }));
+        if (mapped.length > 0) {
+          setFocus(mapped[0]!);
+          return;
+        }
+      }
       setServerError(
         err instanceof Error ? err.message : "Pendaftaran gagal. Coba lagi ya."
       );

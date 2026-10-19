@@ -1,16 +1,19 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { AuthLayout } from "../components/layout/AuthLayout";
 import { RegisterForm } from "../features/auth/RegisterForm";
+import { homePathFor, useMe, useRegister } from "../features/auth/useAuth";
 import type { RegisterFormValues } from "../lib/validation/authSchemas";
 import type { RegisterRequest } from "../types/auth";
 import heroRegister from "../assets/heroregister1.jpg";
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const me = useMe();
+  const register = useRegister();
 
-  // TODO: replace with the real auth mutation from `features/auth`
-  // (POST /auth/register via the shared `api` client). Map a 409 response
-  // to a user-facing "username/email sudah dipakai" message.
+  // Sudah punya sesi valid → tidak perlu daftar lagi
+  if (me.data) return <Navigate to={homePathFor(me.data.role)} replace />;
+
   async function handleRegister(values: RegisterFormValues) {
     const payload: RegisterRequest = {
       name: values.name,
@@ -19,9 +22,9 @@ export function RegisterPage() {
       password: values.password,
       role: values.role,
     };
-    await new Promise((resolve) => setTimeout(resolve, 900));
-    console.log("register payload", payload);
-    navigate("/login");
+    // Error 409/422 dilempar sebagai ApiError; RegisterForm memetakannya ke field yang bersangkutan.
+    const res = await register.mutateAsync(payload);
+    navigate(homePathFor(res.user.role), { replace: true });
   }
 
   return (

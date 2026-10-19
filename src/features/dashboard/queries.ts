@@ -53,3 +53,68 @@ export function useCheckIn() {
     },
   });
 }
+
+/* ---------------- Belajar & kuis ---------------- */
+
+export const useCourse = (id: string) =>
+  useQuery({ queryKey: ["santri", "course", id], queryFn: () => dashboardService.course(id) });
+
+export const useContent = (id: string) =>
+  useQuery({ queryKey: ["santri", "content", id], queryFn: () => dashboardService.content(id) });
+
+/** Reward/progress berubah → segarkan semua tampilan yang bergantung padanya. */
+function useInvalidateAfterLearning() {
+  const qc = useQueryClient();
+  return () => {
+    qc.invalidateQueries({ queryKey: ["santri"] });
+    qc.invalidateQueries({ queryKey: ["leaderboard"] });
+    qc.invalidateQueries({ queryKey: ["admin"] });
+    qc.invalidateQueries({ queryKey: ["parent"] });
+  };
+}
+
+export function useCompleteContent(contentId: string) {
+  const invalidate = useInvalidateAfterLearning();
+  return useMutation({
+    mutationFn: () => dashboardService.completeContent(contentId),
+    onSuccess: invalidate,
+  });
+}
+
+export const useStartQuiz = (contentId: string) =>
+  useMutation({ mutationFn: () => dashboardService.startQuiz(contentId) });
+
+export function useSubmitQuiz() {
+  const invalidate = useInvalidateAfterLearning();
+  return useMutation({
+    mutationFn: (v: { attemptId: string; answers: Record<string, string> }) =>
+      dashboardService.submitQuiz(v.attemptId, v.answers),
+    onSuccess: invalidate,
+  });
+}
+
+/* ---------------- Room & orang tua ---------------- */
+
+/** Perubahan keanggotaan/room memengaruhi banyak tampilan sekaligus. */
+function useInvalidateAfterMembership() {
+  const qc = useQueryClient();
+  return () => {
+    for (const key of ["santri", "rooms", "leaderboard", "admin", "parent"]) qc.invalidateQueries({ queryKey: [key] });
+  };
+}
+
+export function useJoinRoom() {
+  const invalidate = useInvalidateAfterMembership();
+  return useMutation({ mutationFn: dashboardService.joinRoom, onSuccess: invalidate });
+}
+
+export const useLinkCode = (enabled = true) =>
+  useQuery({ queryKey: ["santri", "link-code"], queryFn: dashboardService.linkCode, staleTime: Infinity, enabled });
+
+export function useLinkChild() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: dashboardService.linkChild,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["parent"] }),
+  });
+}

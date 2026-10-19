@@ -6,6 +6,7 @@ import { ErrorState } from "../../components/ui/ErrorState";
 import { Skeleton } from "../../components/ui/Skeleton";
 import { UsersIcon, ChartIcon, CheckIcon } from "../../components/ui/DashIcons";
 import { useParentStudents } from "../../features/dashboard/queries";
+import { LinkChildCard } from "../../features/parent/LinkChildCard";
 import { useSessionUser } from "../../hooks/useSessionUser";
 import { greeting } from "../../utils/format";
 
@@ -30,11 +31,14 @@ export default function ParentOverview() {
     <>
       <PageHeader title={`${greeting()}, ${user.name}`} subtitle="Pantau perkembangan belajar anak-anakmu hari ini." />
       {kids.length === 0 ? (
-        <EmptyState
-          icon={<UsersIcon />}
-          title="Belum ada anak yang terhubung"
-          description="Minta guru menghubungkan akun santri ke akunmu, lalu perkembangannya tampil di sini."
-        />
+        <div className="mx-auto flex max-w-xl flex-col gap-4">
+          <EmptyState
+            icon={<UsersIcon />}
+            title="Belum ada anak yang terhubung"
+            description="Hubungkan akun anakmu dengan kode dari halaman Profil mereka, lalu perkembangannya tampil di sini."
+          />
+          <LinkChildCard />
+        </div>
       ) : (
         <>
           <ul className="mb-6 grid gap-3 sm:grid-cols-3" aria-label="Ringkasan">

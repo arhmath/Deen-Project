@@ -40,6 +40,12 @@ export const ShieldIcon = (p: P) => <Stroke d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8
 export const ClockIcon = (p: P) => <Stroke d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2" {...p} />;
 export const ArrowRightIcon = (p: P) => <Stroke d="M5 12h14M13 6l6 6-6 6" {...p} />;
 
+export const PlusIcon = (p: P) => <Stroke d="M12 5v14M5 12h14" {...p} />;
+export const TrashIcon = (p: P) => <Stroke d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" {...p} />;
+export const ArrowUpIcon = (p: P) => <Stroke d="M12 19V5M5 12l7-7 7 7" {...p} />;
+export const ArrowDownIcon = (p: P) => <Stroke d="M12 5v14M5 12l7 7 7-7" {...p} />;
+export const CopyIcon = (p: P) => <Stroke d="M9 9h11v11H9zM5 15H4V4h11v1" {...p} />;
+
 export function CoinIcon(p: P) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...p}>

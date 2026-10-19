@@ -5,7 +5,8 @@ import { Button } from "../components/ui/Button";
 import { XPProgress } from "../components/domain/XPProgress";
 import { Skeleton } from "../components/ui/Skeleton";
 import { useSessionUser } from "../hooks/useSessionUser";
-import { useSantriDashboard } from "../features/dashboard/queries";
+import { useLinkCode, useSantriDashboard } from "../features/dashboard/queries";
+import { CopyButton } from "../components/ui/CopyButton";
 import { USE_MOCK } from "../services/api";
 import { resetMockState } from "../services/mock/server";
 import { ROLE_LABEL } from "../types/user";
@@ -15,6 +16,7 @@ export default function ProfilePage() {
   const user = useSessionUser();
   const qc = useQueryClient();
   const dash = useSantriDashboard(user.role === "SANTRI");
+  const link = useLinkCode(user.role === "SANTRI");
 
   function resetDemo() {
     resetMockState();
@@ -51,10 +53,29 @@ export default function ProfilePage() {
           </Card>
         )}
 
+        {user.role === "SANTRI" && (
+          <Card className="lg:col-span-2">
+            <CardTitle>Kode untuk orang tua</CardTitle>
+            <p className="mb-3 mt-1 text-sm text-brand-ink/60">
+              Berikan kode ini ke orang tuamu. Mereka memasukkannya di akun Deen mereka untuk memantau belajarmu.
+            </p>
+            {link.data ? (
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="rounded-2xl bg-brand-cream px-4 py-2 font-display text-2xl font-extrabold tracking-widest text-brand-purple">{link.data.code}</p>
+                <CopyButton text={link.data.code} label="Salin kode" />
+              </div>
+            ) : link.isError ? (
+              <p role="alert" className="text-sm font-bold text-red-600">Kode belum bisa dimuat. Muat ulang halaman ya.</p>
+            ) : (
+              <Skeleton className="h-12 w-60" />
+            )}
+          </Card>
+        )}
+
         {USE_MOCK && (
           <Card className="lg:col-span-2">
             <CardTitle>Mode demo</CardTitle>
-            <p className="mb-4 mt-1 text-sm text-brand-ink/60">Data saat ini berasal dari mock lokal di browser ini. Reset untuk mengulang demo dari awal (check-in, XP, level).</p>
+            <p className="mb-4 mt-1 text-sm text-brand-ink/60">Data saat ini berasal dari mock lokal di browser ini. Reset mengembalikan progres, room, course, dan keterhubungan orang tua ke data awal. Akun yang sudah kamu daftarkan tetap ada.</p>
             <Button size="sm" variant="outline" onClick={resetDemo}>Reset data demo</Button>
           </Card>
         )}

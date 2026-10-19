@@ -5,6 +5,7 @@ import { ErrorState } from "../components/ui/ErrorState";
 import { Skeleton } from "../components/ui/Skeleton";
 import { BookOpenIcon } from "../components/ui/DashIcons";
 import { useMyCourses } from "../features/dashboard/queries";
+import { JoinRoomCard } from "../features/rooms/JoinRoomCard";
 
 export default function LearningPage() {
   const q = useMyCourses();
@@ -16,12 +17,18 @@ export default function LearningPage() {
       ) : q.isError ? (
         <ErrorState onRetry={() => q.refetch()} />
       ) : q.data.length === 0 ? (
-        <EmptyState icon={<BookOpenIcon />} title="Belum ada pembelajaran." description="Gabung ke room gurumu, lalu course yang sudah dipublikasikan muncul di sini." />
+        <EmptyState icon={<BookOpenIcon />} title="Belum ada pembelajaran." description="Gabung ke room gurumu dengan kode di bawah. Course yang sudah dipublikasikan muncul di sini." />
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {q.data.map((c) => <li key={c.id}><CourseCard course={c} /></li>)}
         </ul>
       )}
+      <div className="mt-8 max-w-xl">
+        <JoinRoomCard
+          title={q.data && q.data.length > 0 ? "Gabung ke room lain" : "Gabung ke room gurumu"}
+          hint="Punya kode gabung dari guru? Masukkan di sini."
+        />
+      </div>
     </>
   );
 }

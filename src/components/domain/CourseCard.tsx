@@ -14,7 +14,11 @@ export function CourseCard({ course }: { course: CourseSummary }) {
   return (
     <article className="flex h-full flex-col rounded-3xl border-2 border-brand-ink/10 bg-white p-5 shadow-[0_4px_0_0_rgba(35,19,52,0.06)]">
       <div className="flex items-start justify-between gap-3">
-        <h3 className="font-display text-lg font-extrabold leading-snug text-brand-ink">{course.title}</h3>
+        <h3 className="font-display text-lg font-extrabold leading-snug text-brand-ink">
+          <Link to={`/learning/${course.id}`} className="hover:text-brand-purple focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
+            {course.title}
+          </Link>
+        </h3>
         {done && (
           <Badge tone="amber" icon={<CheckIcon className="h-4 w-4" />}>Selesai</Badge>
         )}

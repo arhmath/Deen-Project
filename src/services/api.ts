@@ -26,7 +26,7 @@ export interface RequestOptions {
   signal?: AbortSignal;
 }
 
-type Method = "GET" | "POST" | "PATCH" | "DELETE";
+type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 function cleanParams(params?: RequestOptions["params"]): Record<string, string> {
   const out: Record<string, string> = {};
@@ -77,7 +77,13 @@ export const api = {
   get: <T>(path: string, opts?: RequestOptions) => request<T>("GET", path, undefined, opts),
   post: <T>(path: string, body?: unknown, opts?: RequestOptions) =>
     request<T>("POST", path, body, opts),
+  put: <T>(path: string, body?: unknown, opts?: RequestOptions) =>
+    request<T>("PUT", path, body, opts),
   patch: <T>(path: string, body?: unknown, opts?: RequestOptions) =>
     request<T>("PATCH", path, body, opts),
   delete: <T>(path: string, opts?: RequestOptions) => request<T>("DELETE", path, undefined, opts),
 };
+
+/** Pesan error yang aman ditampilkan ke pengguna. */
+export const errorMessage = (e: unknown, fallback = "Terjadi kesalahan. Coba lagi ya.") =>
+  e instanceof ApiError ? e.message : fallback;
