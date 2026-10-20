@@ -14,7 +14,7 @@ const LeaderboardPage = lazy(() => import("./pages/LeaderboardPage"));
 const LearningPage = lazy(() => import("./pages/LearningPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const ChatPage = lazy(() => import("./pages/ChatPage"));
-const ComingSoonPage = lazy(() => import("./pages/ComingSoonPage"));
+const MapsPage = lazy(() => import("./pages/MapsPage"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminMonitoring = lazy(() => import("./pages/admin/AdminMonitoring"));
 const ParentStudentsPage = lazy(() => import("./pages/parent/ParentStudentsPage"));
@@ -25,8 +25,6 @@ const AdminRooms = lazy(() => import("./pages/admin/AdminRooms"));
 const AdminRoomDetail = lazy(() => import("./pages/admin/AdminRoomDetail"));
 const AdminCourses = lazy(() => import("./pages/admin/AdminCourses"));
 const AdminCourseEditor = lazy(() => import("./pages/admin/AdminCourseEditor"));
-
-const soon = (title: string, description: string) => <ComingSoonPage title={title} description={description} />;
 
 function PageFallback() {
   return <div aria-busy="true" aria-label="Memuat halaman"><Skeleton className="mb-4 h-10 w-64" /><Skeleton className="h-64 rounded-3xl" /></div>;
@@ -64,7 +62,7 @@ function App() {
             </Route>
 
             <Route element={<RequireAuth roles={["SANTRI"]} />}>
-              <Route path="/maps" element={soon("Maps", "Peta TPA, masjid, dan tempat belajar di sekitarmu akan hadir di sini.")} />
+              <Route path="/maps" element={<MapsPage />} />
               <Route path="/learning" element={<LearningPage />} />
               <Route path="/learning/:courseId" element={<CourseDetailPage/>} />
               <Route path="/learning/:courseId/content/:contentId" element={<ContentPage />} />

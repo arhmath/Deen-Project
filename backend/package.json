@@ -4,15 +4,15 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "sh -c 'set -a; . ./apps/api/.env; set +a; next dev -p 3001'",
-    "build": "sh -c 'set -a; . ./apps/api/.env; set +a; next build'",
-    "start": "sh -c 'set -a; . ./apps/api/.env; set +a; next start -p 3001'",
-    "test": "vitest run",
-    "seed": "tsx --env-file=apps/api/.env scripts/seed.ts",
-    "smoke": "tsx --env-file=apps/api/.env scripts/smoke.ts",
-    "typecheck": "tsc --noEmit",
-    "seed:knowledge": "tsx scripts/seed-knowledge.ts"
-  },
+  "dev": "dotenv -e ./apps/api/.env -- next dev -p 3001",
+  "build": "dotenv -e ./apps/api/.env -- next build",
+  "start": "dotenv -e ./apps/api/.env -- next start -p 3001",
+  "test": "vitest run",
+  "seed": "tsx --env-file=apps/api/.env scripts/seed.ts",
+  "smoke": "tsx --env-file=apps/api/.env scripts/smoke.ts",
+  "typecheck": "tsc --noEmit",
+  "seed:knowledge": "tsx scripts/seed-knowledge.ts"
+},
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "firebase-admin": "^14.5.0",
@@ -26,6 +26,7 @@
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "dotenv-cli": "^11.0.0",
     "tsx": "^4.23.15",
     "typescript": "~5.8",
     "vitest": "^5.0.4"

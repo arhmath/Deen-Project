@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { db, toIso, ts } from "@/lib/firebase";
 import { C } from "@/shared/collections";
 import { protectedRoute } from "@/shared/http";
@@ -8,6 +9,43 @@ import type { QuestionDoc } from "@/modules/quiz/quiz.logic";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+/**
+ * Skema body untuk PUT. Tanpa skema, `protectedRoute` tidak membaca body sehingga
+ * `body` bernilai undefined dan `input.modules` melempar TypeError (HTTP 500).
+ * `passthrough()` dipakai karena struktur konten (lesson/flashcard/quiz) bervariasi.
+ */
+const adminCourseUpdateSchema = z
+  .object({
+    title: z.string().trim().min(1).max(200).optional(),
+    description: z.string().nullable().optional(),
+    status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
+    modules: z
+      .array(
+        z
+          .object({
+            id: z.string().optional(),
+            title: z.string().optional(),
+            contents: z
+              .array(
+                z
+                  .object({
+                    id: z.string().optional(),
+                    title: z.string().optional(),
+                    type: z.enum(["LESSON", "FLASHCARD", "QUIZ"]),
+                    sections: z.array(z.any()).optional(),
+                    cards: z.array(z.any()).optional(),
+                    questions: z.array(z.any()).optional(),
+                  })
+                  .passthrough()
+              )
+              .optional(),
+          })
+          .passthrough()
+      )
+      .optional(),
+  })
+  .passthrough();
 
 const normalizeCourseDoc = async (course: Awaited<ReturnType<typeof courseService.get>>) => {
   const roomSnap = await db().collection(C.rooms).doc(course.roomId).get();
@@ -79,11 +117,12 @@ export const GET = protectedRoute({ roles: ["ADMIN"] }, async ({ user, params })
   return normalizeCourseDoc(course);
 });
 
-export const PUT = protectedRoute({ roles: ["ADMIN"] }, async ({ user, params, body }) => {
-  const input = body as any;
+export const PUT = protectedRoute({ roles: ["ADMIN"], body: adminCourseUpdateSchema, maxBodyBytes: 5_000_000 }, async ({ user, params, body }) => {
+  const input = body;
   const courseId = params.courseId!;
+  // Memastikan course ada dan milik admin ini (melempar 404/403 yang sesuai).
+  await courseService.get(user, courseId);
   const courseSnap = await db().collection(C.courses).doc(courseId).get();
-  if (!courseSnap.exists) return null;
 
   const now = ts();
   const existingModulesSnap = await db().collection(C.courseModules).where("courseId", "==", courseId).get();
@@ -133,14 +172,14 @@ export const PUT = protectedRoute({ roles: ["ADMIN"] }, async ({ user, params, b
       } satisfies ContentDoc);
 
       if (content.type === "QUIZ") {
-        for (const question of content.questions ?? []) {
+        for (const [questionIndex, question] of (content.questions ?? []).entries()) {
           batch.set(db().collection(C.questions).doc(question.id ?? crypto.randomUUID()), {
             contentId,
             text: question.text,
             type: "SINGLE_CHOICE",
             explanation: question.explanation ?? null,
             points: 1,
-            orderIndex: 0,
+            orderIndex: questionIndex,
             options: (question.options ?? []).map((option: { id: string; text: string }, optionIndex: number) => ({
               id: option.id,
               text: option.text,
@@ -153,10 +192,12 @@ export const PUT = protectedRoute({ roles: ["ADMIN"] }, async ({ user, params, b
     }
   }
 
+  const newStatus = input.status ?? courseSnap.data()?.status ?? "DRAFT";
   batch.update(db().collection(C.courses).doc(courseId), {
     title: input.title ?? courseSnap.data()?.title ?? "Course",
     description: input.description ?? null,
-    status: input.status ?? courseSnap.data()?.status ?? "DRAFT",
+    status: newStatus,
+    ...(newStatus === "PUBLISHED" && !courseSnap.data()?.publishedAt ? { publishedAt: now } : {}),
     updatedAt: now,
   });
   await batch.commit();
