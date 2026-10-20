@@ -40,12 +40,10 @@ export const registerSchema = z
       .max(128, "Password maksimal 128 karakter"),
     confirmPassword: z.string().min(1, "Ulangi password kamu"),
     role: z.enum(["SANTRI", "PARENT"], {
-      errorMap: () => ({ message: "Pilih salah satu peran dulu, ya" }),
+      error: "Pilih salah satu peran dulu, ya",
     }),
     agreeToTerms: z.literal(true, {
-      errorMap: () => ({
-        message: "Setujui syarat & ketentuan untuk lanjut",
-      }),
+      error: "Setujui syarat & ketentuan untuk lanjut",
     }),
   })
   .refine((data) => data.password === data.confirmPassword, {

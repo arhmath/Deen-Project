@@ -7,7 +7,7 @@ import { mockRequest } from "./mock/server";
  * - VITE_USE_MOCK = "false"  → fetch ke VITE_API_URL
  */
 export const USE_MOCK = import.meta.env.VITE_USE_MOCK !== "false";
-const BASE_URL = import.meta.env.VITE_API_URL ?? "/api/v1";
+const BASE_URL = import.meta.env.VITE_API_URL ?? "https://api.deen.id/api/v1";
 
 export class ApiError extends Error {
   status: number;
@@ -63,6 +63,11 @@ async function request<T>(
 
   if (res.status === 204) return undefined as T;
   const data = await res.json().catch(() => null);
+  if (res.status === 401 && token && !path.startsWith("/auth/")) {
+    // Access token kedaluwarsa/dicabut → bersihkan sesi dan arahkan ke halaman masuk.
+    tokenStore.clear();
+    if (typeof window !== "undefined" && window.location.pathname !== "/login") window.location.assign("/login");
+  }
   if (!res.ok) {
     throw new ApiError(
       data?.message ?? data?.error?.message ?? "Terjadi kesalahan. Coba lagi ya.",

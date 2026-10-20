@@ -35,6 +35,7 @@ import type {
 import type { ContentType } from "../../types/learning";
 import type { QuizScore } from "../../types/monitoring";
 import { SEED_COMPLETED, SEED_QUIZ_SCORES } from "./content";
+import { mockAiRoute } from "./aiMock";
 import {
   activeRoomIds,
   courseContentsOf,
@@ -912,6 +913,14 @@ async function route<T>(req: MockReq): Promise<T> {
   const state = loadState();
 
   if (method === "GET" && path === "/auth/me") return toSession(user) as T;
+
+  /* ---- Deen AI (kontrak 05B) — semua role ---- */
+  if (path.startsWith("/ai/")) {
+    return mockAiRoute({
+      method, path, body: req.body, params: req.params, userId: user.id, role: user.role,
+      gamification: user.role === "SANTRI" ? gamificationOf(state) : null,
+    }) as T;
+  }
 
   /* ---- santri ---- */
   if (method === "GET" && path === "/me/dashboard") {

@@ -1,0 +1,13 @@
+[
+  {
+    "id": "contoh-lupa-kata-sandi",
+    "title": "Lupa kata sandi",
+    "text": "CONTOH — GANTI SESUAI KEBIJAKAN DEEN: Fitur lupa kata sandi otomatis belum tersedia. Hubungi guru atau pengelola Deen untuk bantuan mengatur ulang akunmu.",
+    "roles": ["SANTRI", "PARENT", "ADMIN"]
+  },
+  {
+    "id": "contoh-materi-keagamaan",
+    "title": "TEMPLATE materi keagamaan (isi dengan teks yang sudah ditinjau ustadz)",
+    "text": "Isi dengan ringkasan materi (mis. adab sebelum makan) yang sudah ditinjau ustadz/ustadzah. Jangan menyalin dalil dari sumber yang belum diverifikasi."
+  }
+]

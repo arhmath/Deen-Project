@@ -13,6 +13,7 @@ const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const LeaderboardPage = lazy(() => import("./pages/LeaderboardPage"));
 const LearningPage = lazy(() => import("./pages/LearningPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const ChatPage = lazy(() => import("./pages/ChatPage"));
 const ComingSoonPage = lazy(() => import("./pages/ComingSoonPage"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminMonitoring = lazy(() => import("./pages/admin/AdminMonitoring"));
@@ -56,7 +57,7 @@ function App() {
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
-            <Route path="/chat" element={soon("Chatbot", "Tanya jawab seputar materi bersama asisten Deen akan hadir di sini.")} />
+            <Route path="/chat" element={<ChatPage />} />
 
             <Route element={<RequireAuth roles={["SANTRI", "ADMIN"]} />}>
               <Route path="/profile" element={<ProfilePage />} />
