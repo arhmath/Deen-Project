@@ -85,12 +85,15 @@ export async function handleChat(user: AuthUser, input: ChatInput): Promise<Chat
   const childNames = user.role === "PARENT" ? (await parentService.students(user).catch(() => [])).flatMap((c) => c.name.split(" ")) : [];
   for (const name of routeIntent(message, user.role, childNames).tools) {
     const r = await runTool(name, { user, message });
-    if (r.ok) {
-      toolResults.push({ tool: name, data: r.data });
-      // Jangan membuka nama tool internal ke client (05B §13) — tampilkan label ramah.
-      const src = toolSource(name, r.source);
-      if (!sources.some((s) => s.id === src.id)) sources.push(src);
-    } else toolNotes.push(r.note);
+    if (r.ok === false) {
+      toolNotes.push((r as { ok: false; note: string }).note);
+      continue;
+    }
+    const okResult = r as { ok: true; data: unknown; source: AISource["type"] };
+    toolResults.push({ tool: name, data: okResult.data });
+    // Jangan membuka nama tool internal ke client (05B §13) — tampilkan label ramah.
+    const src = toolSource(name, okResult.source);
+    if (!sources.some((s) => s.id === src.id)) sources.push(src);
   }
 
   // ---- pengetahuan statis lewat RAG ----

@@ -24,7 +24,17 @@ export const joinRoomSchema = z
       .trim()
       .min(4, "Kode room tidak valid")
       .max(12, "Kode room tidak valid")
-      .regex(/^[A-Za-z0-9]+$/, "Kode room tidak valid"),
+      .regex(/^[A-Za-z0-9]+$/, "Kode room tidak valid")
+      .optional(),
+    code: z
+      .string()
+      .trim()
+      .min(4, "Kode room tidak valid")
+      .max(12, "Kode room tidak valid")
+      .regex(/^[A-Za-z0-9]+$/, "Kode room tidak valid")
+      .optional(),
   })
-  .strict();
+  .strict()
+  .refine((v) => Boolean(v.joinCode || v.code), { message: "Kode room tidak valid" })
+  .transform((v) => ({ joinCode: (v.joinCode ?? v.code)!.toUpperCase() }));
 export type JoinRoomInput = z.output<typeof joinRoomSchema>;

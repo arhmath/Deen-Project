@@ -21,6 +21,11 @@ export function generateJoinCode(len = 8): string {
   return out;
 }
 
+export function generateStudentLinkCode(len = 6): string {
+  const suffix = Array.from({ length: len }, () => CODE_ALPHABET[randomInt(CODE_ALPHABET.length)]).join("");
+  return `ORT-${suffix}`;
+}
+
 export function slugify(s: string): string {
   return (
     s

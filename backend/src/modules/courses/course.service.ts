@@ -88,6 +88,14 @@ export const courseService = {
           thumbnailUrl: null, status: "DRAFT", publishedAt: null, createdAt: now, updatedAt: now, deletedAt: null,
         };
         tx.create(db().collection(C.courses).doc(id), doc);
+        tx.create(db().collection(C.courseModules).doc(newId()), {
+          courseId: id,
+          title: "Modul 1",
+          description: null,
+          orderIndex: 0,
+          createdAt: now,
+          updatedAt: now,
+        } satisfies ModuleDoc);
         tx.create(key, { courseId: id, type: "courseSlug", createdAt: now });
         auditInTx(tx, { actorId: admin.id, action: "COURSE_CREATED", entityType: "course", entityId: id });
         return true;

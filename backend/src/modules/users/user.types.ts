@@ -12,6 +12,7 @@ export interface UserDoc {
   passwordHash: string;
   role: Role;
   avatarUrl: string | null;
+  linkCode: string | null;
   isActive: boolean;
   createdAt: Timestamp;
   updatedAt: Timestamp;

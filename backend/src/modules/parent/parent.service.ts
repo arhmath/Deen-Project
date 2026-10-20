@@ -14,7 +14,21 @@ import { progressService } from "../progress/progress.service";
 import type { AuthUser, UserDoc } from "../users/user.types";
 import type { ContentDoc } from "../courses/course.types";
 
-export const linkRequestSchema = z.object({ studentUsername: z.string().trim().min(3).max(50), relationship: z.string().trim().max(50).optional() }).strict();
+export const linkRequestSchema = z
+  .object({
+    studentUsername: z.string().trim().min(3).max(50).optional(),
+    code: z.string().trim().min(6).max(20).regex(/^ORT-[A-Z0-9]+$/i, "Kode santri tidak valid").optional(),
+    relationship: z.string().trim().max(50).optional(),
+  })
+  .strict()
+  .refine((v) => Boolean(v.studentUsername || v.code), { message: "Masukkan username santri atau kode santri." });
+
+export const parentStudentLinkSchema = z
+  .object({
+    code: z.string().trim().min(6).max(20).regex(/^ORT-[A-Z0-9]+$/i, "Kode santri tidak valid"),
+    relationship: z.string().trim().max(50).optional(),
+  })
+  .strict();
 export const linkDecisionSchema = z.object({ status: z.enum(["ACTIVE", "REJECTED"]) }).strict();
 export const linkListQuery = z.object({ status: z.enum(["PENDING", "ACTIVE", "REJECTED"]).default("PENDING") });
 export const idParamSchema = z.string().regex(SAFE_ID);
@@ -61,9 +75,36 @@ export const parentService = {
     };
   },
 
+  async linkStudentByCode(parent: AuthUser, input: z.output<typeof parentStudentLinkSchema>) {
+    const code = input.code.trim().toUpperCase();
+    const key = await uniqueRef("linkCode", code).get();
+    const studentId = key.data()?.userId as string | undefined;
+    const sSnap = studentId ? await db().collection(C.users).doc(studentId).get() : null;
+    const student = sSnap?.data() as UserDoc | undefined;
+    if (!studentId || !student || student.role !== "SANTRI" || !student.isActive || student.deletedAt) throw Errors.notFound("Santri");
+
+    const ref = db().collection(C.parentStudents).doc(docId(parent.id, studentId));
+    const now = ts();
+    await db().runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      const cur = snap.data() as LinkDoc | undefined;
+      if (cur?.status === "ACTIVE") throw Errors.conflict("Santri ini sudah terhubung dengan akunmu.");
+      if (cur?.status === "PENDING") throw Errors.conflict("Permintaan sudah dikirim dan menunggu persetujuan guru.");
+      tx.set(ref, { parentId: parent.id, studentId, relationship: input.relationship ?? cur?.relationship ?? null, status: "ACTIVE", createdAt: cur?.createdAt ?? now, updatedAt: now } satisfies LinkDoc);
+      auditInTx(tx, { actorId: parent.id, action: "PARENT_LINK_APPROVED", entityType: "parentStudent", entityId: ref.id });
+    });
+
+    const [row] = await buildStudentRows([studentId]);
+    if (!row) throw Errors.notFound("Santri");
+    return row;
+  },
+
   /** Orang tua mengajukan tautan ke santri (PENDING) → disetujui guru santri tsb. */
   async requestLink(parent: AuthUser, input: z.output<typeof linkRequestSchema>) {
-    const key = await uniqueRef("username", input.studentUsername).get();
+    if (input.code) return this.linkStudentByCode(parent, { code: input.code, relationship: input.relationship });
+
+    const studentUsername = input.studentUsername!.trim().toLowerCase();
+    const key = await uniqueRef("username", studentUsername).get();
     const studentId = key.data()?.userId as string | undefined;
     const sSnap = studentId ? await db().collection(C.users).doc(studentId).get() : null;
     const student = sSnap?.data() as UserDoc | undefined;

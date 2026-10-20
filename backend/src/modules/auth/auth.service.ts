@@ -71,6 +71,7 @@ export const authService = {
       passwordHash,
       role: input.role,
       avatarUrl: null,
+      linkCode: null,
       isActive: true,
       createdAt: now,
       updatedAt: now,
