@@ -12,6 +12,7 @@ const TYPE_ICON: Record<ContentType, typeof StarIcon> = {
   QUIZ: TrophyIcon,
   CHALLENGE: CrownIcon,
   VIDEO: ClockIcon,
+  ARTICLE: BookOpenIcon,
 };
 
 const TYPE_LABEL: Record<ContentType, string> = {
@@ -20,6 +21,7 @@ const TYPE_LABEL: Record<ContentType, string> = {
   QUIZ: "Kuis",
   CHALLENGE: "Tantangan",
   VIDEO: "Video",
+  ARTICLE: "Artikel",
 };
 
 /** Jarak vertikal antar pos (px) dan posisi horizontal zig-zag (% lebar jalur). */

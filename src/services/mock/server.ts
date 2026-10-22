@@ -33,9 +33,9 @@ import type {
   RewardOutcome,
 } from "../../types/content";
 import type { ContentType } from "../../types/learning";
+import type { Adventure } from "../../types/adventure";
 import type { QuizScore } from "../../types/monitoring";
 import { SEED_COMPLETED, SEED_QUIZ_SCORES } from "./content";
-import { mockAiRoute } from "./aiMock";
 import {
   activeRoomIds,
   courseContentsOf,
@@ -914,14 +914,6 @@ async function route<T>(req: MockReq): Promise<T> {
 
   if (method === "GET" && path === "/auth/me") return toSession(user) as T;
 
-  /* ---- Deen AI (kontrak 05B) — semua role ---- */
-  if (path.startsWith("/ai/")) {
-    return mockAiRoute({
-      method, path, body: req.body, params: req.params, userId: user.id, role: user.role,
-      gamification: user.role === "SANTRI" ? gamificationOf(state) : null,
-    }) as T;
-  }
-
   /* ---- santri ---- */
   if (method === "GET" && path === "/me/dashboard") {
     requireRole(user, "SANTRI");
@@ -981,6 +973,39 @@ async function route<T>(req: MockReq): Promise<T> {
       gamification: gamificationOf(next),
       levelUp: after.level > before.level ? { from: before.level, to: after.level, name: after.name } : null,
     };
+    return res as T;
+  }
+
+  if (method === "GET" && path === "/me/adventure") {
+    requireRole(user, "SANTRI");
+    const w = getWorld();
+    const regions = visibleCourses(w, ctx.studentId).map((course) => {
+      const list = courseContentsOf(course);
+      const done = list.filter((c) => state.completed.includes(c.id)).length;
+      const nextId = list.find((c) => !state.completed.includes(c.id))?.id;
+      const moduleOf = new Map(course.modules.flatMap((m) => m.contents.map((c) => [c.id, m.title] as const)));
+      return {
+        courseId: course.id,
+        title: course.title,
+        description: course.description,
+        roomName: roomById(w, course.roomId)?.name ?? "-",
+        totalContents: list.length,
+        completedContents: done,
+        progressPercent: list.length ? Math.round((done / list.length) * 100) : 0,
+        completed: list.length > 0 && done === list.length,
+        courseRewardXp: REWARD_CONFIG.COURSE.xp,
+        nodes: list.map((c) => ({
+          id: c.id,
+          title: c.title,
+          type: c.type,
+          moduleTitle: moduleOf.get(c.id) ?? "",
+          rewardXp: rewardXpFor(c.type),
+          completed: state.completed.includes(c.id),
+          isNext: c.id === nextId,
+        })),
+      };
+    });
+    const res: Adventure = { regions };
     return res as T;
   }
 

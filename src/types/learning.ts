@@ -1,4 +1,4 @@
-export type ContentType = "LESSON" | "QUIZ" | "FLASHCARD" | "CHALLENGE" | "VIDEO";
+export type ContentType = "LESSON" | "QUIZ" | "FLASHCARD" | "CHALLENGE" | "VIDEO" | "ARTICLE";
 export type CourseStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
 
 export interface NextContent {

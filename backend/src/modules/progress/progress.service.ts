@@ -5,13 +5,40 @@ import { getByIds, queryIn } from "@/shared/firestore-utils";
 import { assertCourseOwner, assertStudentCourseAccess } from "../courses/course.access";
 import { loadStructure } from "../courses/course.structure";
 import type { CourseDoc, WithId } from "../courses/course.types";
-import { baseRewardOf } from "../gamification/gamification.logic";
+import { REWARD_CONFIG, baseRewardOf } from "../gamification/gamification.logic";
 import { gamRef } from "../gamification/gamification.repository";
 import { activeRoomIdsOfStudent } from "../rooms/room.access";
 import type { RoomDoc } from "../rooms/room.types";
 import type { AuthUser } from "../users/user.types";
 
 export type ContentTypeDto = "LESSON" | "QUIZ" | "FLASHCARD" | "CHALLENGE" | "VIDEO" | "ARTICLE";
+
+export interface AdventureNodeDto {
+  id: string;
+  title: string;
+  type: ContentTypeDto;
+  moduleTitle: string;
+  rewardXp: number;
+  completed: boolean;
+  isNext: boolean;
+}
+
+export interface AdventureRegionDto {
+  courseId: string;
+  title: string;
+  description: string;
+  roomName: string;
+  totalContents: number;
+  completedContents: number;
+  progressPercent: number;
+  completed: boolean;
+  courseRewardXp: number;
+  nodes: AdventureNodeDto[];
+}
+
+export interface AdventureDto {
+  regions: AdventureRegionDto[];
+}
 
 /** Bentuk CourseSummary yang dibaca frontend (types/learning.ts). */
 export interface CourseSummary {
@@ -24,6 +51,49 @@ export interface CourseSummary {
   completedContents: number;
   progressPercent: number;
   nextContent: { id: string; title: string; type: ContentTypeDto; rewardXp: number } | null;
+}
+
+interface AdventureContentShape {
+  id: string;
+  title: string;
+  type: ContentTypeDto;
+  moduleId: string;
+  xpReward: number;
+  pointReward: number;
+}
+
+export function buildAdventureRegions(
+  courses: CourseSummary[],
+  structures: Record<string, { modules: Array<{ id: string; title: string }>; contents: AdventureContentShape[] }>,
+  completedContentIds: Set<string> = new Set()
+): AdventureRegionDto[] {
+  return courses.map((course) => {
+    const structure = structures[course.id] ?? { modules: [], contents: [] };
+    const moduleTitle = new Map(structure.modules.map((m) => [m.id, m.title] as const));
+    const contents = structure.contents;
+    const next = contents.find((c) => !completedContentIds.has(c.id)) ?? null;
+    const done = contents.filter((c) => completedContentIds.has(c.id)).length;
+    return {
+      courseId: course.id,
+      title: course.title,
+      description: course.description ?? "",
+      roomName: course.roomName,
+      totalContents: contents.length,
+      completedContents: done,
+      progressPercent: contents.length ? Math.round((done / contents.length) * 100) : 0,
+      completed: contents.length > 0 && done === contents.length,
+      courseRewardXp: REWARD_CONFIG.COURSE.xp,
+      nodes: contents.map((content) => ({
+        id: content.id,
+        title: content.title,
+        type: content.type,
+        moduleTitle: moduleTitle.get(content.moduleId) ?? "",
+        rewardXp: baseRewardOf({ type: content.type, xpReward: content.xpReward, pointReward: content.pointReward }).xp,
+        completed: completedContentIds.has(content.id),
+        isNext: content.id === next?.id,
+      })),
+    };
+  });
 }
 
 async function summarize(course: WithId<CourseDoc>, roomName: string, studentId: string): Promise<CourseSummary> {
@@ -48,6 +118,40 @@ async function summarize(course: WithId<CourseDoc>, roomName: string, studentId:
 }
 
 export const progressService = {
+  async adventureForStudent(studentId: string): Promise<AdventureDto> {
+    const courses = await this.coursesForStudent(studentId);
+    if (!courses.length) return { regions: [] };
+
+    const structures = await Promise.all(
+      courses.map(async (course) => {
+        const structure = await loadStructure(course.id, { publishedOnly: true });
+        return {
+          id: course.id,
+          modules: structure.modules.map((m) => ({ id: m.id, title: m.title })),
+          contents: structure.contents.map((c) => ({
+            id: c.id,
+            title: c.title,
+            type: c.type,
+            moduleId: c.moduleId,
+            xpReward: c.xpReward,
+            pointReward: c.pointReward,
+          })),
+        };
+      })
+    );
+
+    const courseIds = courses.map((c) => c.id);
+    const rows = await queryIn(
+      (v) => db().collection(C.contentProgress).where("studentId", "==", studentId).where("courseId", "in", v),
+      courseIds
+    );
+    const completedIds = new Set(
+      rows.filter((r) => (r.data.status as string | undefined) === "COMPLETED").map((r) => String(r.data.contentId))
+    );
+    const byId = Object.fromEntries(structures.map((s) => [s.id, { modules: s.modules, contents: s.contents }]));
+    return { regions: buildAdventureRegions(courses, byId, completedIds) };
+  },
+
   /** Course PUBLISHED dari room aktif santri beserta progresnya (BR-005, BR-013). */
   async coursesForStudent(studentId: string): Promise<CourseSummary[]> {
     const roomIds = await activeRoomIdsOfStudent(studentId);

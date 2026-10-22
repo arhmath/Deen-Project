@@ -15,6 +15,8 @@ export const keys = {
 export const useSantriDashboard = (enabled = true) =>
   useQuery({ queryKey: keys.santri, queryFn: dashboardService.santri, enabled });
 
+export const useAdventure = () => useQuery({ queryKey: ["santri", "adventure"], queryFn: dashboardService.adventure });
+
 export const useMyCourses = () => useQuery({ queryKey: keys.courses, queryFn: dashboardService.myCourses });
 
 export const useRooms = () => useQuery({ queryKey: keys.rooms, queryFn: dashboardService.rooms });

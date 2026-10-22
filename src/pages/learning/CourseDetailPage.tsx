@@ -17,6 +17,7 @@ const TYPE: Record<ContentType, { label: string; icon: typeof StarIcon }> = {
   QUIZ: { label: "Kuis", icon: TrophyIcon },
   CHALLENGE: { label: "Tantangan", icon: CrownIcon },
   VIDEO: { label: "Video", icon: ClockIcon },
+  ARTICLE: { label: "Artikel", icon: BookOpenIcon },
 };
 
 export default function CourseDetailPage() {

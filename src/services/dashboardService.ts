@@ -1,6 +1,7 @@
 import { api } from "./api";
 import { dayKey } from "../utils/format";
 import type { SantriDashboard } from "../types/dashboard";
+import type { Adventure } from "../types/adventure";
 import type { CheckInResult } from "../types/gamification";
 import type { CourseSummary } from "../types/learning";
 import type { ContentDetail, CourseDetail, QuizAttempt, QuizResult, RewardOutcome } from "../types/content";
@@ -14,6 +15,7 @@ export const dashboardService = {
     api.post<CheckInResult>("/me/check-ins", undefined, {
       headers: { "Idempotency-Key": `checkin-${dayKey()}` },
     }),
+  adventure: () => api.get<Adventure>("/me/adventure"),
   myCourses: () => api.get<CourseSummary[]>("/me/courses"),
   course: (id: string) => api.get<CourseDetail>(`/me/courses/${id}`),
   content: (id: string) => api.get<ContentDetail>(`/me/contents/${id}`),
