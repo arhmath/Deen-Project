@@ -21,14 +21,18 @@ export const LEVELS = [
   { level: 5, min: 1000, name: "Bintang Deen" },
 ] as const;
 
-/** Konfigurasi reward — hidup di server (BR-007/008). SRS §6. */
+/**
+ * Konfigurasi reward — hidup di server (BR-007/008). SRS §6.
+ * Aturan: semua aktivitas belajar memberi XP, tetapi POINT hanya dari menyelesaikan kuis.
+ * Baca modul, buka kartu, check-in, challenge, dan bonus course = XP saja (point 0).
+ */
 export const REWARD_CONFIG: Record<RewardSource, { xp: number; point: number }> = {
-  DAILY_CHECKIN: { xp: 10, point: 10 },
-  LESSON: { xp: 5, point: 5 },
+  DAILY_CHECKIN: { xp: 10, point: 0 },
+  LESSON: { xp: 5, point: 0 },
   QUIZ: { xp: 20, point: 20 },
   PERFECT_QUIZ: { xp: 30, point: 30 },
-  CHALLENGE: { xp: 50, point: 50 },
-  COURSE: { xp: 100, point: 100 },
+  CHALLENGE: { xp: 50, point: 0 },
+  COURSE: { xp: 100, point: 0 },
 };
 
 /** Skor minimum (%) agar kuis dianggap selesai. 0 = selesai pada submit pertama. */
@@ -202,10 +206,16 @@ export function sourceForType(type: ContentType, perfect: boolean): RewardSource
   return "LESSON";
 }
 
+/** Hanya kuis yang memberi point. Tipe lain selalu 0, termasuk bila guru mengisi `pointReward`. */
+export function earnsPoint(type: ContentType): boolean {
+  return type === "QUIZ";
+}
+
 /** XP/point dasar sebuah konten (override per-konten jika diisi guru). */
 export function baseRewardOf(c: Pick<RewardableContent, "type" | "xpReward" | "pointReward">) {
   const def = REWARD_CONFIG[sourceForType(c.type, false)];
   const xp = c.xpReward > 0 ? c.xpReward : def.xp;
+  if (!earnsPoint(c.type)) return { xp, point: 0 };
   const point = c.pointReward > 0 ? c.pointReward : c.xpReward > 0 ? c.xpReward : def.point;
   return { xp, point };
 }

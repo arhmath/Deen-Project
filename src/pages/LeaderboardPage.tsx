@@ -8,21 +8,19 @@ import { EmptyState } from "../components/ui/EmptyState";
 import { LeaderboardRow, RankBadge } from "../components/domain/LeaderboardRow";
 import { ChevronLeftIcon, ChevronRightIcon, TrophyIcon } from "../components/ui/DashIcons";
 import { useLeaderboard, useRooms } from "../features/dashboard/queries";
-import { useSessionUser } from "../hooks/useSessionUser";
 import { clsx } from "../lib/clsx";
 import { formatNumber } from "../utils/format";
 
 const PAGE_SIZE = 10;
 
 export default function LeaderboardPage() {
-  const user = useSessionUser();
-  const showRooms = user.role !== "PARENT";
+  // Halaman ini hanya bisa dibuka santri (lihat App.tsx), jadi tidak ada percabangan role.
   const rooms = useRooms();
   const [roomId, setRoomId] = useState<string | undefined>(undefined);
   const [page, setPage] = useState(1);
   const q = useLeaderboard(roomId, page, PAGE_SIZE);
 
-  const tabs = [{ id: undefined as string | undefined, name: "Global" }, ...(showRooms ? (rooms.data ?? []).map((r) => ({ id: r.id as string | undefined, name: r.name })) : [])];
+  const tabs = [{ id: undefined as string | undefined, name: "Global" }, ...(rooms.data ?? []).map((r) => ({ id: r.id as string | undefined, name: r.name }))];
   const totalPages = q.data ? Math.max(1, Math.ceil(q.data.total / PAGE_SIZE)) : 1;
 
   return (
@@ -74,23 +72,21 @@ export default function LeaderboardPage() {
           )}
         </Card>
 
-        {user.role === "SANTRI" && (
-          <aside aria-label="Posisimu" className="h-fit rounded-3xl border-2 border-brand-purple-dark bg-brand-purple p-5 text-white shadow-[0_6px_0_0_#5B1FB0] lg:sticky lg:top-24">
-            {q.data?.me ? (
-              <>
-                <p className="font-display text-sm font-bold text-white/75">Posisimu {roomId ? "di room" : "secara global"}</p>
-                <div className="mt-2 flex items-center gap-3">
-                  <RankBadge rank={q.data.me.rank} />
-                  <p className="font-display text-3xl font-extrabold">#{q.data.me.rank}</p>
-                </div>
-                <p className="mt-2 font-display font-bold text-brand-gold">{formatNumber(q.data.me.xp)} XP</p>
-                <p className="mt-3 text-sm text-white/75">Check-in dan selesaikan pelajaran untuk naik peringkat.</p>
-              </>
-            ) : (
-              <p className="text-sm text-white/80">Posisimu muncul di sini setelah kamu punya XP.</p>
-            )}
-          </aside>
-        )}
+        <aside aria-label="Posisimu" className="h-fit rounded-3xl border-2 border-brand-purple-dark bg-brand-purple p-5 text-white shadow-[0_6px_0_0_#5B1FB0] lg:sticky lg:top-24">
+          {q.data?.me ? (
+            <>
+              <p className="font-display text-sm font-bold text-white/75">Posisimu {roomId ? "di room" : "secara global"}</p>
+              <div className="mt-2 flex items-center gap-3">
+                <RankBadge rank={q.data.me.rank} />
+                <p className="font-display text-3xl font-extrabold">#{q.data.me.rank}</p>
+              </div>
+              <p className="mt-2 font-display font-bold text-brand-gold">{formatNumber(q.data.me.xp)} XP</p>
+              <p className="mt-3 text-sm text-white/75">Check-in dan selesaikan pelajaran untuk naik peringkat.</p>
+            </>
+          ) : (
+            <p className="text-sm text-white/80">Posisimu muncul di sini setelah kamu punya XP.</p>
+          )}
+        </aside>
       </div>
     </>
   );

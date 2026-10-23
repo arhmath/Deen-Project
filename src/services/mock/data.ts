@@ -12,15 +12,22 @@ export const LEVELS = [
   { level: 5, min: 1000, name: "Bintang Deen" },
 ];
 
-/** Konfigurasi reward — hidup di "server", bukan di komponen UI (BR-007/008, SRS §6). */
+/**
+ * Konfigurasi reward — hidup di "server", bukan di komponen UI (BR-007/008, SRS §6).
+ * Semua aktivitas belajar memberi XP; POINT hanya dari menyelesaikan kuis.
+ */
 export const REWARD_CONFIG = {
-  DAILY_CHECKIN: { xp: 10, point: 10 },
-  LESSON: { xp: 5, point: 5 },
+  DAILY_CHECKIN: { xp: 10, point: 0 },
+  LESSON: { xp: 5, point: 0 },
   QUIZ: { xp: 20, point: 20 },
   PERFECT_QUIZ: { xp: 30, point: 30 },
-  CHALLENGE: { xp: 50, point: 50 },
-  COURSE: { xp: 100, point: 100 },
+  CHALLENGE: { xp: 50, point: 0 },
+  COURSE: { xp: 100, point: 0 },
 } as const;
+
+/** Point hanya diberikan untuk kuis. */
+export const earnsPoint = (source: "DAILY_CHECKIN" | "LESSON" | "QUIZ" | "PERFECT_QUIZ" | "CHALLENGE" | "COURSE") =>
+  source === "QUIZ" || source === "PERFECT_QUIZ";
 
 export const ROOMS = [
   { id: "r1", name: "TPA Al-Hikmah · Kelas A" },

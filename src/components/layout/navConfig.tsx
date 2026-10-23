@@ -33,7 +33,6 @@ export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   PARENT: [
     { label: "Dashboard", to: "/dashboard", icon: HomeIcon, end: true },
     { label: "Monitoring Anak", to: "/parent", icon: UsersIcon },
-    { label: "Leaderboard", to: "/leaderboard", icon: TrophyIcon },
     { label: "Chatbot", to: "/chat", icon: ChatIcon },
   ],
   ADMIN: [
@@ -41,7 +40,6 @@ export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { label: "Rooms", to: "/admin/rooms", icon: DoorIcon },
     { label: "Pembelajaran", to: "/admin/courses", icon: BookOpenIcon },
     { label: "Monitoring", to: "/admin/monitoring", icon: ChartIcon },
-    { label: "Leaderboard", to: "/leaderboard", icon: TrophyIcon },
     { label: "Profile", to: "/profile", icon: ProfileIcon },
     { label: "Chatbot", to: "/chat", icon: ChatIcon },
   ],

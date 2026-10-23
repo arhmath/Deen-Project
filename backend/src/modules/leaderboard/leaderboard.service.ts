@@ -6,7 +6,7 @@ import { countOf } from "@/shared/firestore-utils";
 import { SAFE_ID } from "@/shared/ids";
 import type { UserGamificationDoc } from "../gamification/gamification.types";
 import { gamificationService } from "../gamification/gamification.service";
-import { activeRoomIdsOfStudent, isActiveMember, loadRoom } from "../rooms/room.access";
+import { isActiveMember, loadRoom } from "../rooms/room.access";
 import type { AuthUser } from "../users/user.types";
 
 export const leaderboardQuery = z.object({
@@ -19,17 +19,10 @@ export interface LeaderboardEntry {
   rank: number; studentId: string; name: string; level: number; xp: number; isMe: boolean;
 }
 
+/** Leaderboard hanya untuk SANTRI (route dibatasi `roles: ["SANTRI"]`); santri hanya melihat room yang ia ikuti. */
 async function assertRoomVisible(user: AuthUser, roomId: string) {
-  const room = await loadRoom(roomId);
-  if (user.role === "SANTRI") {
-    if (!(await isActiveMember(roomId, user.id))) throw Errors.forbidden("Kamu bukan anggota room ini.");
-  } else if (user.role === "ADMIN") {
-    if (room.ownerId !== user.id) throw Errors.forbidden("Room ini bukan milikmu.");
-  } else {
-    const links = await db().collection(C.parentStudents).where("parentId", "==", user.id).where("status", "==", "ACTIVE").get();
-    const sets = await Promise.all(links.docs.map((d) => activeRoomIdsOfStudent(d.data().studentId as string)));
-    if (!sets.flat().includes(roomId)) throw Errors.forbidden("Room ini tidak terhubung dengan anakmu.");
-  }
+  await loadRoom(roomId);
+  if (!(await isActiveMember(roomId, user.id))) throw Errors.forbidden("Kamu bukan anggota room ini.");
 }
 
 export const leaderboardService = {
@@ -47,12 +40,10 @@ export const leaderboardService = {
     });
 
     let me: LeaderboardEntry | null = null;
-    if (user.role === "SANTRI") {
-      const mine = await gamificationService.getOrCreate(user.id);
-      if (!q.roomId || mine.roomIds.includes(q.roomId)) {
-        const ahead = await countOf(base.where("sortKey", "<", mine.sortKey));
-        me = { rank: ahead + 1, studentId: mine.userId, name: mine.name, level: mine.level, xp: mine.totalXp, isMe: true };
-      }
+    const mine = await gamificationService.getOrCreate(user.id);
+    if (!q.roomId || mine.roomIds.includes(q.roomId)) {
+      const ahead = await countOf(base.where("sortKey", "<", mine.sortKey));
+      me = { rank: ahead + 1, studentId: mine.userId, name: mine.name, level: mine.level, xp: mine.totalXp, isMe: true };
     }
     return { entries, page: q.page, pageSize: q.pageSize, total, me };
   },

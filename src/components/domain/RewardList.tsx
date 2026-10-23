@@ -17,7 +17,7 @@ export function RewardList({ items }: { items: RewardEntry[] }) {
     return (
       <EmptyState
         title="Belum ada reward"
-        description="Selesaikan pelajaran atau check-in harian untuk mengumpulkan XP pertamamu."
+        description="Selesaikan pelajaran atau check-in harian untuk mengumpulkan XP, dan kerjakan kuis untuk mendapat point."
       />
     );
   }
@@ -36,7 +36,7 @@ export function RewardList({ items }: { items: RewardEntry[] }) {
             </div>
             <p className="shrink-0 font-display text-sm font-extrabold text-brand-purple">
               +{r.xp} XP
-              <span className="sr-only">, +{r.point} point</span>
+              {r.point > 0 && <span className="block text-xs text-brand-gold-dark">+{r.point} Point</span>}
             </p>
           </li>
         );

@@ -1,6 +1,5 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route, Link } from "react-router-dom";
-import { SmoothScroll } from "./components/ui/SmoothScroll";
 import LandingPage from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
@@ -46,7 +45,7 @@ function App() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-brand-cream p-6"><PageFallback /></div>}>
       <Routes>
-        <Route path="/" element={<SmoothScroll><LandingPage /></SmoothScroll>} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
@@ -54,7 +53,6 @@ function App() {
         <Route element={<RequireAuth />}>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/chat" element={<ChatPage />} />
 
             <Route element={<RequireAuth roles={["SANTRI", "ADMIN"]} />}>
@@ -62,6 +60,7 @@ function App() {
             </Route>
 
             <Route element={<RequireAuth roles={["SANTRI"]} />}>
+              <Route path="/leaderboard" element={<LeaderboardPage />} />
               <Route path="/maps" element={<MapsPage />} />
               <Route path="/learning" element={<LearningPage />} />
               <Route path="/learning/:courseId" element={<CourseDetailPage/>} />

@@ -10,7 +10,7 @@ export function RewardPanel({ outcome }: { outcome: RewardOutcome }) {
   if (outcome.alreadyRewarded) {
     return (
       <div role="status" className="rounded-2xl border-2 border-brand-ink/10 bg-white px-4 py-3 text-sm text-brand-ink/70">
-        Materi ini sudah pernah kamu selesaikan, jadi XP tidak bertambah lagi. Tetap semangat mengulang!
+        Materi ini sudah pernah kamu selesaikan, jadi XP dan point tidak bertambah lagi. Tetap semangat mengulang!
       </div>
     );
   }
@@ -21,7 +21,7 @@ export function RewardPanel({ outcome }: { outcome: RewardOutcome }) {
         <StarIcon className="h-9 w-9 shrink-0 text-brand-gold-dark" aria-hidden="true" />
         <div>
           <p className="font-display text-xl font-extrabold text-brand-ink">
-            +{outcome.totalXp} XP · +{outcome.totalPoint} Point
+            +{outcome.totalXp} XP{outcome.totalPoint > 0 && ` · +${outcome.totalPoint} Point`}
           </p>
           <p className="text-sm text-brand-ink/65">Reward masuk ke akunmu.</p>
         </div>
@@ -30,7 +30,9 @@ export function RewardPanel({ outcome }: { outcome: RewardOutcome }) {
         {outcome.grants.map((g) => (
           <li key={g.label} className="flex justify-between gap-3 rounded-xl bg-white/70 px-3 py-2">
             <span className="min-w-0 truncate font-semibold">{g.label}</span>
-            <span className="shrink-0 font-extrabold text-brand-purple">+{g.xp} XP</span>
+            <span className="shrink-0 font-extrabold text-brand-purple">
+              +{g.xp} XP{g.point > 0 && ` · +${g.point} Point`}
+            </span>
           </li>
         ))}
       </ul>

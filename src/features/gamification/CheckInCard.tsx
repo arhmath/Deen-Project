@@ -69,7 +69,7 @@ export function CheckInCard({ gamification: g }: { gamification: GamificationSum
       <div className="mt-5">
         {g.checkedInToday ? (
           <p role="status" className="rounded-2xl bg-white/60 px-4 py-3 text-center font-display font-extrabold">
-            {gained ? `+${gained.xp} XP dan +${gained.point} point masuk!` : "Check-in hari ini sudah beres. Sampai besok ya!"}
+            {gained ? `+${gained.xp} XP${gained.point > 0 ? ` dan +${gained.point} point` : ""} masuk!` : "Check-in hari ini sudah beres. Sampai besok ya!"}
           </p>
         ) : (
           <>

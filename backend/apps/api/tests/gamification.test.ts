@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  appendCheckinDate, baseRewardOf, buildSortKey, effectiveStreak, levelFor, levelUpOf,
+  REWARD_CONFIG, appendCheckinDate, baseRewardOf, buildSortKey, effectiveStreak, levelFor, levelUpOf,
   planSubmissionRewards, streakAfterCheckin, weekStrip,
 } from "@/modules/gamification/gamification.logic";
 
@@ -69,9 +69,16 @@ describe("planSubmissionRewards (BR-007/008/010)", () => {
   const common = { courseTitle: "Kisah Nabi", perfect: false, alreadyCompleted: false, completedBefore: 2, totalContents: 10, courseAlreadyCompleted: false };
 
   it("pelajaran = 5 XP, kuis = 20, kuis sempurna = 30", () => {
-    expect(planSubmissionRewards({ ...common, content: lesson }).rewards[0]).toMatchObject({ source: "LESSON", xp: 5, point: 5, label: "Pelajaran: Nabi Hud" });
-    expect(planSubmissionRewards({ ...common, content: quiz }).rewards[0]).toMatchObject({ source: "QUIZ", xp: 20 });
-    expect(planSubmissionRewards({ ...common, content: quiz, perfect: true }).rewards[0]).toMatchObject({ source: "PERFECT_QUIZ", xp: 30, label: "Kuis sempurna: Kuis 1" });
+    expect(planSubmissionRewards({ ...common, content: lesson }).rewards[0]).toMatchObject({ source: "LESSON", xp: 5, point: 0, label: "Pelajaran: Nabi Hud" });
+    expect(planSubmissionRewards({ ...common, content: quiz }).rewards[0]).toMatchObject({ source: "QUIZ", xp: 20, point: 20 });
+    expect(planSubmissionRewards({ ...common, content: quiz, perfect: true }).rewards[0]).toMatchObject({ source: "PERFECT_QUIZ", xp: 30, point: 30, label: "Kuis sempurna: Kuis 1" });
+  });
+  it("point HANYA dari kuis: pelajaran, kartu, dan bonus course = 0 point", () => {
+    const flashcard = { ...lesson, id: "f1", type: "FLASHCARD" as const };
+    expect(planSubmissionRewards({ ...common, content: flashcard }).rewards[0]).toMatchObject({ xp: 5, point: 0 });
+    const last = planSubmissionRewards({ ...common, content: lesson, completedBefore: 9 });
+    expect(last.rewards.map((r) => [r.source, r.xp, r.point])).toEqual([["LESSON", 5, 0], ["COURSE", 100, 0]]);
+    expect(REWARD_CONFIG.DAILY_CHECKIN.point).toBe(0);
   });
   it("konten yang sudah selesai TIDAK memberi reward lagi (retry/retake)", () => {
     expect(planSubmissionRewards({ ...common, content: quiz, alreadyCompleted: true })).toEqual({ rewards: [], completesCourse: false });
@@ -88,7 +95,9 @@ describe("planSubmissionRewards (BR-007/008/010)", () => {
     expect(r.map((x) => x.idempotencyKey)).toEqual(["content:c1", "course:course1"]);
   });
   it("override reward per konten oleh guru", () => {
-    expect(baseRewardOf({ type: "LESSON", xpReward: 12, pointReward: 0 })).toEqual({ xp: 12, point: 12 });
-    expect(baseRewardOf({ type: "LESSON", xpReward: 12, pointReward: 7 })).toEqual({ xp: 12, point: 7 });
+    expect(baseRewardOf({ type: "QUIZ", xpReward: 12, pointReward: 0 })).toEqual({ xp: 12, point: 12 });
+    expect(baseRewardOf({ type: "QUIZ", xpReward: 12, pointReward: 7 })).toEqual({ xp: 12, point: 7 });
+    // guru mengisi pointReward di pelajaran → diabaikan, point tetap 0
+    expect(baseRewardOf({ type: "LESSON", xpReward: 12, pointReward: 7 })).toEqual({ xp: 12, point: 0 });
   });
 });

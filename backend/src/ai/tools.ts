@@ -79,7 +79,7 @@ export const TOOLS: Tool[] = [
     return courses.map((c) => ({ course: c.title, room: c.roomName, persen: c.progressPercent }));
   } },
   { name: "get_my_quiz_results", roles: ["SANTRI"], source: "progress", run: async ({ user }) => recentQuizResults(user.id) },
-  { name: "get_leaderboard", roles: ["SANTRI", "PARENT", "ADMIN"], source: "progress", run: async ({ user }) => {
+  { name: "get_leaderboard", roles: ["SANTRI"], source: "progress", run: async ({ user }) => {
     const lb = await leaderboardService.page(user, { page: 1, pageSize: 5 });
     return { top: lb.entries.map((e) => ({ peringkat: e.rank, nama: e.name, xp: e.xp })), peringkatSaya: lb.me ? { peringkat: lb.me.rank, xp: lb.me.xp } : null, totalPeserta: lb.total };
   } },

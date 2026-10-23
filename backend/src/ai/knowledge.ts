@@ -13,7 +13,7 @@ export const DEEN_KNOWLEDGE: Chunk[] = [
   },
   {
     id: "kb-xp-point", type: "knowledge", title: "Apa itu XP dan point",
-    text: "XP (pengalaman) dan point adalah dua nilai terpisah yang didapat santri dari aktivitas belajar. XP dipakai untuk menentukan level, sedangkan point dipakai untuk peringkat leaderboard. Keduanya dihitung dan diberikan oleh server Deen, bukan oleh aplikasi di perangkat, dan tidak bisa diberikan dua kali untuk aktivitas yang sama.",
+    text: "XP (pengalaman) dan point adalah dua nilai terpisah. XP didapat dari semua aktivitas belajar (membaca modul, membuka kartu, kuis, check-in harian, dan menyelesaikan course) dan dipakai untuk menentukan level. Point hanya didapat dari menyelesaikan kuis dan dipakai untuk peringkat leaderboard. Keduanya dihitung dan diberikan oleh server Deen, bukan oleh aplikasi di perangkat, dan tidak bisa diberikan dua kali untuk aktivitas yang sama.",
   },
   {
     id: "kb-reward", type: "knowledge", title: "Cara mendapat XP dan point",

@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SmoothScroll } from "../components/ui/SmoothScroll";
 import { LandingNavbar } from "../components/landing/LandingNavbar";
 import { Hero } from "../components/landing/Hero";
 import { LearningPath } from "../components/landing/LearningPath";
@@ -20,15 +21,20 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-brand-cream">
+      {/* Navbar fixed di LUAR SmoothScroll: elemen fixed/sticky tidak jalan di dalam konten ber-transform. */}
       <LandingNavbar />
-      <main>
-        <Hero />
-        <LearningPath />
-        <Features />
-        <Testimonials />
-        <CtaBanner />
-      </main>
-      <LandingFooter />
+      <SmoothScroll>
+        {/* Ruang di bawah navbar fixed — tingginya diukur & dipublikasikan oleh LandingNavbar. */}
+        <div aria-hidden="true" style={{ height: "var(--landing-nav-h, 4.5rem)" }} />
+        <main>
+          <Hero />
+          <LearningPath />
+          <Features />
+          <Testimonials />
+          <CtaBanner />
+        </main>
+        <LandingFooter />
+      </SmoothScroll>
     </div>
   );
 }

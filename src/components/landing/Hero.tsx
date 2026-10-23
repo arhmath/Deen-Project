@@ -59,9 +59,9 @@ export function Hero() {
 
       <div className="mx-auto grid max-w-6xl items-center gap-14 md:grid-cols-2">
         <div>
-          <Badge tone="cream" icon={<StarIcon className="h-4 w-4 text-brand-amber" />}>
+          {/* <Badge tone="cream" icon={<StarIcon className="h-4 w-4 text-brand-amber" />}>
             Dibuat untuk santri TPA
-          </Badge>
+          </Badge> */}
 
           {/* ✨ ref dipasang di sini, animasinya jalan otomatis lewat useEffect */}
           <h1

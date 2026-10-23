@@ -65,6 +65,7 @@ import {
   LEVELS,
   REWARD_CONFIG,
   ROSTER,
+  earnsPoint,
   USERS,
   WEEK_LABELS,
 } from "./data";
@@ -111,7 +112,7 @@ function seedState(): MockState {
     source,
     label,
     xp,
-    point: xp,
+    point: earnsPoint(source) ? xp : 0,
     createdAt: when.toISOString(),
   });
   // Total XP = 240 → tinggal 10 XP lagi menuju Level 3 (check-in hari ini = level up).
@@ -410,7 +411,7 @@ function allStudents(): StudentProgress[] {
       level: lv.level,
       levelName: lv.name,
       xp: r.xp,
-      point: r.xp,
+      point: Math.round(r.xp * 0.4), // data demo: point hanya dari kuis, jadi lebih kecil dari XP
       streak: r.streak,
       courseProgress: r.courseProgress,
       avgScore: r.avgScore,
@@ -501,7 +502,7 @@ function rewardsFor(student: StudentProgress, limit = 6): RewardEntry[] {
     source,
     label,
     xp,
-    point: xp,
+    point: earnsPoint(source) ? xp : 0,
     createdAt: iso(d),
   });
   return [
