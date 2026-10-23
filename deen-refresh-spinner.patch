@@ -1,0 +1,39 @@
+--- a/src/components/ui/ErrorState.tsx
++++ b/src/components/ui/ErrorState.tsx
+@@ -1,3 +1,4 @@
++import { useState } from "react";
+ import { Button } from "./Button";
+ import { AlertIcon, ShieldIcon } from "./DashIcons";
+ 
+@@ -8,16 +9,28 @@
+ }: {
+   title?: string;
+   message?: string;
+-  onRetry?: () => void;
++  onRetry?: () => void | Promise<unknown>;
+ }) {
++  const [isRetrying, setIsRetrying] = useState(false);
++
++  const handleRetry = async () => {
++    if (!onRetry || isRetrying) return;
++    setIsRetrying(true);
++    try {
++      await onRetry();
++    } finally {
++      setIsRetrying(false);
++    }
++  };
++
+   return (
+     <div role="alert" className="flex flex-col items-center gap-2 rounded-3xl border-2 border-red-200 bg-red-50 px-6 py-10 text-center">
+       <AlertIcon className="h-10 w-10 text-red-500" />
+       <p className="font-display text-lg font-extrabold text-brand-ink">{title}</p>
+       <p className="max-w-sm text-sm text-brand-ink/65">{message}</p>
+       {onRetry && (
+-        <Button size="sm" variant="outline" className="mt-3" onClick={onRetry}>
+-          Coba lagi
++        <Button size="sm" variant="outline" className="mt-3" onClick={handleRetry} isLoading={isRetrying}>
++          {isRetrying ? "Memuat ulang..." : "Coba lagi"}
+         </Button>
+       )}
+     </div>

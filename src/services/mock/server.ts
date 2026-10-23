@@ -213,6 +213,7 @@ interface RegisteredUser {
   password: string;
   role: "SANTRI" | "PARENT";
   createdAt: string;
+  avatarUrl?: string;
 }
 
 const USERS_KEY = "deen.mock.users.v1";
@@ -240,6 +241,7 @@ interface Account {
   username: string;
   email?: string;
   role: Role;
+  avatarUrl?: string;
   studentId?: string;
   children?: string[];
 }
@@ -252,6 +254,7 @@ function allAccounts(): Account[] {
     username: u.username,
     email: u.email,
     role: u.role,
+    avatarUrl: u.avatarUrl,
     studentId: u.role === "SANTRI" ? `s-${u.id}` : undefined,
   }));
   return [...demo, ...registered];
@@ -528,7 +531,7 @@ interface MockReq {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 function toSession(u: Account): SessionUser {
-  return { id: u.id, name: u.name, username: u.username, email: u.email, role: u.role };
+  return { id: u.id, name: u.name, username: u.username, email: u.email, role: u.role, avatarUrl: u.avatarUrl };
 }
 
 function authUser(token: string | null): Account {
@@ -914,6 +917,42 @@ async function route<T>(req: MockReq): Promise<T> {
   const state = loadState();
 
   if (method === "GET" && path === "/auth/me") return toSession(user) as T;
+
+  if (method === "POST" && path === "/users/avatar") {
+    const body = (req.body ?? {}) as { contentType?: string; data?: string };
+    if (!["image/jpeg", "image/png", "image/webp"].includes(body.contentType ?? "") || !body.data) {
+      throw new ApiError("Pilih foto JPG, PNG, atau WebP yang valid.", 422);
+    }
+    // Mode demo memakai data URL lokal; backend produksi menyimpan file ke Firebase Storage.
+    return { avatarUrl: `data:${body.contentType};base64,${body.data}` } as T;
+  }
+
+  if (method === "PATCH" && path === "/users/me") {
+    const body = (req.body ?? {}) as { name?: unknown; avatarUrl?: unknown };
+    const name = typeof body.name === "string" ? body.name.trim() : user.name;
+    const avatarUrl = body.avatarUrl;
+    if (typeof body.name === "string" && (name.length < 2 || name.length > 100)) {
+      throw new ApiError("Nama harus terdiri dari 2–100 karakter.", 422, { name: "Nama harus terdiri dari 2–100 karakter." });
+    }
+    if (avatarUrl !== undefined && avatarUrl !== null && (typeof avatarUrl !== "string" || (!/^data:image\/(jpeg|png|webp);base64,/i.test(avatarUrl) && (avatarUrl.length > 500 || !/^https:\/\//i.test(avatarUrl))) || avatarUrl.length > 2_800_000)) {
+      throw new ApiError("Avatar harus berupa URL HTTPS yang valid.", 422, { avatarUrl: "Masukkan URL foto HTTPS yang valid." });
+    }
+    if (body.name === undefined && avatarUrl === undefined) {
+      throw new ApiError("Tidak ada data yang diubah.", 422);
+    }
+    const registered = loadRegistered();
+    const registeredIndex = registered.findIndex((account) => account.id === user.id);
+    if (registeredIndex >= 0) {
+      registered[registeredIndex] = { ...registered[registeredIndex]!, name, ...(avatarUrl !== undefined ? { avatarUrl: avatarUrl ?? undefined } : {}) };
+      saveRegistered(registered);
+    } else {
+      const demoUser = USERS.find((account) => account.id === user.id);
+      if (demoUser) { demoUser.name = name; if (avatarUrl !== undefined) Object.assign(demoUser, { avatarUrl: avatarUrl ?? undefined }); }
+    }
+    user.name = name;
+    if (avatarUrl !== undefined) user.avatarUrl = avatarUrl ?? undefined;
+    return toSession(user) as T;
+  }
 
   /* ---- santri ---- */
   if (method === "GET" && path === "/me/dashboard") {

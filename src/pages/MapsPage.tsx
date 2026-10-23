@@ -39,7 +39,7 @@ export default function MapsPage() {
       <PageHeader title="Peta Petualangan" subtitle="Ikuti jalurnya, selesaikan setiap pos, dan kumpulkan hadiah di ujung wilayah." />
 
       {adventure.isPending ? (
-        <div aria-busy="true" aria-label="Memuat peta" className="mx-auto flex max-w-md flex-col gap-4">
+        <div aria-busy="true" aria-label="Memuat peta" className="mx-auto flex w-full max-w-5xl flex-col gap-4">
           <Skeleton className="h-28 rounded-3xl" />
           <Skeleton className="h-[30rem] rounded-3xl" />
         </div>
@@ -62,7 +62,7 @@ export default function MapsPage() {
           />
         )
       ) : (
-        <div className="mx-auto flex max-w-md flex-col gap-6">
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
           <Card className="p-4">
             {dash.data ? (
               <>

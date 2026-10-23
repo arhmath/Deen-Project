@@ -2,12 +2,40 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <style>
+      #initial-loader {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: #fffcf3;
+        z-index: 9999;
+      }
+      #initial-loader-spinner {
+        width: 36px;
+        height: 36px;
+        border: 3px solid rgba(130, 49, 242, 0.18);
+        border-top-color: #8231f2;
+        border-radius: 50%;
+        animation: initial-loader-spin 0.75s linear infinite;
+      }
+      @keyframes initial-loader-spin {
+        to { transform: rotate(360deg); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #initial-loader-spinner { animation-duration: 1.8s; }
+      }
+    </style>
     <link rel="icon" type="image/svg+xml" href="/logoo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Deen</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="initial-loader" role="status" aria-label="Memuat halaman">
+        <div id="initial-loader-spinner" aria-hidden="true"></div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

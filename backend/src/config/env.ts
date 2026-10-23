@@ -12,6 +12,7 @@ const schema = z.object({
   BCRYPT_COST: z.coerce.number().int().min(8).max(15).default(12),
 
   FIREBASE_PROJECT_ID: z.string().optional(),
+  FIREBASE_STORAGE_BUCKET: z.string().optional(),
   FIREBASE_CLIENT_EMAIL: z.string().optional(),
   FIREBASE_PRIVATE_KEY: z.string().optional(),
 

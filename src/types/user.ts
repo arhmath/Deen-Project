@@ -16,6 +16,7 @@ export interface SessionUser {
   username: string;
   email?: string;
   role: Role;
+  avatarUrl?: string;
 }
 
 export interface LoginResponse {

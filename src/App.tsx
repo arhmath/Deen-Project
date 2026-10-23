@@ -55,7 +55,7 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/chat" element={<ChatPage />} />
 
-            <Route element={<RequireAuth roles={["SANTRI", "ADMIN"]} />}>
+            <Route element={<RequireAuth roles={["SANTRI", "PARENT", "ADMIN"]} />}>
               <Route path="/profile" element={<ProfilePage />} />
             </Route>
 
