@@ -8,6 +8,7 @@ import { Features } from "../components/landing/Features";
 import { Testimonials } from "../components/landing/Testimonials";
 import { CtaBanner } from "../components/landing/CtaBanner";
 import { LandingFooter } from "../components/landing/LandingFooter";
+import { ZiyaChatWidget } from "../components/landing/ZiyaChatWidget";
 
 export function LandingPage() {
   useEffect(() => {
@@ -23,6 +24,7 @@ export function LandingPage() {
     <div className="min-h-screen bg-brand-cream">
       {/* Navbar fixed di LUAR SmoothScroll: elemen fixed/sticky tidak jalan di dalam konten ber-transform. */}
       <LandingNavbar />
+      <ZiyaChatWidget />
       <SmoothScroll>
         {/* Ruang di bawah navbar fixed — tingginya diukur & dipublikasikan oleh LandingNavbar. */}
         <div aria-hidden="true" style={{ height: "var(--landing-nav-h, 4.5rem)" }} />
