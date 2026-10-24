@@ -20,6 +20,11 @@ interface AuthLayoutProps {
    * Login pakai "right", Register pakai "left".
    */
   imagePosition?: "left" | "right";
+  /**
+   * Varian padat untuk form panjang (Register): kartu lebih lebar & spasi lebih rapat
+   * supaya muat satu layar tanpa scroll. Login tetap memakai tampilan default.
+   */
+  compact?: boolean;
 }
 
 export function AuthLayout({
@@ -32,6 +37,7 @@ export function AuthLayout({
   imageHeadline,
   imageCaption,
   imagePosition = "left",
+  compact = false,
 }: AuthLayoutProps) {
   const isImageRight = imagePosition === "right";
 
@@ -91,7 +97,8 @@ export function AuthLayout({
       {/* Form panel */}
       <div
         className={clsx(
-          "relative flex flex-col justify-center bg-brand-cream p-6 sm:p-12 overflow-hidden",
+          "relative flex flex-col justify-center bg-brand-cream overflow-hidden",
+          compact ? "p-3 sm:p-4" : "p-6 sm:p-12",
           isImageRight ? "md:order-1" : "md:order-2"
         )}
       >
@@ -103,8 +110,13 @@ export function AuthLayout({
         </div>
 
         {/* --- CONTAINER KOTAK / CARD FORM --- */}
-        <div className="relative z-10 mx-auto w-full max-w-md rounded-3xl bg-surface p-6 sm:p-10 border-2 border-brand-purple/15 shadow-[0_20px_50px_rgba(124,58,237,0.12)]">
-          <Link to="/" className="mb-6 flex justify-center md:hidden">
+        <div
+          className={clsx(
+            "relative z-10 mx-auto w-full rounded-3xl bg-surface border-2 border-brand-purple/15 shadow-[0_20px_50px_rgba(124,58,237,0.12)]",
+            compact ? "max-w-md lg:max-w-xl p-6" : "max-w-md p-6 sm:p-10"
+          )}
+        >
+          <Link to="/" className={clsx("flex justify-center md:hidden", compact ? "mb-4" : "mb-6")}>
             <Logo />
           </Link>
 
@@ -115,11 +127,11 @@ export function AuthLayout({
             <p className="mt-1.5 font-body text-brand-ink/60">{subtitle}</p>
           </div>
 
-          <div className="mt-8 motion-safe:animate-fade-up [animation-delay:120ms]">
+          <div className={clsx("motion-safe:animate-fade-up [animation-delay:120ms]", compact ? "mt-5" : "mt-8")}>
             {children}
           </div>
 
-          <div className="mt-6 text-center font-body text-sm text-brand-ink/60 motion-safe:animate-fade-up [animation-delay:220ms]">
+          <div className={clsx("text-center font-body text-sm text-brand-ink/60 motion-safe:animate-fade-up [animation-delay:220ms]", compact ? "mt-4" : "mt-6")}>
             {footer}
           </div>
         </div>

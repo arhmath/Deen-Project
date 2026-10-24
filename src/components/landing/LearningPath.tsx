@@ -14,7 +14,7 @@ const STEPS = [
   },
   {
     title: "Kerjakan Modul",
-    desc: "Belajar lewat bacaan, flashcard hafalan, dan video singkat.",
+    desc: "Belajar lewat bacaan, flashcard hafalan, dan berbagai macam modul menarik.",
     icon: BookIcon,
     tone: "bg-brand-purple",
   },
@@ -139,7 +139,7 @@ export function LearningPath() {
           <div className="relative min-h-[220px]">
             {STEPS.map((step) => (
               <div key={step.title} className="slide absolute inset-0 invisible opacity-0">
-                <div className="rounded-3xl bg-surface p-8 shadow-[0_10px_0_0_#E4D6FB]">
+                <div className="rounded-3xl bg-surface p-8 shadow-[0_10px_0_0_var(--color-outline-shadow)]">
                   <div
                     className={`flex h-14 w-14 items-center justify-center rounded-2xl ${step.tone} text-white`}
                   >

@@ -7,10 +7,12 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   hint?: string;
   icon?: ReactNode;
   trailingAction?: ReactNode;
+  /** Padding vertikal lebih rapat (dipakai di form padat seperti Register). */
+  compact?: boolean;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, hint, icon, trailingAction, id, className, ...rest }, ref) => {
+  ({ label, error, hint, icon, trailingAction, compact, id, className, ...rest }, ref) => {
     const generatedId = useId();
     const inputId = id ?? generatedId;
     const errorId = `${inputId}-error`;
@@ -39,8 +41,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             aria-invalid={!!error}
             aria-describedby={error ? errorId : hint ? hintId : undefined}
             className={clsx(
-              "w-full rounded-2xl border-2 bg-surface px-4 py-3 font-body text-brand-ink placeholder:text-brand-ink/35",
+              "w-full rounded-2xl border-2 bg-surface px-4 font-body text-brand-ink placeholder:text-brand-ink/35",
               "transition-colors duration-150 outline-none",
+              compact ? "py-2.5" : "py-3",
               icon && "pl-11",
               trailingAction && "pr-11",
               error

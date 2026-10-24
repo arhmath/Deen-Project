@@ -4,7 +4,7 @@ import { RegisterForm } from "../features/auth/RegisterForm";
 import { homePathFor, useMe, useRegister } from "../features/auth/useAuth";
 import type { RegisterFormValues } from "../lib/validation/authSchemas";
 import type { RegisterRequest } from "../types/auth";
-import heroRegister from "../assets/heroregister1.jpg";
+import heroRegister from "../assets/register.jpg";
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -36,6 +36,7 @@ export function RegisterPage() {
       imageHeadline="Setiap Ayat yang dipelajari adalah satu langkah naik level dan lebih baik"
       imageCaption="Gabung bareng ribuan santri lain yang udah mulai perjalanan belajarnya di Deen."
       imagePosition="left"
+      compact
       footer={
         <>
           Sudah punya akun?{" "}

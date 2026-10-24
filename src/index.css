@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap"); /* BARU */
+@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Noto+Naskh+Arabic:wght@700&display=swap"); /* BARU */
 @import "tailwindcss";
 
 /* Dark mode berbasis class `.dark` di <html> (diatur oleh src/app/theme.tsx). */
@@ -21,6 +21,12 @@
   --color-surface: #ffffff;        /* kartu / input / panel (dulu bg-white) */
   --color-night: #231334;          /* ungu gelap TETAP — untuk chip, scrim, & teks di atas warna aksen */
   --color-brand-purple-fg: #8231f2; /* ungu untuk TEKS/ikon (di dark mode dibuat lebih terang) */
+
+  /* Warna "lempengan" shadow ala game-button. Light = pastel, Dark = versi gelap yang kontras. */
+  --color-outline-shadow: #e4d6fb;  /* tombol outline & kartu LearningPath */
+  --color-chip-purple: #e4d6fb;     /* chip melayang di Hero */
+  --color-chip-amber: #fce7a8;
+  --color-chip-blue: #bfe7ff;
 
   --font-display: "Baloo 2", ui-rounded, system-ui, sans-serif;
   --font-body: "Nunito", ui-sans-serif, system-ui, sans-serif;
@@ -66,6 +72,12 @@
   --color-brand-purple-fg: #b78cff;
   --color-brand-blue-dark: #4cb8ff;
 
+  /* Shadow tombol/chip: pastel terang terlalu "menyala" di atas surface gelap → pakai ungu pekat */
+  --color-outline-shadow: #5b1fb0;
+  --color-chip-purple: #4a2a8f;
+  --color-chip-amber: #8a6212;
+  --color-chip-blue: #1c5f8f;
+
   /* Warna status Tailwind yang dipakai (error / sukses) */
   --color-red-50: #3a1520;
   --color-red-200: #7f1d2d;
@@ -86,6 +98,10 @@
   --color-brand-cream: #fffcf3;
   --color-surface: #ffffff;
   --color-brand-purple-fg: #8231f2;
+  --color-outline-shadow: #e4d6fb;
+  --color-chip-purple: #e4d6fb;
+  --color-chip-amber: #fce7a8;
+  --color-chip-blue: #bfe7ff;
 }
 
 @layer base {

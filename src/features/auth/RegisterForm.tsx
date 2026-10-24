@@ -76,7 +76,7 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
   });
 
   return (
-    <form onSubmit={submit} noValidate className="flex flex-col gap-5">
+    <form onSubmit={submit} noValidate className="flex flex-col gap-3">
       {serverError && (
         <div
           role="alert"
@@ -87,7 +87,7 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
       )}
 
       <fieldset>
-        <legend className="mb-2 text-sm font-bold font-display text-brand-ink">
+        <legend className="mb-1.5 text-sm font-bold font-display text-brand-ink">
           Daftar sebagai
         </legend>
         <div className="grid grid-cols-2 gap-3">
@@ -95,7 +95,7 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
             <label
               key={opt.value}
               className={clsx(
-                "cursor-pointer rounded-2xl border-2 p-4 transition-colors",
+                "flex cursor-pointer items-center gap-3 rounded-2xl border-2 px-3.5 py-2.5 transition-colors",
                 selectedRole === opt.value
                   ? "border-brand-purple bg-brand-purple/5"
                   : "border-brand-ink/10 bg-surface hover:border-brand-purple/40"
@@ -110,14 +110,16 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
               <UsersRoleIcon
                 role={opt.value}
                 className={clsx(
-                  "h-6 w-6",
+                  "h-6 w-6 shrink-0",
                   selectedRole === opt.value ? "text-brand-purple-fg" : "text-brand-ink/40"
                 )}
               />
-              <p className="mt-2 font-display text-sm font-bold text-brand-ink">
-                {opt.title}
-              </p>
-              <p className="text-xs text-brand-ink/50">{opt.desc}</p>
+              <span className="min-w-0">
+                <span className="block font-display text-sm font-bold leading-tight text-brand-ink">
+                  {opt.title}
+                </span>
+                <span className="block text-xs leading-tight text-brand-ink/50">{opt.desc}</span>
+              </span>
             </label>
           ))}
         </div>
@@ -128,27 +130,34 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
         )}
       </fieldset>
 
-      <Input
-        label="Nama Lengkap"
-        icon={<UserIcon className="h-5 w-5" />}
-        placeholder="cth. Ahmad Fauzan"
-        autoComplete="name"
-        error={errors.name?.message}
-        disabled={isSubmitting}
-        {...register("name")}
-      />
+      {/* Baris 1: Username (kiri) · Nama Lengkap (kanan) */}
+      <div className="grid gap-3 lg:grid-cols-2">
+        <Input
+          compact
+          label="Username"
+          icon={<StarIcon className="h-5 w-5" />}
+          placeholder="cth. ahmad_santri"
+          autoComplete="username"
+          error={errors.username?.message}
+          disabled={isSubmitting}
+          {...register("username")}
+        />
 
-      <Input
-        label="Username"
-        icon={<StarIcon className="h-5 w-5" />}
-        placeholder="cth. ahmad_santri"
-        autoComplete="username"
-        error={errors.username?.message}
-        disabled={isSubmitting}
-        {...register("username")}
-      />
+        <Input
+          compact
+          label="Nama Lengkap"
+          icon={<UserIcon className="h-5 w-5" />}
+          placeholder="cth. Ahmad Fauzan"
+          autoComplete="name"
+          error={errors.name?.message}
+          disabled={isSubmitting}
+          {...register("name")}
+        />
+      </div>
 
+      {/* Baris 2: Email */}
       <Input
+        compact
         label="Email (opsional)"
         type="email"
         icon={<MailIcon className="h-5 w-5" />}
@@ -159,54 +168,58 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
         {...register("email")}
       />
 
-      <Input
-        label="Password"
-        type={showPassword ? "text" : "password"}
-        icon={<LockIcon className="h-5 w-5" />}
-        placeholder="Minimal 8 karakter"
-        autoComplete="new-password"
-        error={errors.password?.message}
-        disabled={isSubmitting}
-        trailingAction={
-          <button
-            type="button"
-            onClick={() => setShowPassword((v) => !v)}
-            className="text-brand-ink/40 hover:text-brand-ink/70"
-            aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
-          >
-            {showPassword ? (
-              <EyeOffIcon className="h-5 w-5" />
-            ) : (
-              <EyeIcon className="h-5 w-5" />
-            )}
-          </button>
-        }
-        {...register("password")}
-      />
-
-      <div>
+      {/* Baris 3: Password (kiri) · Ulangi Password (kanan) */}
+      <div className="grid gap-3 lg:grid-cols-2">
         <Input
-          label="Ulangi Password"
+          compact
+          label="Password"
           type={showPassword ? "text" : "password"}
           icon={<LockIcon className="h-5 w-5" />}
-          placeholder="Ulangi password kamu"
+          placeholder="Minimal 8 karakter"
           autoComplete="new-password"
-          error={errors.confirmPassword?.message}
+          error={errors.password?.message}
           disabled={isSubmitting}
-          {...register("confirmPassword")}
+          trailingAction={
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="text-brand-ink/40 hover:text-brand-ink/70"
+              aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+            >
+              {showPassword ? (
+                <EyeOffIcon className="h-5 w-5" />
+              ) : (
+                <EyeIcon className="h-5 w-5" />
+              )}
+            </button>
+          }
+          {...register("password")}
         />
 
-        {/* 3. Indikator Lampu Hijau & Teks Match */}
-        {isMatch && !errors.confirmPassword && (
-          <div className="mt-2 flex items-center gap-2 text-xs font-bold text-emerald-600 motion-safe:animate-fade-up">
-            {/* Lampu ijo berkedip / pulse dot */}
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-            </span>
-            <span>Password cocok!</span>
-          </div>
-        )}
+        <div className="relative">
+          <Input
+            compact
+            label="Ulangi Password"
+            type={showPassword ? "text" : "password"}
+            icon={<LockIcon className="h-5 w-5" />}
+            placeholder="Ulangi password kamu"
+            autoComplete="new-password"
+            error={errors.confirmPassword?.message}
+            disabled={isSubmitting}
+            {...register("confirmPassword")}
+          />
+
+          {/* Indikator lampu hijau: diposisikan di baris label (absolute) supaya tidak mendorong layout ke bawah */}
+          {isMatch && !errors.confirmPassword && (
+            <div className="pointer-events-none absolute right-0 top-0 flex items-center gap-1.5 text-xs font-bold text-emerald-600 motion-safe:animate-fade-up">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+              </span>
+              <span>Password cocok!</span>
+            </div>
+          )}
+        </div>
       </div>
 
       <div>
