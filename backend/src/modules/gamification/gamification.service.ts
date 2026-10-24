@@ -98,6 +98,7 @@ export const gamificationService = {
         ...streak,
         lastCheckinDate: today,
         checkinDates: appendCheckinDate(g.checkinDates, today),
+        totalCheckins: (g.totalCheckins ?? Math.max(g.checkinDates.length, g.longestStreak)) + 1,
       };
       const levelUp = levelUpOf(g.totalXp, next.totalXp);
 

@@ -17,6 +17,8 @@ import { USE_MOCK } from "../services/api";
 import { resetMockState } from "../services/mock/server";
 import { ROLE_LABEL } from "../types/user";
 import { initials } from "../utils/format";
+import { BadgeShowcase } from "../features/badges/BadgeShowcase";
+import { clearEarnedBadges } from "../features/badges/useBadges";
 
 export default function ProfilePage() {
   const user = useSessionUser();
@@ -109,6 +111,7 @@ export default function ProfilePage() {
 
   function resetDemo() {
     resetMockState();
+    clearEarnedBadges();
     qc.invalidateQueries();
   }
 
@@ -194,6 +197,8 @@ export default function ProfilePage() {
             ) : <Skeleton className="h-20" />}
           </Card>
         )}
+
+        {user.role === "SANTRI" && <BadgeShowcase className="lg:col-span-2" />}
 
         {user.role === "SANTRI" && (
           <Card className="lg:col-span-2">

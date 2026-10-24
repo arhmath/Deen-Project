@@ -34,6 +34,8 @@ export interface GamificationSummary {
   streak: number;
   longestStreak: number;
   checkedInToday: boolean;
+  /** total hari check-in sepanjang waktu (opsional: backend lama belum mengirim) */
+  totalCheckIns?: number;
   week: WeekDay[];
 }
 

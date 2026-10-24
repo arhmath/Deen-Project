@@ -56,6 +56,7 @@ export interface GamificationSummary {
   streak: number;
   longestStreak: number;
   checkedInToday: boolean;
+  totalCheckIns?: number;
   week: WeekDay[];
 }
 
@@ -81,6 +82,8 @@ export interface UserGamificationDoc {
   lastCheckinDate: string | null;
   /** maks 14 tanggal check-in terakhir (untuk strip mingguan tanpa query) */
   checkinDates: string[];
+  /** total hari check-in sepanjang waktu; dokumen lama belum punya (fallback ke checkinDates/longestStreak) */
+  totalCheckins?: number;
   quizzesDone: number;
   quizScoreSum: number;
   coursesCompleted: number;

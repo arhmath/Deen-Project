@@ -116,6 +116,7 @@ export function toGamificationSummary(doc: UserGamificationDoc, today: string): 
     streak: effectiveStreak(doc, today),
     longestStreak: doc.longestStreak,
     checkedInToday: doc.lastCheckinDate === today,
+    totalCheckIns: doc.totalCheckins ?? Math.max(doc.checkinDates.length, doc.longestStreak),
     week: weekStrip(doc.checkinDates, today),
   };
 }

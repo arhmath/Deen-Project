@@ -363,6 +363,7 @@ function gamificationOf(s: MockState): GamificationSummary {
     streak: currentStreak(s.checkIns),
     longestStreak: longestStreak(s.checkIns),
     checkedInToday: s.checkIns.includes(dayKey()),
+    totalCheckIns: new Set(s.checkIns).size,
     week: weekStrip(s.checkIns),
   };
 }
