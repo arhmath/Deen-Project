@@ -87,12 +87,11 @@ export default function ProfilePage() {
     setProfileError("");
     setProfileSuccess("");
     try {
-      let finalAvatarUrl = trimmedAvatarUrl || null;
-      if (avatarFile) {
-        const uploaded = await authService.uploadAvatar(avatarFile);
-        finalAvatarUrl = uploaded.avatarUrl;
-      }
-      const updated = await authService.updateMe({ name: trimmedName, avatarUrl: finalAvatarUrl });
+      const updated = await authService.updateMe({
+        name: trimmedName,
+        ...(!avatarFile ? { avatarUrl: trimmedAvatarUrl || null } : {}),
+        avatarFile,
+      });
       qc.setQueryData(ME_KEY, updated);
       setName(updated.name);
       setAvatarUrl(updated.avatarUrl ?? "");

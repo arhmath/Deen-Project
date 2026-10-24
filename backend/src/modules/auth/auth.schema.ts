@@ -49,6 +49,12 @@ export const updateProfileSchema = z
   .object({
     name: z.string().trim().min(2).max(100).optional(),
     avatarUrl: z.union([z.url({ protocol: /^https$/ }).max(500), z.null()]).optional(),
+    // Upload avatar dikirim bersama perubahan profil melalui PATCH /users/me.
+    avatarUpload: z.object({
+      fileName: z.string().trim().min(1).max(180),
+      contentType: z.enum(["image/jpeg", "image/png", "image/webp"]),
+      data: z.string().min(1).max(2_800_000),
+    }).strict().optional(),
   })
   .strict()
   .refine((v) => Object.keys(v).length > 0, { message: "Tidak ada data yang diubah" });

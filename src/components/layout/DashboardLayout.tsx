@@ -48,8 +48,25 @@ function UserCard() {
   const logout = useLogout();
   return (
     <div className="flex items-center gap-3 rounded-2xl border-2 border-brand-ink/10 bg-surface p-3">
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-amber font-display font-extrabold text-night" aria-hidden="true">
-        {initials(user.name)}
+      <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full bg-brand-amber font-display font-extrabold text-night" aria-hidden="true">
+        {user.avatarUrl ? (
+          <img
+            src={user.avatarUrl}
+            alt=""
+            className="h-full w-full object-cover"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            onError={(event) => {
+              // Jika URL avatar tidak dapat dimuat, tampilkan inisial sebagai fallback.
+              event.currentTarget.style.display = "none";
+              const fallback = event.currentTarget.nextElementSibling as HTMLElement | null;
+              if (fallback) fallback.style.display = "grid";
+            }}
+          />
+        ) : null}
+        <span className={user.avatarUrl ? "hidden h-full w-full place-items-center" : "grid h-full w-full place-items-center"}>
+          {initials(user.name)}
+        </span>
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate font-display text-sm font-extrabold text-brand-ink">{user.name}</p>
