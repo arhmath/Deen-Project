@@ -20,6 +20,7 @@ export const C = {
   chatConversations: "chatConversations",
   chatMessages: "chatMessages",
   aiFeedback: "aiFeedback",
+  aiUsage: "aiUsage", // pemakaian token LLM per user per hari ({userId}_{YYYY-MM-DD})
   knowledgeBase: "knowledgeBase",
   notifications: "notifications",
   auditLogs: "auditLogs",

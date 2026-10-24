@@ -14,7 +14,9 @@ export const POST = protectedRoute(
         conversation_id: r.conversationId,
         message: { id: r.messageId, role: "assistant", content: r.content, created_at: r.createdAt },
         sources: r.sources,
-        meta: { intent: r.domain, domain: r.domain, grounded: r.grounded },
+        meta: { intent: r.domain, domain: r.domain, grounded: r.grounded, ai: r.ai },
+        // Pemakaian token hari ini (hanya bila LLM dipakai / batas tercapai); client mempertahankan nilai sebelumnya bila null.
+        usage: r.usage,
       },
     };
   }

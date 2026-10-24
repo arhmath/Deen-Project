@@ -3,7 +3,7 @@ import { FieldValue, db, toIso, ts } from "@/lib/firebase";
 import { C } from "@/shared/collections";
 import { Errors } from "@/shared/errors";
 import { newId } from "@/shared/ids";
-import type { AIDomain, AISource, ChatTurn } from "./types";
+import type { AIDomain, AIMessageMeta, AISource, ChatTurn } from "./types";
 
 export interface ConversationDoc {
   userId: string;
@@ -20,7 +20,7 @@ export interface MessageDoc {
   userId: string;
   role: "user" | "assistant";
   content: string;
-  metadata: { domain?: AIDomain; grounded?: boolean; sources?: AISource[]; provider?: string };
+  metadata: { domain?: AIDomain; grounded?: boolean; sources?: AISource[]; provider?: string; ai?: AIMessageMeta };
   createdAt: Timestamp;
 }
 
@@ -109,7 +109,10 @@ export const conversationService = {
         id, title: conv.title, created_at: toIso(conv.createdAt),
         messages: snap.docs.map((d) => {
           const m = d.data() as MessageDoc;
-          return { id: d.id, role: m.role, content: m.content, created_at: toIso(m.createdAt), ...(m.role === "assistant" ? { sources: m.metadata.sources ?? [] } : {}) };
+          return { id: d.id, role: m.role, content: m.content, created_at: toIso(m.createdAt), ...(m.role === "assistant"
+            ? { sources: m.metadata.sources ?? [], meta: { domain: m.metadata.domain, grounded: m.metadata.grounded ?? true, ...(m.metadata.ai ? { ai: m.metadata.ai } : {}) } }
+            : {}),
+        };
         }),
       },
     };

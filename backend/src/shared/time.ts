@@ -34,6 +34,17 @@ export function mondayOf(key: string): string {
   return addDays(key, -((weekdayOf(key) + 6) % 7));
 }
 
+/** Awal hari (00:00) kalender `key` (YYYY-MM-DD) pada zona waktu `tz`, sebagai instan UTC. */
+export function zonedStartOfDay(key: string, tz: string = env().APP_TIMEZONE): Date {
+  const utcGuess = toUtc(key);
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: tz, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit",
+  }).formatToParts(new Date(utcGuess));
+  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value);
+  const wallAsUtc = Date.UTC(get("year"), get("month") - 1, get("day"), get("hour"), get("minute"), get("second"));
+  return new Date(utcGuess - (wallAsUtc - utcGuess));
+}
+
 export const WEEK_LABELS = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"] as const;
 
 export const clock = { now: () => new Date() };

@@ -11,11 +11,56 @@ export interface AISource {
   type: "knowledge" | "course" | "profile" | "progress" | "notification" | "documentation";
 }
 
+/** Pemakaian token satu panggilan LLM. `estimated` = perkiraan (provider tidak melaporkan). */
+export interface AITokenUsage {
+  prompt: number;
+  completion: number;
+  total: number;
+  estimated?: boolean;
+}
+
+/** deen_data = dari data/materi Deen; general = pengetahuan umum LLM; rules = tanpa LLM. */
+export type AIMode = "deen_data" | "general" | "rules";
+
+/** Mesin yang menjawab sebuah pesan (disimpan server, ikut muncul di riwayat). */
+export interface AIMessageMeta {
+  engine: "llm" | "rules";
+  /** "Gemini", "Claude", "AI", atau "Aturan Deen". */
+  label: string;
+  provider: string;
+  model: string | null;
+  mode: AIMode;
+  tokens: AITokenUsage | null;
+  /** LLM aktif tetapi tidak dipakai: batas harian habis / layanan tidak tersedia. */
+  reason?: "limit_reached" | "unavailable";
+}
+
+/** Pemakaian token hari ini. `limit` null = tanpa batas. */
+export interface AIUsageSnapshot {
+  used: number;
+  limit: number | null;
+  remaining: number | null;
+  resets_at: string;
+}
+
+export interface AIStatus {
+  enabled: boolean;
+  label: string;
+  model: string | null;
+  usage: AIUsageSnapshot | null;
+}
+
+export interface AIStatusResponse {
+  message: string;
+  data: AIStatus;
+}
+
 export interface AIResponseMeta {
   intent?: string;
   /** Domain hasil klasifikasi (mis. GAMIFICATION, UNRELATED, PROMPT_INJECTION). */
   domain?: string;
   grounded: boolean;
+  ai?: AIMessageMeta;
 }
 
 /** Pesan di UI. Field `status` hanya ada di klien (tidak dikirim/diterima dari server). */
@@ -41,6 +86,8 @@ export interface AIChatResponse {
     message: { id: string; role: "assistant"; content: string; created_at: string };
     sources?: AISource[];
     meta?: AIResponseMeta;
+    /** Pemakaian hari ini; null/tidak ada bila LLM tidak dipakai pada pesan ini. */
+    usage?: AIUsageSnapshot | null;
   };
 }
 

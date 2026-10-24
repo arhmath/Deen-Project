@@ -49,10 +49,50 @@ export interface AIRequest {
   context: LocalContext;
 }
 
+/** Pemakaian token satu panggilan LLM. `estimated` = dihitung perkiraan karena provider tidak melaporkannya. */
+export interface TokenUsage {
+  prompt: number;
+  completion: number;
+  total: number;
+  estimated?: boolean;
+}
+
+export interface ProviderReply {
+  text: string;
+  usage?: TokenUsage;
+}
+
 /** Antarmuka provider (09-ROADMAP §12): provider dapat diganti tanpa mengubah domain chatbot. */
 export interface AIProvider {
   readonly name: string;
+  /** Jawaban + pemakaian token. */
+  generate(input: AIRequest): Promise<ProviderReply>;
+  /** Hanya teks (kompatibel dengan pemanggil lama, mis. scripts/ai-chat.ts). */
   generateReply(input: AIRequest): Promise<string>;
+}
+
+/** deen_data = dijawab dari data/materi Deen; general = pengetahuan umum LLM; rules = tanpa LLM. */
+export type AIMode = "deen_data" | "general" | "rules";
+
+/** Metadata mesin penjawab — disimpan di pesan asisten dan dikirim ke client untuk status/badge. */
+export interface AIMessageMeta {
+  engine: "llm" | "rules";
+  /** Nama tampilan: "Gemini", "Claude", "AI", atau "Aturan Deen". */
+  label: string;
+  provider: string;
+  model: string | null;
+  mode: AIMode;
+  tokens: TokenUsage | null;
+  /** Mengapa LLM tidak dipakai padahal aktif. */
+  reason?: "limit_reached" | "unavailable";
+}
+
+export interface UsageSnapshot {
+  used: number;
+  /** null = tanpa batas */
+  limit: number | null;
+  remaining: number | null;
+  resets_at: string;
 }
 
 export interface AISource {

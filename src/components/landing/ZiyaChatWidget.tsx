@@ -210,8 +210,11 @@ export function ZiyaChatWidget() {
                       {message.role === "assistant" && <ZiyaAvatar small />}
                       <div className={`ziya-message ${message.role === "user" ? "ziya-message--user" : "ziya-message--assistant"}`}>
                         <p>{message.content}</p>
-                        {message.sources && message.sources.length > 0 && message.meta?.grounded !== false && (
+                        {message.sources && message.sources.length > 0 && (message.meta?.grounded !== false || message.meta?.ai?.mode === "general") && (
                           <div className="ziya-sources"><span>Sumber:</span> {message.sources.map((source) => source.title).join(" · ")}</div>
+                        )}
+                        {message.meta?.ai?.engine === "llm" && (
+                          <div className="ziya-sources"><span>{message.meta.ai.label}</span> · {message.meta.ai.mode === "general" ? "pengetahuan umum" : "data Deen"}{message.meta.ai.tokens ? ` · ${message.meta.ai.tokens.total.toLocaleString("id-ID")} token` : ""}</div>
                         )}
                         {message.status === "sending" && <small>Mengirim…</small>}
                         {message.status === "failed" && <small className="ziya-failed">Belum terkirim. Kamu bisa mencoba mengirim ulang.</small>}

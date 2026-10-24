@@ -55,8 +55,11 @@ function Feedback({ messageId }: { messageId: string }) {
 
 export function ChatMessageBubble({ message, onRetry }: { message: ChatMessage; onRetry?: (m: ChatMessage) => void }) {
   const mine = message.role === "user";
-  const refusal = !mine && message.meta?.grounded === false;
-  const sources = !mine && message.meta?.grounded !== false ? message.sources ?? [] : [];
+  const ai = !mine ? message.meta?.ai : undefined;
+  /** Jawaban LLM dari pengetahuan umum (di luar materi Deen) — bukan penolakan, walau grounded=false. */
+  const general = ai?.engine === "llm" && ai.mode === "general";
+  const refusal = !mine && message.meta?.grounded === false && !general;
+  const sources = !mine && (message.meta?.grounded !== false || general) ? message.sources ?? [] : [];
   const time = new Date(message.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
 
   return (
@@ -69,7 +72,9 @@ export function ChatMessageBubble({ message, onRetry }: { message: ChatMessage; 
               ? "rounded-br-lg bg-brand-purple text-white"
               : refusal
                 ? "rounded-bl-lg border-2 border-brand-amber/50 bg-brand-amber/10 text-brand-ink"
-                : "rounded-bl-lg border-2 border-brand-ink/10 bg-surface text-brand-ink",
+                : general
+                  ? "rounded-bl-lg border-2 border-brand-blue/30 bg-brand-blue/5 text-brand-ink"
+                  : "rounded-bl-lg border-2 border-brand-ink/10 bg-surface text-brand-ink",
             message.status === "sending" && "opacity-70",
             message.status === "failed" && "border-2 border-red-300 bg-red-50 text-brand-ink"
           )}
@@ -84,6 +89,16 @@ export function ChatMessageBubble({ message, onRetry }: { message: ChatMessage; 
               <li key={s.id} className="rounded-full bg-brand-blue/10 px-2.5 py-0.5 text-xs font-bold text-brand-blue-dark">{s.title}</li>
             ))}
           </ul>
+        )}
+
+        {ai?.engine === "llm" && (
+          <p className="px-1 text-xs text-brand-ink/55">
+            <span className="font-bold text-brand-blue-dark">{ai.label}</span> · {ai.mode === "general" ? "pengetahuan umum" : "data Deen"}
+            {ai.tokens ? ` · ${ai.tokens.total.toLocaleString("id-ID")} token${ai.tokens.estimated ? " (perkiraan)" : ""}` : ""}
+          </p>
+        )}
+        {general && (
+          <p className="px-1 text-xs text-brand-ink/55">Jawaban ini dari pengetahuan umum {ai?.label}, di luar materi Deen. Untuk hal penting, tanyakan ke ustadz/ustadzah.</p>
         )}
 
         <div className="flex items-center gap-3 px-1 text-xs text-brand-ink/45">

@@ -5,15 +5,16 @@ import { Button } from "../components/ui/Button";
 import { ChatIcon, CloseIcon, MenuIcon } from "../components/ui/DashIcons";
 import { ErrorState } from "../components/ui/ErrorState";
 import { Skeleton } from "../components/ui/Skeleton";
+import { AIStatusBar } from "../features/chatbot/AIStatusBar";
 import { ChatComposer } from "../features/chatbot/ChatComposer";
 import { ChatMessageBubble, TypingBubble } from "../features/chatbot/ChatMessageBubble";
 import { ConversationList } from "../features/chatbot/ConversationList";
-import { chatKeys, useConversation, useConversations, useDeleteConversation } from "../features/chatbot/queries";
+import { chatKeys, useAIStatus, useConversation, useConversations, useDeleteConversation } from "../features/chatbot/queries";
 import { SUGGESTIONS } from "../features/chatbot/suggestions";
 import { useSessionUser } from "../hooks/useSessionUser";
 import { ApiError } from "../services/api";
 import { chatService } from "../services/chatService";
-import type { ChatMessage } from "../types/chat";
+import type { AIStatusResponse, ChatMessage } from "../types/chat";
 
 /** Pesan error ramah per status (05B §25). Detail teknis provider tidak pernah ada di respons server. */
 function friendlyError(e: unknown): string {
@@ -46,12 +47,15 @@ export default function ChatPage() {
   const list = useConversations();
   const detail = useConversation(activeId);
   const del = useDeleteConversation();
+  const aiStatus = useAIStatus();
 
   const historyMessages = detail.data?.data.messages;
   const messages: ChatMessage[] = useMemo(
     () => (live && live.id === activeId ? live.messages : activeId ? historyMessages ?? [] : []),
     [live, activeId, historyMessages]
   );
+  /** Mesin yang menjawab pesan asisten terakhir — dasar status "sedang berbicara dengan …". */
+  const lastAI = useMemo(() => [...messages].reverse().find((m) => m.role === "assistant" && !m.status)?.meta?.ai ?? null, [messages]);
   /** Percakapan yang dibuka ternyata bukan milik user / sudah dihapus (403/404) — ditampilkan sebagai keadaan khusus. */
   const unavailable = detail.error instanceof ApiError && [403, 404].includes(detail.error.status);
 
@@ -69,7 +73,10 @@ export default function ChatPage() {
       setWaiting(true);
       try {
         const res = await chatService.send({ message: text, ...(convAtSend ? { conversation_id: convAtSend } : {}) });
-        const { conversation_id, message, sources, meta } = res.data;
+        const { conversation_id, message, sources, meta, usage } = res.data;
+        // Pemakaian token berlaku per akun, jadi diperbarui walau user sudah pindah percakapan.
+        if (usage) qc.setQueryData<AIStatusResponse>(chatKeys.status, (old) => (old ? { ...old, data: { ...old.data, usage } } : old));
+        else if (meta?.ai?.engine === "llm") qc.invalidateQueries({ queryKey: chatKeys.status });
         if (activeRef.current !== convAtSend) return; // user sudah pindah percakapan
         setActiveId(conversation_id);
         setLive((prev) => ({
@@ -138,6 +145,7 @@ export default function ChatPage() {
         <aside className="hidden min-h-0 rounded-3xl border-2 border-brand-ink/10 bg-surface p-3 lg:block" aria-label="Riwayat percakapan">{history}</aside>
 
         <section className="flex min-h-0 flex-col overflow-hidden rounded-3xl border-2 border-brand-ink/10 bg-brand-cream shadow-[0_4px_0_0_rgba(35,19,52,0.06)]" aria-label="Percakapan dengan asisten Deen">
+          <AIStatusBar status={aiStatus.data?.data} loading={aiStatus.isPending} last={lastAI} waiting={waiting} />
           <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5">
             {loadingHistory ? (
               <div aria-busy="true" className="flex flex-col gap-3"><Skeleton className="h-12 w-2/3" /><Skeleton className="ml-auto h-10 w-1/2" /><Skeleton className="h-16 w-3/4" /></div>

@@ -10,12 +10,13 @@ import {
 } from "./guards";
 import { DEEN_KNOWLEDGE } from "./knowledge";
 import { forcedKnowledge, routeIntent } from "./intent";
-import { buildSystemPrompt } from "./prompt";
-import { getProvider } from "./providers";
+import { buildGeneralPrompt, buildSystemPrompt } from "./prompt";
+import { describeProvider, estimateTokens, getProvider, localProvider } from "./providers";
 import { search } from "./retriever";
 import { runTool } from "./tools";
+import { isExhausted, makeSnapshot, readUsage, recordUsage } from "./usage";
 import { parentService } from "@/modules/parent/parent.service";
-import type { AIDomain, AISource, ChatTurn, ScoredChunk, ToolResult } from "./types";
+import type { AIDomain, AIMessageMeta, AIMode, AIRequest, AISource, ChatTurn, ProviderReply, ScoredChunk, TokenUsage, ToolResult, UsageSnapshot } from "./types";
 
 const COURSE_DOMAINS = new Set<AIDomain>(["LEARNING", "COURSE", "MODULE", "CONTENT", "LESSON", "QUIZ", "PROGRESS", "RELIGIOUS_KNOWLEDGE", "DEEN_FEATURE"]);
 
@@ -47,7 +48,17 @@ export interface ChatOutcome {
   domain: AIDomain;
   grounded: boolean;
   refusal: boolean;
+  /** Mesin penjawab (LLM atau aturan) + token pesan ini. */
+  ai: AIMessageMeta;
+  /** Pemakaian token hari ini; null bila LLM tidak dipakai atau tidak terbaca. */
+  usage: UsageSnapshot | null;
 }
+
+const RULES_LABEL = "Aturan Deen";
+const rulesMeta = (reason?: AIMessageMeta["reason"]): AIMessageMeta => ({
+  engine: "rules", label: RULES_LABEL, provider: "local", model: null, mode: "rules", tokens: null, ...(reason ? { reason } : {}),
+});
+const LIMIT_NOTE = "Batas token AI hari ini sudah habis, jadi aku hanya bisa menjawab dari materi dan data Deen. Coba lagi besok ya.";
 
 /**
  * Alur 05B §32: ownership → injection guard → domain guard → intent router → (RAG | tool terotorisasi)
@@ -59,12 +70,15 @@ export async function handleChat(user: AuthUser, input: ChatInput): Promise<Chat
   const conv = input.conversation_id ? await getOwnedConversation(input.conversation_id, user.id) : null; // 403/404
   const history = conv ? await recentMessages(conv.id, e.AI_MAX_RECENT_MESSAGES) : [];
   const message = input.message;
-  const finish = async (content: string, domain: AIDomain, grounded: boolean, sources: AISource[], refusal: boolean, provider?: string, summary?: string | null): Promise<ChatOutcome> => {
+  const finish = async (
+    content: string, domain: AIDomain, grounded: boolean, sources: AISource[], refusal: boolean,
+    ai: AIMessageMeta = rulesMeta(), summary?: string | null, usage: UsageSnapshot | null = null
+  ): Promise<ChatOutcome> => {
     const saved = await saveExchange({
       conversationId: conv?.id ?? null, userId: user.id, title: message, userContent: message, assistantContent: content,
-      metadata: { domain, grounded, sources, provider }, summary,
+      metadata: { domain, grounded, sources, provider: ai.provider, ai }, summary,
     });
-    return { conversationId: saved.conversationId, messageId: saved.assistantMessageId, content, createdAt: saved.createdAt, sources, domain, grounded, refusal };
+    return { conversationId: saved.conversationId, messageId: saved.assistantMessageId, content, createdAt: saved.createdAt, sources, domain, grounded, refusal, ai, usage };
   };
 
   const domain = classifyDomain(message, conv?.lastDomain ?? null);
@@ -115,29 +129,74 @@ export async function handleChat(user: AuthUser, input: ChatInput): Promise<Chat
   }
 
   const grounded = hits.length > 0 || toolResults.length > 0;
-  if (!grounded) {
-    if (toolNotes.length) return finish(toolNotes.join(" "), domain, false, [], false);
-    return finish(domain === "RELIGIOUS_KNOWLEDGE" ? NO_RELIGIOUS_SOURCE : NO_CONTEXT, domain, false, [], false);
-  }
-  // Materi keagamaan harus berasal dari sumber Deen; jawaban dari tool saja tidak cukup untuk topik ini.
-  if (domain === "RELIGIOUS_KNOWLEDGE" && !hits.some((h) => h.chunk.type !== "knowledge" || !h.chunk.id.startsWith("kb-"))) {
-    return finish(NO_RELIGIOUS_SOURCE, domain, false, [], false);
+  // Materi keagamaan tanpa sumber Deen: jawaban dari tool/RAG umum saja tidak cukup untuk topik ini.
+  const noDeenReligiousSource = domain === "RELIGIOUS_KNOWLEDGE" && !hits.some((h) => h.chunk.type !== "knowledge" || !h.chunk.id.startsWith("kb-"));
+  // Catatan otorisasi/klarifikasi dari tool dijawab apa adanya — tidak boleh "diperkaya" LLM.
+  if (!grounded && toolNotes.length) return finish(toolNotes.join(" "), domain, false, [], false);
+
+  // Mode "general": tidak ada konteks Deen yang cukup (atau topik agama tanpa sumber Deen) → LLM boleh memakai
+  // pengetahuan umum, tetap dibatasi domain guard, prompt khusus, anggaran token, dan output guard.
+  const general = !grounded || noDeenReligiousSource;
+  const fallbackText = domain === "RELIGIOUS_KNOWLEDGE" ? NO_RELIGIOUS_SOURCE : NO_CONTEXT;
+
+  const provider = getProvider();
+  const llmOn = provider.name !== "local";
+  const info = describeProvider();
+  const budget = llmOn ? await readUsage(user.id) : null; // null bila LLM mati / Firestore gagal → tetap melayani
+  const exhausted = isExhausted(budget);
+
+  const older = history.length >= e.AI_MAX_RECENT_MESSAGES ? history.slice(0, history.length - 6) : [];
+  const newSummary = older.length ? summarizeOlder(older, e.AI_MAX_SUMMARY_TOKENS) : undefined;
+
+  if (general && (!llmOn || exhausted)) {
+    if (!llmOn) return finish(fallbackText, domain, false, [], false);
+    return finish(`${fallbackText} ${LIMIT_NOTE}`, domain, false, [], false, rulesMeta("limit_reached"), undefined, budget);
   }
 
-  // ---- context builder → LLM ----
-  const older = history.length >= e.AI_MAX_RECENT_MESSAGES ? history.slice(0, history.length - 6) : [];
-  const summary = conv?.summary ?? null;
-  const provider = getProvider();
-  const raw = await provider.generateReply({
-    system: buildSystemPrompt({ role: user.role, chunks: hits, tools: toolResults, summary, toolNotes }),
+  const mode: AIMode = general ? "general" : "deen_data";
+  const promptInput = { role: user.role, chunks: hits, tools: toolResults, summary: conv?.summary ?? null, toolNotes };
+  const request: AIRequest = {
+    system: general ? buildGeneralPrompt(promptInput) : buildSystemPrompt(promptInput),
     messages: [...history, { role: "user", content: message }],
     maxTokens: e.AI_MAX_TOKENS,
     timeoutMs: e.AI_TIMEOUT_MS,
     context: { domain, userMessage: message, chunks: hits, tools: toolResults },
-  });
+  };
 
-  const guarded = guardOutput(raw || NO_CONTEXT);
+  /** LLM tidak dipakai/gagal: jalur data Deen dijawab dari aturan + RAG + tool (tanpa LLM); jalur umum memakai pesan standar. */
+  const degrade = async (reason: NonNullable<AIMessageMeta["reason"]>): Promise<ChatOutcome> => {
+    if (general) return finish(reason === "limit_reached" ? `${fallbackText} ${LIMIT_NOTE}` : fallbackText, domain, false, [], false, rulesMeta(reason), undefined, budget);
+    const local = guardOutput((await localProvider.generate(request)).text || NO_CONTEXT);
+    return finish(local.text, domain, local.ok, sources, false, rulesMeta(reason), newSummary, budget);
+  };
+
+  if (exhausted) return degrade("limit_reached");
+
+  let reply: ProviderReply;
+  try {
+    reply = await provider.generate(request);
+  } catch (err) {
+    logger.warn("ai_llm_failed_fallback", { userId: user.id, mode, reason: err instanceof Error ? err.name : "unknown" });
+    return degrade("unavailable");
+  }
+
+  // Token tercatat walau jawaban kosong (provider tetap menagih).
+  const usage: TokenUsage = reply.usage ?? (() => {
+    const prompt = estimateTokens(request.system + request.messages.map((m) => m.content).join(""));
+    const completion = estimateTokens(reply.text);
+    return { prompt, completion, total: prompt + completion, estimated: true };
+  })();
+  await recordUsage(user.id, usage);
+  const snapshot = budget ? makeSnapshot(budget.used + usage.total, budget.limit) : null;
+
+  if (!reply.text.trim()) {
+    logger.warn("ai_llm_empty_reply", { userId: user.id, mode });
+    return degrade("unavailable");
+  }
+
+  const guarded = guardOutput(reply.text);
   if (!guarded.ok) logger.warn("ai_output_guard_blocked", { userId: user.id });
-  const newSummary = older.length ? summarizeOlder(older, e.AI_MAX_SUMMARY_TOKENS) : undefined;
-  return finish(guarded.text, domain, guarded.ok, sources, false, provider.name, newSummary);
+  const ai: AIMessageMeta = { engine: "llm", label: info.label, provider: provider.name, model: info.model, mode, tokens: usage };
+  // Jawaban mode umum tidak sepenuhnya bersumber Deen → grounded=false (UI membedakannya dari penolakan lewat ai.mode).
+  return finish(guarded.text, domain, general ? false : guarded.ok, sources, false, ai, newSummary, snapshot);
 }

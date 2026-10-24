@@ -5,7 +5,12 @@ import type { AIFeedbackRequest } from "../../types/chat";
 export const chatKeys = {
   list: ["chat", "conversations"] as const,
   detail: (id: string) => ["chat", "conversation", id] as const,
+  status: ["chat", "status"] as const,
 };
+
+/** Status AI + pemakaian token. Diperbarui langsung dari respons /ai/chat (lihat ChatPage), bukan polling. */
+export const useAIStatus = () =>
+  useQuery({ queryKey: chatKeys.status, queryFn: () => chatService.status(), staleTime: 30_000, retry: false });
 
 export const useConversations = () =>
   useQuery({ queryKey: chatKeys.list, queryFn: () => chatService.conversations(1, 30) });

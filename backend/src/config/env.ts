@@ -32,6 +32,8 @@ const schema = z.object({
   AI_BASE_URL: z.string().optional(),
   AI_TIMEOUT_MS: z.coerce.number().int().min(1000).default(30000),
   // Batas token keluaran. Naikkan (mis. 2000+) bila AI_REASONING_EFFORT diaktifkan.
+  // Batas token LLM per user per hari (prompt + jawaban), reset tengah malam APP_TIMEZONE. 0 = tanpa batas.
+  AI_DAILY_TOKEN_LIMIT: z.coerce.number().int().min(0).default(20000),
   AI_MAX_TOKENS: z.coerce.number().int().min(100).max(8192).default(700),
   // Opsional, hanya untuk endpoint OpenAI-compatible yang mendukungnya (mis. Gemini 3.x). Kosongkan = tidak dikirim.
   AI_REASONING_EFFORT: z.preprocess((v) => (v === "" ? undefined : v), z.enum(["minimal", "low", "medium", "high"]).optional()),
