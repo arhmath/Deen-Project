@@ -24,4 +24,5 @@ export const C = {
   notifications: "notifications",
   auditLogs: "auditLogs",
   refreshTokens: "refreshTokens",
+  passwordResets: "passwordResets", // token reset password (id dokumen = sha256 token; token asli tidak disimpan)
 } as const;

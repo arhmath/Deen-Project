@@ -10,6 +10,16 @@ const schema = z.object({
   ACCESS_TOKEN_TTL_MIN: z.coerce.number().int().min(1).max(1440).default(60),
   REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().min(1).max(90).default(30),
   BCRYPT_COST: z.coerce.number().int().min(8).max(15).default(12),
+  PASSWORD_RESET_TTL_MIN: z.coerce.number().int().min(5).max(120).default(30),
+
+  // URL frontend (dipakai membentuk tautan reset password di email)
+  APP_URL: z.string().default("http://localhost:5173"),
+  // SMTP untuk pengiriman email. Kosongkan SMTP_HOST di development: tautan reset hanya dicetak ke log server.
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().int().min(1).max(65535).default(587),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  MAIL_FROM: z.string().default("Deen <no-reply@deen.app>"),
 
   FIREBASE_PROJECT_ID: z.string().optional(),
   FIREBASE_STORAGE_BUCKET: z.string().optional(),

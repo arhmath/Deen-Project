@@ -5,6 +5,11 @@ import type { LoginResponse, SessionUser } from "../types/user";
 export const authService = {
   register: (payload: RegisterRequest) => api.post<{ user: SessionUser }>("/auth/register", payload),
   login: (payload: LoginRequest) => api.post<LoginResponse>("/auth/login", payload),
+  /** Respons selalu seragam (anti user-enumeration). `demoResetLink` hanya diisi oleh mock server. */
+  forgotPassword: (payload: { identifier: string }) =>
+    api.post<{ message: string; demoResetLink?: string }>("/auth/forgot-password", payload),
+  resetPassword: (payload: { token: string; password: string }) =>
+    api.post<{ message: string }>("/auth/reset-password", payload),
   logout: () => api.post<void>("/auth/logout"),
   me: () => api.get<SessionUser>("/auth/me"),
   updateMe: (payload: { name: string; avatarUrl?: string | null }) => api.patch<SessionUser>("/users/me", payload),

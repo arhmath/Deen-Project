@@ -28,6 +28,19 @@ export const loginSchema = z
   .strict();
 export type LoginInput = z.output<typeof loginSchema>;
 
+export const forgotPasswordSchema = z
+  .object({ identifier: z.string().trim().min(1, "Masukkan username atau email kamu").max(255) })
+  .strict();
+export type ForgotPasswordInput = z.output<typeof forgotPasswordSchema>;
+
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().trim().min(20, "Tautan reset tidak valid").max(200, "Tautan reset tidak valid"),
+    password: z.string().min(8, "Password minimal 8 karakter").max(128, "Password maksimal 128 karakter"),
+  })
+  .strict();
+export type ResetPasswordInput = z.output<typeof resetPasswordSchema>;
+
 export const refreshSchema = z.object({ refreshToken: z.string().min(10).max(4096) }).strict();
 
 export const logoutSchema = z.object({ refreshToken: z.string().max(4096).optional() }).strict();

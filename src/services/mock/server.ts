@@ -216,6 +216,24 @@ interface RegisteredUser {
   avatarUrl?: string;
 }
 
+const RESETS_KEY = "deen.mock.password-resets.v1";
+interface MockReset { token: string; userId: string; exp: number }
+function loadResets(): MockReset[] {
+  try {
+    const raw = localStorage.getItem(RESETS_KEY);
+    return raw ? (JSON.parse(raw) as MockReset[]) : [];
+  } catch {
+    return [];
+  }
+}
+function saveResets(list: MockReset[]) {
+  try {
+    localStorage.setItem(RESETS_KEY, JSON.stringify(list));
+  } catch {
+    /* abaikan */
+  }
+}
+
 const USERS_KEY = "deen.mock.users.v1";
 
 function loadRegistered(): RegisteredUser[] {
@@ -909,6 +927,37 @@ async function route<T>(req: MockReq): Promise<T> {
     }
     const res: LoginResponse = { accessToken: `mock.${u.id}`, user: toSession(u) };
     return res as T;
+  }
+  /* ---- lupa / reset password (mock) ---- */
+  if (method === "POST" && path === "/auth/forgot-password") {
+    const ident = String(((req.body ?? {}) as { identifier?: string }).identifier ?? "").trim().toLowerCase();
+    const message = "Jika akunmu punya email terdaftar, tautan untuk mengatur ulang password sudah kami kirim. Cek kotak masuk dan folder spam.";
+    if (!ident) throw new ApiError("Masukkan username atau email kamu.", 422, { identifier: "Masukkan username atau email kamu" });
+    // Mock hanya bisa mereset akun yang didaftarkan lewat form (akun demo memakai password tetap).
+    const target = loadRegistered().find((r) => r.email && (r.username.toLowerCase() === ident || r.email.toLowerCase() === ident));
+    if (!target) return { message } as T;
+    const token = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
+    const resets = loadResets().filter((r) => r.userId !== target.id && r.exp > Date.now());
+    resets.push({ token, userId: target.id, exp: Date.now() + 30 * 60_000 });
+    saveResets(resets);
+    return { message, demoResetLink: `/reset-password?token=${token}` } as T;
+  }
+  if (method === "POST" && path === "/auth/reset-password") {
+    const { token, password } = (req.body ?? {}) as { token?: string; password?: string };
+    if (!password || password.length < 8) {
+      throw new ApiError("Password minimal 8 karakter.", 422, { password: "Password minimal 8 karakter" });
+    }
+    const resets = loadResets();
+    const hit = resets.find((r) => r.token === token && r.exp > Date.now());
+    const list = loadRegistered();
+    const idx = hit ? list.findIndex((r) => r.id === hit.userId) : -1;
+    if (!hit || idx < 0) {
+      throw new ApiError("Tautan reset sudah tidak berlaku. Minta tautan baru lewat “Lupa password?”.", 400);
+    }
+    list[idx] = { ...list[idx]!, password };
+    saveRegistered(list);
+    saveResets(resets.filter((r) => r.token !== token));
+    return { message: "Password berhasil diubah. Silakan masuk dengan password barunya." } as T;
   }
   if (method === "POST" && path === "/auth/logout") return undefined as T;
 

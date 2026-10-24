@@ -52,3 +52,22 @@ export const registerSchema = z
   });
 
 export type RegisterFormValues = z.infer<typeof registerSchema>;
+
+export const forgotPasswordSchema = z.object({
+  identifier: z.string().trim().min(1, "Masukkan username atau email kamu"),
+});
+export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+
+export const resetPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, "Password minimal 8 karakter")
+      .max(128, "Password maksimal 128 karakter"),
+    confirmPassword: z.string().min(1, "Ulangi password barumu"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Password tidak sama",
+    path: ["confirmPassword"],
+  });
+export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
