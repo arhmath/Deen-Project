@@ -7,8 +7,8 @@ const ICON: Record<RewardSource, { icon: typeof StarIcon; cls: string }> = {
   DAILY_CHECKIN: { icon: FlameIcon, cls: "bg-brand-amber/20 text-brand-amber-dark" },
   LESSON: { icon: BookIcon, cls: "bg-brand-blue/15 text-brand-blue-dark" },
   QUIZ: { icon: StarIcon, cls: "bg-brand-gold/25 text-brand-gold-dark" },
-  PERFECT_QUIZ: { icon: StarIcon, cls: "bg-brand-purple/15 text-brand-purple" },
-  CHALLENGE: { icon: CrownIcon, cls: "bg-brand-purple/15 text-brand-purple" },
+  PERFECT_QUIZ: { icon: StarIcon, cls: "bg-brand-purple/15 text-brand-purple-fg" },
+  CHALLENGE: { icon: CrownIcon, cls: "bg-brand-purple/15 text-brand-purple-fg" },
   COURSE: { icon: CrownIcon, cls: "bg-brand-amber/25 text-brand-amber-dark" },
 };
 
@@ -34,7 +34,7 @@ export function RewardList({ items }: { items: RewardEntry[] }) {
               <p className="truncate text-sm font-bold text-brand-ink">{r.label}</p>
               <p className="text-xs text-brand-ink/50">{timeAgo(r.createdAt)}</p>
             </div>
-            <p className="shrink-0 font-display text-sm font-extrabold text-brand-purple">
+            <p className="shrink-0 font-display text-sm font-extrabold text-brand-purple-fg">
               +{r.xp} XP
               {r.point > 0 && <span className="block text-xs text-brand-gold-dark">+{r.point} Point</span>}
             </p>

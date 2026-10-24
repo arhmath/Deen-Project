@@ -60,7 +60,7 @@ function Waypoint({ courseId, item, index }: { courseId: string; item: ContentLi
         {state === "current" && (
           <motion.span
             aria-hidden="true"
-            className="mb-1 rounded-full bg-brand-ink px-3 py-1 font-display text-xs font-extrabold text-white"
+            className="mb-1 rounded-full bg-night px-3 py-1 font-display text-xs font-extrabold text-white dark:bg-brand-purple"
             animate={reduce ? undefined : { y: [0, -4, 0] }}
             transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut" }}
           >
@@ -76,10 +76,10 @@ function Waypoint({ courseId, item, index }: { courseId: string; item: ContentLi
             "relative grid h-[68px] w-[68px] place-items-center rounded-full border-4 transition-transform",
             "hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue",
             state === "done" &&
-              "border-brand-gold-dark bg-brand-gold text-brand-ink shadow-[0_5px_0_0_#cca300]",
+              "border-brand-gold-dark bg-brand-gold text-night shadow-[0_5px_0_0_#cca300]",
             state === "current" &&
               "border-brand-purple-dark bg-brand-purple text-white shadow-[0_5px_0_0_#5B1FB0] ring-4 ring-brand-purple/25",
-            state === "upcoming" && "border-brand-ink/15 bg-white text-brand-ink/45 shadow-[0_5px_0_0_rgba(35,19,52,0.10)]",
+            state === "upcoming" && "border-brand-ink/15 bg-surface text-brand-ink/45 shadow-[0_5px_0_0_rgba(35,19,52,0.10)]",
           )}
         >
           {state === "done" ? <CheckIcon className="h-8 w-8" strokeWidth={3} /> : <Icon className="h-7 w-7" aria-hidden="true" />}
@@ -173,7 +173,7 @@ export function AdventureMap({ course }: { course: CourseDetail }) {
           aria-label={finished ? "Petualangan selesai" : "Garis finis petualangan"}
           className={clsx(
             "grid h-20 w-20 place-items-center rounded-full border-4",
-            finished ? "border-brand-amber-dark bg-brand-gold text-brand-ink shadow-[0_6px_0_0_#cca300]" : "border-brand-ink/15 bg-white text-brand-ink/35",
+            finished ? "border-brand-amber-dark bg-brand-gold text-night shadow-[0_6px_0_0_#cca300]" : "border-brand-ink/15 bg-surface text-brand-ink/35",
           )}
         >
           <TrophyIcon className="h-10 w-10" aria-hidden="true" />

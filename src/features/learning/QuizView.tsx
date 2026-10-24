@@ -51,7 +51,7 @@ export function QuizView({ content }: { content: ContentDetail }) {
         <Card className="text-center">
           {result.perfect && <StarIcon className="mx-auto h-12 w-12 text-brand-gold motion-safe:animate-float" aria-hidden="true" />}
           <p className="font-display text-sm font-bold text-brand-ink/60">Skormu</p>
-          <p className="font-display text-6xl font-extrabold text-brand-purple">{result.score}</p>
+          <p className="font-display text-6xl font-extrabold text-brand-purple-fg">{result.score}</p>
           <p className="mt-1 font-bold text-brand-ink">
             {result.correct} dari {result.total} jawaban benar
             {result.perfect && " · Sempurna!"}
@@ -68,9 +68,9 @@ export function QuizView({ content }: { content: ContentDetail }) {
               const sel = q.options.find((o) => o.id === q.selectedOptionId)?.text;
               const right = q.options.find((o) => o.id === q.correctOptionId)?.text;
               return (
-                <li key={q.questionId} className={clsx("rounded-2xl border-2 bg-white p-4", q.isCorrect ? "border-brand-purple/30" : "border-red-200")}>
+                <li key={q.questionId} className={clsx("rounded-2xl border-2 bg-surface p-4", q.isCorrect ? "border-brand-purple/30" : "border-red-200")}>
                   <p className="font-bold text-brand-ink">{i + 1}. {q.text}</p>
-                  <p className={clsx("mt-2 flex items-start gap-2 text-sm font-semibold", q.isCorrect ? "text-brand-purple" : "text-red-600")}>
+                  <p className={clsx("mt-2 flex items-start gap-2 text-sm font-semibold", q.isCorrect ? "text-brand-purple-fg" : "text-red-600")}>
                     {q.isCorrect ? <CheckIcon className="mt-0.5 h-4 w-4 shrink-0" /> : <CloseIcon className="mt-0.5 h-4 w-4 shrink-0" />}
                     <span>{q.isCorrect ? "Benar" : "Kurang tepat"}: {sel ?? "tidak dijawab"}</span>
                   </p>
@@ -121,7 +121,7 @@ export function QuizView({ content }: { content: ContentDetail }) {
                   />
                   <label
                     htmlFor={`${q.id}-${o.id}`}
-                    className="flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-brand-ink/10 bg-white px-4 py-3.5 font-semibold text-brand-ink transition-colors hover:border-brand-purple/40 peer-checked:border-brand-purple peer-checked:bg-brand-purple/8 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-blue"
+                    className="flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-brand-ink/10 bg-surface px-4 py-3.5 font-semibold text-brand-ink transition-colors hover:border-brand-purple/40 peer-checked:border-brand-purple peer-checked:bg-brand-purple/8 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-blue"
                   >
                     <span aria-hidden="true" className={clsx("grid h-6 w-6 shrink-0 place-items-center rounded-full border-2", chosen === o.id ? "border-brand-purple bg-brand-purple text-white" : "border-brand-ink/25")}>
                       {chosen === o.id && <CheckIcon className="h-3.5 w-3.5" strokeWidth={3} />}
@@ -161,7 +161,7 @@ export function QuizView({ content }: { content: ContentDetail }) {
         Ada {content.quiz?.questionCount ?? 0} soal pilihan ganda. Skor dan reward dihitung saat kamu mengirim jawaban.
       </p>
       {content.quiz?.bestScore != null && (
-        <p className="mt-3 font-display font-bold text-brand-purple">Skor terbaikmu: {content.quiz.bestScore}</p>
+        <p className="mt-3 font-display font-bold text-brand-purple-fg">Skor terbaikmu: {content.quiz.bestScore}</p>
       )}
       <Button className="mt-6" onClick={begin} isLoading={start.isPending}>
         {content.completed ? "Kerjakan lagi" : "Mulai kuis"}

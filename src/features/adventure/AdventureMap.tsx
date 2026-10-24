@@ -21,7 +21,7 @@ const TYPE: Record<ContentType, { label: string; icon: typeof StarIcon }> = {
 const THEMES = [
   { banner: "bg-brand-purple text-white border-brand-purple-dark shadow-[0_5px_0_0_#5B1FB0]", zone: "from-brand-purple/8", bar: "gold" as const },
   { banner: "bg-brand-blue text-white border-brand-blue-dark shadow-[0_5px_0_0_#0072B8]", zone: "from-brand-blue/10", bar: "gold" as const },
-  { banner: "bg-brand-amber text-brand-ink border-brand-amber-dark shadow-[0_5px_0_0_#CC8A00]", zone: "from-brand-amber/12", bar: "purple" as const },
+  { banner: "bg-brand-amber text-night border-brand-amber-dark shadow-[0_5px_0_0_#CC8A00]", zone: "from-brand-amber/12", bar: "purple" as const },
 ];
 
 type NodeState = "done" | "current" | "upcoming";
@@ -60,23 +60,23 @@ function NodeLink({
       className={clsx(
         "group absolute grid h-14 w-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-4 transition-transform",
         "hover:scale-110 focus-visible:scale-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue",
-        state === "done" && "border-brand-amber-dark bg-brand-amber text-brand-ink shadow-[0_4px_0_0_#CC8A00]",
+        state === "done" && "border-brand-amber-dark bg-brand-amber text-night shadow-[0_4px_0_0_#CC8A00]",
         state === "current" && "border-brand-purple-dark bg-brand-purple text-white shadow-[0_5px_0_0_#5B1FB0]",
-        state === "upcoming" && "border-brand-ink/15 bg-white text-brand-ink/45 shadow-[0_4px_0_0_rgba(35,19,52,0.08)]"
+        state === "upcoming" && "border-brand-ink/15 bg-surface text-brand-ink/45 shadow-[0_4px_0_0_rgba(35,19,52,0.08)]"
       )}
       style={{ left: `${(x / MAP_WIDTH) * 100}%`, top: `${(y / height) * 100}%` }}
     >
       {state === "current" && <span aria-hidden="true" className="absolute inset-0 rounded-full bg-brand-purple/40 motion-safe:animate-ping" />}
       <Icon className="relative h-6 w-6" aria-hidden="true" />
       {state === "done" && (
-        <span aria-hidden="true" className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full border-2 border-white bg-brand-ink text-brand-amber">
+        <span aria-hidden="true" className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full border-2 border-surface bg-night text-brand-amber">
           <CheckIcon className="h-3.5 w-3.5" strokeWidth={3.5} />
         </span>
       )}
       {state === "current" && (
         <span aria-hidden="true" className="absolute -top-12 left-1/2 -translate-x-1/2">
           <span className="flex flex-col items-center motion-safe:animate-float">
-            <span className="grid h-9 w-9 place-items-center rounded-full border-2 border-white bg-brand-gold font-display text-base font-extrabold text-brand-ink shadow-md">{initial}</span>
+            <span className="grid h-9 w-9 place-items-center rounded-full border-2 border-surface bg-brand-gold font-display text-base font-extrabold text-night shadow-md">{initial}</span>
             <span className="-mt-1.5 h-2.5 w-2.5 rotate-45 bg-brand-gold" />
           </span>
         </span>
@@ -134,8 +134,8 @@ function Region({
       </div>
 
       <div className={clsx("relative mt-2 w-full max-w-sm rounded-3xl bg-gradient-to-b to-transparent", theme.zone)} style={{ aspectRatio: `${MAP_WIDTH} / ${height}` }}>
-        <svg viewBox={`0 0 ${MAP_WIDTH} ${height}`} className="absolute inset-0 h-full w-full" aria-hidden="true" focusable="false">
-          <path d={pathUpTo(points, points.length - 1)} fill="none" stroke="#231334" strokeOpacity="0.15" strokeWidth="10" strokeLinecap="round" strokeDasharray="2 18" />
+        <svg viewBox={`0 0 ${MAP_WIDTH} ${height}`} className="absolute inset-0 h-full w-full text-brand-ink" aria-hidden="true" focusable="false">
+          <path d={pathUpTo(points, points.length - 1)} fill="none" stroke="currentColor" strokeOpacity="0.15" strokeWidth="10" strokeLinecap="round" strokeDasharray="2 18" />
           {doneUntil > 0 && <path d={pathUpTo(points, doneUntil)} fill="none" stroke="#FFAD00" strokeWidth="10" strokeLinecap="round" />}
         </svg>
 
@@ -152,8 +152,8 @@ function Region({
               className={clsx(
                 "absolute grid h-[4.5rem] w-[4.5rem] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-3xl border-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue",
                 region.completed
-                  ? "border-brand-gold-dark bg-brand-gold text-brand-ink shadow-[0_5px_0_0_#CCA300]"
-                  : "border-dashed border-brand-ink/25 bg-white text-brand-ink/40"
+                  ? "border-brand-gold-dark bg-brand-gold text-night shadow-[0_5px_0_0_#CCA300]"
+                  : "border-dashed border-brand-ink/25 bg-surface text-brand-ink/40"
               )}
               style={{ left: `${(rewardPoint.x / MAP_WIDTH) * 100}%`, top: `${(rewardPoint.y / height) * 100}%` }}
             >

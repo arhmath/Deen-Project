@@ -35,13 +35,13 @@ export function LoginPage() {
         <>
           <p>
             Belum punya akun?{" "}
-            <Link to="/register" className="font-bold text-brand-purple hover:underline">
+            <Link to="/register" className="font-bold text-brand-purple-fg hover:underline">
               Daftar di sini
             </Link>
           </p>
           {USE_MOCK && (
             <div className="mt-5 rounded-2xl border-2 border-dashed border-brand-purple/30 bg-brand-purple/5 p-3 text-left text-xs">
-              <p className="font-display font-extrabold text-brand-purple">Akun demo (password: {DEMO_PASSWORD})</p>
+              <p className="font-display font-extrabold text-brand-purple-fg">Akun demo (password: {DEMO_PASSWORD})</p>
               <ul className="mt-1 space-y-0.5 text-brand-ink/70">
                 <li><strong>ahmad_santri</strong> — Santri</li>
                 <li><strong>bunda_ahmad</strong> — Orang Tua</li>

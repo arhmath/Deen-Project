@@ -26,7 +26,7 @@ export default function ParentStudentDetail() {
 
   return (
     <>
-      <Link to="/parent" className="mb-3 inline-flex items-center gap-1 text-sm font-bold text-brand-purple hover:underline">
+      <Link to="/parent" className="mb-3 inline-flex items-center gap-1 text-sm font-bold text-brand-purple-fg hover:underline">
         <ChevronLeftIcon className="h-4 w-4" /> Semua anak
       </Link>
       <PageHeader title={s.name} subtitle={`${s.roomName} · Level ${s.level} ${s.levelName} · aktif ${timeAgo(s.lastActiveAt)}`} />
@@ -35,7 +35,7 @@ export default function ParentStudentDetail() {
         <li><StatTile icon={<StarIcon />} iconClassName="bg-brand-gold/25 text-brand-gold-dark" label="XP" value={formatNumber(s.xp)} /></li>
         <li><StatTile icon={<CoinIcon />} iconClassName="bg-brand-blue/15 text-brand-blue" label="Point" value={formatNumber(s.point)} /></li>
         <li><StatTile icon={<FlameIcon />} iconClassName="bg-brand-amber/20 text-brand-amber-dark" label="Streak" value={`${s.streak} hari`} hint={s.checkedInToday ? "Sudah check-in hari ini" : "Belum check-in hari ini"} /></li>
-        <li><StatTile icon={<TrophyIcon />} iconClassName="bg-brand-purple/12 text-brand-purple" label="Skor rata-rata" value={s.avgScore} /></li>
+        <li><StatTile icon={<TrophyIcon />} iconClassName="bg-brand-purple/12 text-brand-purple-fg" label="Skor rata-rata" value={s.avgScore} /></li>
       </ul>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -64,7 +64,7 @@ export default function ParentStudentDetail() {
                     <p className="truncate text-sm font-bold">{qz.title}</p>
                     <p className="text-xs text-brand-ink/50">{timeAgo(qz.takenAt)}</p>
                   </div>
-                  <p className="font-display text-lg font-extrabold text-brand-purple">{qz.score}</p>
+                  <p className="font-display text-lg font-extrabold text-brand-purple-fg">{qz.score}</p>
                 </li>
               ))}
             </ul>

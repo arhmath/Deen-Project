@@ -12,7 +12,7 @@ export function MiniLeaderboard() {
     <Card>
       <div className="mb-3 flex items-center justify-between">
         <CardTitle>Papan peringkat</CardTitle>
-        <Link to="/leaderboard" className="text-sm font-bold text-brand-purple hover:underline">Lihat semua</Link>
+        <Link to="/leaderboard" className="text-sm font-bold text-brand-purple-fg hover:underline">Lihat semua</Link>
       </div>
       {q.isPending ? (
         <div className="flex flex-col gap-2"><Skeleton className="h-14" /><Skeleton className="h-14" /><Skeleton className="h-14" /></div>

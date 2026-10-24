@@ -22,7 +22,7 @@ export function ConfirmDialog({
   const id = useId();
   return (
     <Dialog open={open} onClose={onCancel} labelledBy={id}>
-      <div className="rounded-3xl border-2 border-brand-ink/10 bg-white p-6 shadow-xl">
+      <div className="rounded-3xl border-2 border-brand-ink/10 bg-surface p-6 shadow-xl">
         <h2 id={id} className="font-display text-xl font-extrabold text-brand-ink">{title}</h2>
         <p className="mt-2 text-sm text-brand-ink/70">{message}</p>
         <div className="mt-5 flex justify-end gap-3">

@@ -23,11 +23,11 @@ type ZiyaAvatarState = "idle" | "clicked" | "loading" | "typing" | "blink";
 
 function ZiyaAvatar({ small = false, state = "idle" }: { small?: boolean; state?: ZiyaAvatarState }) {
   const sources: Record<ZiyaAvatarState, string> = {
-    idle: "/ziya-idle.png",
+    idle: "/ziya-blink.png",
     clicked: "/ziya-clicked.png",
     loading: "/ziya-loading.png",
     typing: "/ziya-typing.png",
-    blink: "/ziya-blink.png",
+    blink: "/ziya-idle.png",
   };
   return (
     <span className={`ziya-avatar ziya-avatar--${state} ${small ? "ziya-avatar--small" : ""}`} aria-hidden="true">

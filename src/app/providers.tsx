@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { ApiError } from "../services/api";
 import { ErrorBoundary } from "../components/ui/ErrorBoundary";
+import { ThemeProvider } from "./theme";
 
 export function Providers({ children }: { children: ReactNode }) {
   const [client] = useState(
@@ -19,8 +20,10 @@ export function Providers({ children }: { children: ReactNode }) {
       })
   );
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={client}>{children}</QueryClientProvider>
-    </ErrorBoundary>
+    <ThemeProvider>
+      <ErrorBoundary>
+        <QueryClientProvider client={client}>{children}</QueryClientProvider>
+      </ErrorBoundary>
+    </ThemeProvider>
   );
 }

@@ -36,7 +36,7 @@ export function ChatComposer({ disabled, onSend, autoFocusKey }: { disabled: boo
   }
 
   return (
-    <form onSubmit={submit} className="border-t-2 border-brand-ink/10 bg-white/80 p-3 sm:p-4">
+    <form onSubmit={submit} className="border-t-2 border-brand-ink/10 bg-surface/80 p-3 sm:p-4">
       <label htmlFor="chat-input" className="sr-only">Tulis pertanyaanmu</label>
       <div className="flex items-end gap-2">
         <textarea

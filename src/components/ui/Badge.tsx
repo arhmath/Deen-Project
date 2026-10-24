@@ -5,10 +5,10 @@ type Tone = "purple" | "amber" | "gold" | "blue" | "cream";
 
 const TONE_CLASSES: Record<Tone, string> = {
   purple: "bg-brand-purple text-white",
-  amber: "bg-brand-amber text-brand-ink",
-  gold: "bg-brand-gold text-brand-ink",
+  amber: "bg-brand-amber text-night",
+  gold: "bg-brand-gold text-night",
   blue: "bg-brand-blue text-white",
-  cream: "bg-white text-brand-ink border-2 border-brand-ink/10",
+  cream: "bg-surface text-brand-ink border-2 border-brand-ink/10",
 };
 
 export function Badge({

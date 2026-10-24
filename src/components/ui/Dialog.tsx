@@ -27,7 +27,7 @@ export function Dialog({
       aria-labelledby={labelledBy}
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()}
-      className="m-auto w-[calc(100%-2rem)] max-w-sm overflow-visible rounded-3xl border-0 bg-transparent p-0 backdrop:bg-brand-ink/60"
+      className="m-auto w-[calc(100%-2rem)] max-w-sm overflow-visible rounded-3xl border-0 bg-transparent p-0 backdrop:bg-night/60"
     >
       {open && children}
     </dialog>

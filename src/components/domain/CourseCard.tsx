@@ -12,10 +12,10 @@ export function CourseCard({ course }: { course: CourseSummary }) {
   const next = course.nextContent;
   const href = next ? `/learning/${course.id}/content/${next.id}` : `/learning/${course.id}`;
   return (
-    <article className="flex h-full flex-col rounded-3xl border-2 border-brand-ink/10 bg-white p-5 shadow-[0_4px_0_0_rgba(35,19,52,0.06)]">
+    <article className="flex h-full flex-col rounded-3xl border-2 border-brand-ink/10 bg-surface p-5 shadow-[0_4px_0_0_rgba(35,19,52,0.06)]">
       <div className="flex items-start justify-between gap-3">
         <h3 className="font-display text-lg font-extrabold leading-snug text-brand-ink">
-          <Link to={`/learning/${course.id}`} className="hover:text-brand-purple focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
+          <Link to={`/learning/${course.id}`} className="hover:text-brand-purple-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
             {course.title}
           </Link>
         </h3>
@@ -34,7 +34,7 @@ export function CourseCard({ course }: { course: CourseSummary }) {
       <div className="mt-auto pt-4">
         <Link
           to={href}
-          className="inline-flex items-center gap-2 rounded-xl font-display text-sm font-bold text-brand-purple hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+          className="inline-flex items-center gap-2 rounded-xl font-display text-sm font-bold text-brand-purple-fg hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
         >
           {done ? "Ulangi materi" : started && next ? `Lanjut: ${TYPE_LABEL[next.type]}` : "Mulai belajar"}
           <ArrowRightIcon className="h-4 w-4" />

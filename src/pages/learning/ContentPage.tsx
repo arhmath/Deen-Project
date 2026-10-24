@@ -37,7 +37,7 @@ export default function ContentPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <Link to={`/learning/${courseId || c.courseId}`} className="mb-3 inline-flex items-center gap-1 text-sm font-bold text-brand-purple hover:underline">
+      <Link to={`/learning/${courseId || c.courseId}`} className="mb-3 inline-flex items-center gap-1 text-sm font-bold text-brand-purple-fg hover:underline">
         <ChevronLeftIcon className="h-4 w-4" /> {c.courseTitle}
       </Link>
 

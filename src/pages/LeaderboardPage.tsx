@@ -40,7 +40,7 @@ export default function LeaderboardPage() {
                 onClick={() => { setRoomId(t.id); setPage(1); }}
                 className={clsx(
                   "rounded-full border-2 px-4 py-2 font-display text-sm font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue",
-                  active ? "border-brand-purple bg-brand-purple text-white" : "border-brand-ink/10 bg-white text-brand-ink/70 hover:border-brand-purple/40"
+                  active ? "border-brand-purple bg-brand-purple text-white" : "border-brand-ink/10 bg-surface text-brand-ink/70 hover:border-brand-purple/40"
                 )}
               >
                 {t.name}

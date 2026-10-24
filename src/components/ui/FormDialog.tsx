@@ -16,7 +16,7 @@ export function FormDialog({
   const id = useId();
   return (
     <Dialog open={open} onClose={onClose} labelledBy={id}>
-      <div className="rounded-3xl border-2 border-brand-ink/10 bg-white p-6 shadow-xl">
+      <div className="rounded-3xl border-2 border-brand-ink/10 bg-surface p-6 shadow-xl">
         <div className="mb-4 flex items-start justify-between gap-3">
           <h2 id={id} className="font-display text-xl font-extrabold text-brand-ink">{title}</h2>
           <button

@@ -39,7 +39,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             aria-invalid={!!error}
             aria-describedby={error ? errorId : hint ? hintId : undefined}
             className={clsx(
-              "w-full rounded-2xl border-2 bg-white px-4 py-3 font-body text-brand-ink placeholder:text-brand-ink/35",
+              "w-full rounded-2xl border-2 bg-surface px-4 py-3 font-body text-brand-ink placeholder:text-brand-ink/35",
               "transition-colors duration-150 outline-none",
               icon && "pl-11",
               trailingAction && "pr-11",

@@ -12,6 +12,7 @@ import { CoinIcon } from "../ui/DashIcons";
 import { ROLE_LABEL } from "../../types/user";
 import { initials, formatNumber } from "../../utils/format";
 import { ErrorBoundary } from "../ui/ErrorBoundary";
+import { ThemeToggle } from "../ui/ThemeToggle";
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const user = useSessionUser();
@@ -29,7 +30,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue",
               isActive
                 ? "bg-brand-purple text-white shadow-[0_4px_0_0_#5B1FB0]"
-                : "text-brand-ink/70 hover:bg-brand-purple/8 hover:text-brand-purple"
+                : "text-brand-ink/70 hover:bg-brand-purple/8 hover:text-brand-purple-fg"
             )
           }
         >
@@ -46,8 +47,8 @@ function UserCard() {
   const navigate = useNavigate();
   const logout = useLogout();
   return (
-    <div className="flex items-center gap-3 rounded-2xl border-2 border-brand-ink/10 bg-white p-3">
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-amber font-display font-extrabold text-brand-ink" aria-hidden="true">
+    <div className="flex items-center gap-3 rounded-2xl border-2 border-brand-ink/10 bg-surface p-3">
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-amber font-display font-extrabold text-night" aria-hidden="true">
         {initials(user.name)}
       </span>
       <div className="min-w-0 flex-1">
@@ -72,7 +73,7 @@ function GameChips() {
   const { data } = useSantriDashboard();
   if (!data) return null;
   const g = data.gamification;
-  const chip = "inline-flex items-center gap-1.5 rounded-full border-2 border-brand-ink/10 bg-white px-3 py-1 font-display text-sm font-extrabold";
+  const chip = "inline-flex items-center gap-1.5 rounded-full border-2 border-brand-ink/10 bg-surface px-3 py-1 font-display text-sm font-extrabold";
   return (
     <ul className="flex items-center gap-2" aria-label="Ringkasan reward">
       <li className={clsx(chip, "text-brand-ink")}>
@@ -112,7 +113,7 @@ export function DashboardLayout() {
       </a>
 
       {/* Sidebar desktop */}
-      <aside className="sticky top-0 hidden h-screen flex-col gap-6 border-r-2 border-brand-ink/10 bg-white/70 p-5 lg:flex">
+      <aside className="sticky top-0 hidden h-screen flex-col gap-6 border-r-2 border-brand-ink/10 bg-surface/70 p-5 lg:flex">
         <Link to={user.role === "ADMIN" ? "/admin" : "/dashboard"} className="px-1" aria-label="Deen — beranda">
           <Logo />
         </Link>
@@ -127,14 +128,17 @@ export function DashboardLayout() {
             aria-label="Buka menu"
             aria-expanded={drawer}
             onClick={() => setDrawer(true)}
-            className="grid h-10 w-10 place-items-center rounded-xl border-2 border-brand-ink/10 bg-white text-brand-ink lg:hidden focus-visible:outline-2 focus-visible:outline-brand-blue"
+            className="grid h-10 w-10 place-items-center rounded-xl border-2 border-brand-ink/10 bg-surface text-brand-ink lg:hidden focus-visible:outline-2 focus-visible:outline-brand-blue"
           >
             <MenuIcon className="h-5 w-5" />
           </button>
           <p className="hidden font-display text-sm font-bold text-brand-ink/55 lg:block">
             {ROLE_LABEL[user.role]}
           </p>
-          {user.role === "SANTRI" ? <GameChips /> : <span className="font-display text-sm font-bold text-brand-ink/70 lg:hidden">{user.name}</span>}
+          <div className="flex items-center gap-3">
+            {user.role === "SANTRI" ? <GameChips /> : <span className="font-display text-sm font-bold text-brand-ink/70 lg:hidden">{user.name}</span>}
+            <ThemeToggle />
+          </div>
         </header>
 
         <main id="konten" tabIndex={-1} className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 outline-none sm:px-8 sm:py-8">
@@ -147,7 +151,7 @@ export function DashboardLayout() {
       {/* Drawer mobile */}
       {drawer && (
         <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
-          <button type="button" aria-label="Tutup menu" className="absolute inset-0 bg-brand-ink/50" onClick={() => setDrawer(false)} />
+          <button type="button" aria-label="Tutup menu" className="absolute inset-0 bg-night/50" onClick={() => setDrawer(false)} />
           <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85%] flex-col gap-6 bg-brand-cream p-5 shadow-xl motion-safe:animate-fade-up">
             <div className="flex items-center justify-between">
               <Logo />

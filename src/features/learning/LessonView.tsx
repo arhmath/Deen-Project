@@ -14,7 +14,7 @@ export function LessonView({ content }: { content: ContentDetail }) {
         <article className="flex flex-col gap-5">
           {sections.map((s, i) => (
             <section key={i}>
-              {s.heading && <h2 className="mb-1.5 font-display text-xl font-extrabold text-brand-purple">{s.heading}</h2>}
+              {s.heading && <h2 className="mb-1.5 font-display text-xl font-extrabold text-brand-purple-fg">{s.heading}</h2>}
               <p className="text-lg leading-relaxed text-brand-ink/85">{s.text}</p>
             </section>
           ))}
@@ -24,7 +24,7 @@ export function LessonView({ content }: { content: ContentDetail }) {
       {complete.data ? (
         <RewardPanel outcome={complete.data} />
       ) : content.completed ? (
-        <p role="status" className="rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-brand-ink/70">
+        <p role="status" className="rounded-2xl bg-surface px-4 py-3 text-sm font-semibold text-brand-ink/70">
           Kamu sudah menyelesaikan materi ini.
         </p>
       ) : (

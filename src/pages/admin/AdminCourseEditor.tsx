@@ -94,7 +94,7 @@ function Editor({ course }: { course: CourseDoc }) {
 
   return (
     <>
-      <Link to="/admin/courses" className="mb-3 inline-flex items-center gap-1 text-sm font-bold text-brand-purple hover:underline">
+      <Link to="/admin/courses" className="mb-3 inline-flex items-center gap-1 text-sm font-bold text-brand-purple-fg hover:underline">
         <ChevronLeftIcon className="h-4 w-4" /> Semua course
       </Link>
 
@@ -146,13 +146,13 @@ function Editor({ course }: { course: CourseDoc }) {
               {save.error instanceof ApiError ? save.error.message : errorMessage(save.error)}
             </p>
           )}
-          {notice && !save.isError && <p className="rounded-2xl bg-brand-purple/8 px-4 py-3 text-sm font-bold text-brand-purple">{notice}</p>}
+          {notice && !save.isError && <p className="rounded-2xl bg-brand-purple/8 px-4 py-3 text-sm font-bold text-brand-purple-fg">{notice}</p>}
         </div>
       </Card>
 
       <div className="flex flex-col gap-6">
         {doc.modules.map((m, mi) => (
-          <section key={m.id} aria-label={`Modul ${mi + 1}`} className="rounded-3xl border-2 border-brand-ink/10 bg-white/70 p-4 sm:p-5">
+          <section key={m.id} aria-label={`Modul ${mi + 1}`} className="rounded-3xl border-2 border-brand-ink/10 bg-surface/70 p-4 sm:p-5">
             <div className="flex items-end gap-2">
               <div className="flex-1">
                 <label htmlFor={`mod-${m.id}`} className={labelCls}>Modul {mi + 1}</label>
@@ -179,9 +179,9 @@ function Editor({ course }: { course: CourseDoc }) {
               {m.contents.map((c, ci) => {
                 const open = openId === c.id;
                 return (
-                  <li key={c.id} className="rounded-2xl border-2 border-brand-ink/10 bg-white">
+                  <li key={c.id} className="rounded-2xl border-2 border-brand-ink/10 bg-surface">
                     <div className="flex flex-wrap items-center gap-2 p-2.5">
-                      <span className="rounded-full bg-brand-purple/10 px-2.5 py-1 font-display text-xs font-bold text-brand-purple">{TYPE_LABEL[c.type]}</span>
+                      <span className="rounded-full bg-brand-purple/10 px-2.5 py-1 font-display text-xs font-bold text-brand-purple-fg">{TYPE_LABEL[c.type]}</span>
                       <label htmlFor={`ct-${c.id}`} className="sr-only">Judul materi</label>
                       <input id={`ct-${c.id}`} value={c.title} onChange={(e) => editContent(c.id)((x) => { x.title = e.target.value; })} className={clsx(fieldCls, "min-w-40 flex-1 py-1.5")} />
                       <Button type="button" size="sm" variant={open ? "primary" : "outline"} aria-expanded={open} onClick={() => setOpenId(open ? null : c.id)}>

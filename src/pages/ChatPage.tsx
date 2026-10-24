@@ -135,7 +135,7 @@ export default function ChatPage() {
       />
 
       <div className="grid h-[calc(100dvh-13rem)] min-h-[30rem] gap-4 lg:grid-cols-[17rem_1fr]">
-        <aside className="hidden min-h-0 rounded-3xl border-2 border-brand-ink/10 bg-white p-3 lg:block" aria-label="Riwayat percakapan">{history}</aside>
+        <aside className="hidden min-h-0 rounded-3xl border-2 border-brand-ink/10 bg-surface p-3 lg:block" aria-label="Riwayat percakapan">{history}</aside>
 
         <section className="flex min-h-0 flex-col overflow-hidden rounded-3xl border-2 border-brand-ink/10 bg-brand-cream shadow-[0_4px_0_0_rgba(35,19,52,0.06)]" aria-label="Percakapan dengan asisten Deen">
           <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5">
@@ -151,7 +151,7 @@ export default function ChatPage() {
               <ErrorState message="Riwayat percakapan belum bisa dimuat." onRetry={() => detail.refetch()} />
             ) : empty ? (
               <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center gap-4 text-center">
-                <span className="grid h-16 w-16 place-items-center rounded-full bg-brand-purple/10 text-brand-purple"><ChatIcon className="h-8 w-8" /></span>
+                <span className="grid h-16 w-16 place-items-center rounded-full bg-brand-purple/10 text-brand-purple-fg"><ChatIcon className="h-8 w-8" /></span>
                 <div>
                   <p className="font-display text-xl font-extrabold text-brand-ink">Halo, {user.name.split(" ")[0]}!</p>
                   <p className="mt-1 text-sm text-brand-ink/60">Aku asisten belajar Deen. Pilih pertanyaan di bawah atau tulis sendiri.</p>
@@ -159,7 +159,7 @@ export default function ChatPage() {
                 <ul className="flex flex-wrap justify-center gap-2" aria-label="Contoh pertanyaan">
                   {SUGGESTIONS[user.role].map((s) => (
                     <li key={s}>
-                      <button type="button" disabled={waiting} onClick={() => send(s)} className="rounded-full border-2 border-brand-purple/30 bg-white px-3.5 py-1.5 text-sm font-bold text-brand-purple transition-colors hover:bg-brand-purple/8 disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-brand-blue">{s}</button>
+                      <button type="button" disabled={waiting} onClick={() => send(s)} className="rounded-full border-2 border-brand-purple/30 bg-surface px-3.5 py-1.5 text-sm font-bold text-brand-purple-fg transition-colors hover:bg-brand-purple/8 disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-brand-blue">{s}</button>
                     </li>
                   ))}
                 </ul>
@@ -184,7 +184,7 @@ export default function ChatPage() {
 
       {historyOpen && (
         <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Riwayat percakapan">
-          <button type="button" aria-label="Tutup riwayat" className="absolute inset-0 bg-brand-ink/50" onClick={() => setHistoryOpen(false)} />
+          <button type="button" aria-label="Tutup riwayat" className="absolute inset-0 bg-night/50" onClick={() => setHistoryOpen(false)} />
           <div className="absolute inset-y-0 right-0 flex w-80 max-w-[88%] flex-col gap-3 bg-brand-cream p-4 shadow-xl">
             <div className="flex items-center justify-between">
               <p className="font-display text-lg font-extrabold text-brand-ink">Riwayat</p>

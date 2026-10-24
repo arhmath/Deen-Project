@@ -44,7 +44,7 @@ export default function AdminCourses() {
             onClick={() => setFilter(f.value)}
             className={clsx(
               "rounded-full border-2 px-4 py-2 font-display text-sm font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue",
-              filter === f.value ? "border-brand-purple bg-brand-purple text-white" : "border-brand-ink/10 bg-white text-brand-ink/70 hover:border-brand-purple/40"
+              filter === f.value ? "border-brand-purple bg-brand-purple text-white" : "border-brand-ink/10 bg-surface text-brand-ink/70 hover:border-brand-purple/40"
             )}
           >
             {f.label}
@@ -70,14 +70,14 @@ export default function AdminCourses() {
               <Card className="flex flex-wrap items-center gap-x-5 gap-y-2 p-4">
                 <div className="min-w-0 flex-1">
                   <h2 className="font-display text-lg font-extrabold text-brand-ink">
-                    <Link to={`/admin/courses/${c.id}`} className="hover:text-brand-purple focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
+                    <Link to={`/admin/courses/${c.id}`} className="hover:text-brand-purple-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
                       {c.title}
                     </Link>
                   </h2>
                   <p className="truncate text-sm text-brand-ink/55">{c.roomName} · {c.moduleCount} modul · {c.contentCount} materi</p>
                 </div>
                 <StatusBadge status={c.status} />
-                <Link to={`/admin/courses/${c.id}`} className="font-display text-sm font-bold text-brand-purple hover:underline">Edit</Link>
+                <Link to={`/admin/courses/${c.id}`} className="font-display text-sm font-bold text-brand-purple-fg hover:underline">Edit</Link>
               </Card>
             </li>
           ))}

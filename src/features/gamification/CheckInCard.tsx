@@ -24,7 +24,7 @@ export function CheckInCard({ gamification: g }: { gamification: GamificationSum
   return (
     <section
       aria-labelledby="checkin-title"
-      className="flex flex-col rounded-3xl border-2 border-brand-amber-dark bg-brand-amber p-5 text-brand-ink shadow-[0_6px_0_0_#CC8A00]"
+      className="flex flex-col keep-light rounded-3xl border-2 border-brand-amber-dark bg-brand-amber p-5 text-night shadow-[0_6px_0_0_#CC8A00]"
     >
       <div className="flex items-center gap-4">
         <FlameIcon
@@ -50,7 +50,7 @@ export function CheckInCard({ gamification: g }: { gamification: GamificationSum
                 d.checked
                   ? "border-brand-ink bg-brand-ink text-brand-amber"
                   : d.isToday
-                    ? "border-brand-ink border-dashed bg-white/60"
+                    ? "border-brand-ink border-dashed bg-surface/60"
                     : "border-brand-ink/25 bg-white/30"
               )}
             >
@@ -68,7 +68,7 @@ export function CheckInCard({ gamification: g }: { gamification: GamificationSum
 
       <div className="mt-5">
         {g.checkedInToday ? (
-          <p role="status" className="rounded-2xl bg-white/60 px-4 py-3 text-center font-display font-extrabold">
+          <p role="status" className="rounded-2xl bg-surface/60 px-4 py-3 text-center font-display font-extrabold">
             {gained ? `+${gained.xp} XP${gained.point > 0 ? ` dan +${gained.point} point` : ""} masuk!` : "Check-in hari ini sudah beres. Sampai besok ya!"}
           </p>
         ) : (

@@ -8,7 +8,7 @@ import { formatNumber, initials, timeAgo } from "../../utils/format";
 
 export function ChildCard({ child, detailed = false }: { child: StudentProgress; detailed?: boolean }) {
   return (
-    <article className="flex flex-col rounded-3xl border-2 border-brand-ink/10 bg-white p-5 shadow-[0_4px_0_0_rgba(35,19,52,0.06)]">
+    <article className="flex flex-col rounded-3xl border-2 border-brand-ink/10 bg-surface p-5 shadow-[0_4px_0_0_rgba(35,19,52,0.06)]">
       <div className="flex items-center gap-3">
         <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-brand-purple font-display text-lg font-extrabold text-white" aria-hidden="true">
           {initials(child.name)}
@@ -56,7 +56,7 @@ export function ChildCard({ child, detailed = false }: { child: StudentProgress;
         <p className="text-xs text-brand-ink/50">Aktif {timeAgo(child.lastActiveAt)}</p>
         <Link
           to={`/parent/students/${child.id}`}
-          className="inline-flex items-center gap-1.5 font-display text-sm font-bold text-brand-purple hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+          className="inline-flex items-center gap-1.5 font-display text-sm font-bold text-brand-purple-fg hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
         >
           Lihat detail <ArrowRightIcon className="h-4 w-4" />
         </Link>

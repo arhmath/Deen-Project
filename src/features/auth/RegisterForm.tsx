@@ -98,7 +98,7 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
                 "cursor-pointer rounded-2xl border-2 p-4 transition-colors",
                 selectedRole === opt.value
                   ? "border-brand-purple bg-brand-purple/5"
-                  : "border-brand-ink/10 bg-white hover:border-brand-purple/40"
+                  : "border-brand-ink/10 bg-surface hover:border-brand-purple/40"
               )}
             >
               <input
@@ -111,7 +111,7 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
                 role={opt.value}
                 className={clsx(
                   "h-6 w-6",
-                  selectedRole === opt.value ? "text-brand-purple" : "text-brand-ink/40"
+                  selectedRole === opt.value ? "text-brand-purple-fg" : "text-brand-ink/40"
                 )}
               />
               <p className="mt-2 font-display text-sm font-bold text-brand-ink">
@@ -213,11 +213,11 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
         <label className="flex items-start gap-2.5 font-body text-sm text-brand-ink/70">
           <input
             type="checkbox"
-            className="mt-0.5 h-4 w-4 rounded border-2 border-brand-ink/20 text-brand-purple focus:ring-brand-purple"
+            className="mt-0.5 h-4 w-4 rounded border-2 border-brand-ink/20 text-brand-purple-fg focus:ring-brand-purple"
             {...register("agreeToTerms")}
           />
           Saya setuju dengan{" "}
-          <a href="/terms" className="font-bold text-brand-purple hover:underline">
+          <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-bold text-brand-purple-fg hover:underline">
             Syarat & Ketentuan
           </a>{" "}
           Deen.

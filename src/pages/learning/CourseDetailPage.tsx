@@ -34,7 +34,7 @@ export default function CourseDetailPage() {
   const c = q.data;
   return (
     <>
-      <Link to="/learning" className="mb-3 inline-flex items-center gap-1 text-sm font-bold text-brand-purple hover:underline">
+      <Link to="/learning" className="mb-3 inline-flex items-center gap-1 text-sm font-bold text-brand-purple-fg hover:underline">
         <ChevronLeftIcon className="h-4 w-4" /> Semua pembelajaran
       </Link>
       <PageHeader title={c.title} subtitle={c.description} />
@@ -58,9 +58,9 @@ export default function CourseDetailPage() {
                   <li key={ct.id}>
                     <Link
                       to={`/learning/${c.id}/content/${ct.id}`}
-                      className="flex items-center gap-3 rounded-2xl border-2 border-brand-ink/10 bg-white px-4 py-3 transition-colors hover:border-brand-purple/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+                      className="flex items-center gap-3 rounded-2xl border-2 border-brand-ink/10 bg-surface px-4 py-3 transition-colors hover:border-brand-purple/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
                     >
-                      <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${ct.completed ? "bg-brand-amber/25 text-brand-amber-dark" : "bg-brand-purple/10 text-brand-purple"}`}>
+                      <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${ct.completed ? "bg-brand-amber/25 text-brand-amber-dark" : "bg-brand-purple/10 text-brand-purple-fg"}`}>
                         {ct.completed ? <CheckIcon className="h-5 w-5" strokeWidth={3} /> : <Icon className="h-5 w-5" aria-hidden="true" />}
                       </span>
                       <span className="min-w-0 flex-1">

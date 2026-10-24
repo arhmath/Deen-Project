@@ -2,6 +2,24 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fffcf3" />
+    <!-- Anti-flash: pasang class "dark" SEBELUM render pertama (logikanya sama dengan src/app/theme.tsx). -->
+    <script>
+      (function () {
+        try {
+          var pref = localStorage.getItem("deen-theme");
+          var dark =
+            pref === "dark" ||
+            ((pref === null || pref === "system") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          var root = document.documentElement;
+          if (dark) root.classList.add("dark");
+          root.style.colorScheme = dark ? "dark" : "light";
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", dark ? "#150d22" : "#fffcf3");
+        } catch (e) {}
+      })();
+    </script>
     <style>
       #initial-loader {
         position: fixed;
@@ -19,6 +37,8 @@
         border-radius: 50%;
         animation: initial-loader-spin 0.75s linear infinite;
       }
+      .dark #initial-loader { background: #150d22; }
+      .dark #initial-loader-spinner { border-color: rgba(183, 140, 255, 0.22); border-top-color: #b78cff; }
       @keyframes initial-loader-spin {
         to { transform: rotate(360deg); }
       }

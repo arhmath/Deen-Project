@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Logo } from "./Logo";
 import { StarIcon, SparkleIcon, FlameIcon } from "../landing/DecorativeIcons";
 import { clsx } from "../../lib/clsx";
+import { ThemeToggle } from "../ui/ThemeToggle";
 
 interface AuthLayoutProps {
   title: string;
@@ -97,8 +98,12 @@ export function AuthLayout({
         {/* Background Pattern Tipis (Opsional untuk estetika tambahan) */}
         <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#7c3aed_0.75px,transparent_0.75px)] [bg-size:16px_16px]" />
 
+        <div className="absolute right-4 top-4 z-20 sm:right-6 sm:top-6">
+          <ThemeToggle />
+        </div>
+
         {/* --- CONTAINER KOTAK / CARD FORM --- */}
-        <div className="relative z-10 mx-auto w-full max-w-md rounded-3xl bg-white p-6 sm:p-10 border-2 border-brand-purple/15 shadow-[0_20px_50px_rgba(124,58,237,0.12)]">
+        <div className="relative z-10 mx-auto w-full max-w-md rounded-3xl bg-surface p-6 sm:p-10 border-2 border-brand-purple/15 shadow-[0_20px_50px_rgba(124,58,237,0.12)]">
           <Link to="/" className="mb-6 flex justify-center md:hidden">
             <Logo />
           </Link>

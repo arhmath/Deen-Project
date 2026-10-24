@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { ScrollSmoother } from "gsap/ScrollSmoother";
 import { Logo } from "../layout/Logo";
 import { ButtonLink } from "../ui/ButtonLink";
+import { ThemeToggle } from "../ui/ThemeToggle";
 
 const NAV_LINKS = [
   { label: "Fitur", href: "#fitur" },
@@ -81,7 +82,7 @@ export function LandingNavbar() {
               <a
                 href={link.href}
                 onClick={(e) => handleAnchorClick(e, link.href)}
-                className="font-display text-sm font-bold text-brand-ink/70 hover:text-brand-purple"
+                className="font-display text-sm font-bold text-brand-ink/70 hover:text-brand-purple-fg"
               >
                 {link.label}
               </a>
@@ -90,9 +91,10 @@ export function LandingNavbar() {
         </ul>
 
         <div className="hidden items-center gap-3 md:flex">
+          <ThemeToggle className="h-9 w-9" />
           <Link
             to="/login"
-            className="font-display text-sm font-bold text-brand-ink/70 hover:text-brand-purple"
+            className="font-display text-sm font-bold text-brand-ink/70 hover:text-brand-purple-fg"
           >
             Masuk
           </Link>
@@ -101,6 +103,8 @@ export function LandingNavbar() {
           </ButtonLink>
         </div>
 
+        <div className="flex items-center gap-2 md:hidden">
+        <ThemeToggle />
         <button
           type="button"
           className="flex h-10 w-10 items-center justify-center rounded-xl border-2 border-brand-ink/10 md:hidden"
@@ -116,6 +120,7 @@ export function LandingNavbar() {
             <span className="h-0.5 w-5 bg-brand-ink" />
           </div>
         </button>
+        </div>
       </nav>
 
       {open && (

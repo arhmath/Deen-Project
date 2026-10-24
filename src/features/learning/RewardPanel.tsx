@@ -9,7 +9,7 @@ export function RewardPanel({ outcome }: { outcome: RewardOutcome }) {
 
   if (outcome.alreadyRewarded) {
     return (
-      <div role="status" className="rounded-2xl border-2 border-brand-ink/10 bg-white px-4 py-3 text-sm text-brand-ink/70">
+      <div role="status" className="rounded-2xl border-2 border-brand-ink/10 bg-surface px-4 py-3 text-sm text-brand-ink/70">
         Materi ini sudah pernah kamu selesaikan, jadi XP dan point tidak bertambah lagi. Tetap semangat mengulang!
       </div>
     );
@@ -28,16 +28,16 @@ export function RewardPanel({ outcome }: { outcome: RewardOutcome }) {
       </div>
       <ul className="mt-3 flex flex-col gap-1.5 text-sm">
         {outcome.grants.map((g) => (
-          <li key={g.label} className="flex justify-between gap-3 rounded-xl bg-white/70 px-3 py-2">
+          <li key={g.label} className="flex justify-between gap-3 rounded-xl bg-surface/70 px-3 py-2">
             <span className="min-w-0 truncate font-semibold">{g.label}</span>
-            <span className="shrink-0 font-extrabold text-brand-purple">
+            <span className="shrink-0 font-extrabold text-brand-purple-fg">
               +{g.xp} XP{g.point > 0 && ` · +${g.point} Point`}
             </span>
           </li>
         ))}
       </ul>
       {outcome.courseCompleted && (
-        <p className="mt-3 flex items-center gap-2 font-display font-extrabold text-brand-purple">
+        <p className="mt-3 flex items-center gap-2 font-display font-extrabold text-brand-purple-fg">
           <CrownIcon className="h-6 w-6" aria-hidden="true" /> Selamat, course ini selesai!
         </p>
       )}

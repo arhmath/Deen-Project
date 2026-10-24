@@ -17,7 +17,7 @@ const ThumbDown = () => (
 );
 
 const FEEDBACK_BTN =
-  "grid h-8 w-8 place-items-center rounded-lg border-2 border-brand-ink/10 bg-white text-brand-ink/60 transition-colors hover:border-brand-purple/40 hover:text-brand-purple disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue";
+  "grid h-8 w-8 place-items-center rounded-lg border-2 border-brand-ink/10 bg-surface text-brand-ink/60 transition-colors hover:border-brand-purple/40 hover:text-brand-purple-fg disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue";
 
 /** Umpan balik hanya untuk jawaban yang sudah tersimpan di server (punya id server). */
 function Feedback({ messageId }: { messageId: string }) {
@@ -37,7 +37,7 @@ function Feedback({ messageId }: { messageId: string }) {
 
   if (given) {
     return (
-      <p className="text-xs font-bold text-brand-purple" role="status">
+      <p className="text-xs font-bold text-brand-purple-fg" role="status">
         {given === "already" ? "Kamu sudah menilai jawaban ini." : "Terima kasih atas penilaianmu!"}
       </p>
     );
@@ -69,7 +69,7 @@ export function ChatMessageBubble({ message, onRetry }: { message: ChatMessage; 
               ? "rounded-br-lg bg-brand-purple text-white"
               : refusal
                 ? "rounded-bl-lg border-2 border-brand-amber/50 bg-brand-amber/10 text-brand-ink"
-                : "rounded-bl-lg border-2 border-brand-ink/10 bg-white text-brand-ink",
+                : "rounded-bl-lg border-2 border-brand-ink/10 bg-surface text-brand-ink",
             message.status === "sending" && "opacity-70",
             message.status === "failed" && "border-2 border-red-300 bg-red-50 text-brand-ink"
           )}
@@ -90,7 +90,7 @@ export function ChatMessageBubble({ message, onRetry }: { message: ChatMessage; 
           {message.status === "failed" ? (
             <>
               <span role="alert" className="font-bold text-red-600">Pesan belum terkirim.</span>
-              {onRetry && <button type="button" onClick={() => onRetry(message)} className="font-bold text-brand-purple underline focus-visible:outline-2 focus-visible:outline-brand-blue">Kirim ulang</button>}
+              {onRetry && <button type="button" onClick={() => onRetry(message)} className="font-bold text-brand-purple-fg underline focus-visible:outline-2 focus-visible:outline-brand-blue">Kirim ulang</button>}
             </>
           ) : message.status === "sending" ? (
             <span>Mengirim…</span>
@@ -108,7 +108,7 @@ export function ChatMessageBubble({ message, onRetry }: { message: ChatMessage; 
 export function TypingBubble() {
   return (
     <li className="flex justify-start" aria-live="polite">
-      <div className="flex items-center gap-1.5 rounded-3xl rounded-bl-lg border-2 border-brand-ink/10 bg-white px-4 py-3.5">
+      <div className="flex items-center gap-1.5 rounded-3xl rounded-bl-lg border-2 border-brand-ink/10 bg-surface px-4 py-3.5">
         <span className="sr-only">Asisten Deen sedang menjawab…</span>
         {[0, 1, 2].map((i) => (
           <span key={i} aria-hidden="true" className="h-2 w-2 rounded-full bg-brand-purple/60 motion-safe:animate-bounce" style={{ animationDelay: `${i * 140}ms` }} />

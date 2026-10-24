@@ -16,8 +16,8 @@ export function LessonEditor({ content, update }: { content: ContentDoc; update:
   return (
     <div className="flex flex-col gap-4">
       {content.sections.map((s, i) => (
-        <fieldset key={i} className="rounded-2xl border-2 border-brand-ink/10 bg-white p-4">
-          <legend className="px-2 font-display text-sm font-extrabold text-brand-purple">Bagian {i + 1}</legend>
+        <fieldset key={i} className="rounded-2xl border-2 border-brand-ink/10 bg-surface p-4">
+          <legend className="px-2 font-display text-sm font-extrabold text-brand-purple-fg">Bagian {i + 1}</legend>
           <div className="flex flex-col gap-3">
             <div>
               <label htmlFor={`${uid}-h-${i}`} className={labelCls}>Judul bagian (opsional)</label>
@@ -51,8 +51,8 @@ export function FlashcardEditor({ content, update }: { content: ContentDoc; upda
   return (
     <div className="flex flex-col gap-3">
       {content.cards.map((k, i) => (
-        <fieldset key={k.id} className="rounded-2xl border-2 border-brand-ink/10 bg-white p-4">
-          <legend className="px-2 font-display text-sm font-extrabold text-brand-purple">Kartu {i + 1}</legend>
+        <fieldset key={k.id} className="rounded-2xl border-2 border-brand-ink/10 bg-surface p-4">
+          <legend className="px-2 font-display text-sm font-extrabold text-brand-purple-fg">Kartu {i + 1}</legend>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <label htmlFor={`${uid}-f-${i}`} className={labelCls}>Sisi depan</label>
@@ -86,8 +86,8 @@ export function QuizEditor({ content, update }: { content: ContentDoc; update: U
   return (
     <div className="flex flex-col gap-4">
       {content.questions.map((q, qi) => (
-        <fieldset key={q.id} className="rounded-2xl border-2 border-brand-ink/10 bg-white p-4">
-          <legend className="px-2 font-display text-sm font-extrabold text-brand-purple">Soal {qi + 1}</legend>
+        <fieldset key={q.id} className="rounded-2xl border-2 border-brand-ink/10 bg-surface p-4">
+          <legend className="px-2 font-display text-sm font-extrabold text-brand-purple-fg">Soal {qi + 1}</legend>
           <div className="flex flex-col gap-3">
             <div>
               <label htmlFor={`${uid}-q-${qi}`} className={labelCls}>Pertanyaan</label>

@@ -1,6 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap"); /* BARU */
 @import "tailwindcss";
 
+/* Dark mode berbasis class `.dark` di <html> (diatur oleh src/app/theme.tsx). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-brand-purple: #8231f2;
   --color-brand-purple-dark: #5b1fb0;
@@ -13,6 +16,11 @@
   --color-brand-blue-dark: #0072b8;
   --color-brand-cream: #fffcf3;
   --color-brand-ink: #231334;
+
+  /* Token tambahan untuk dark mode. Nilai di sini = tampilan light mode (tidak berubah). */
+  --color-surface: #ffffff;        /* kartu / input / panel (dulu bg-white) */
+  --color-night: #231334;          /* ungu gelap TETAP — untuk chip, scrim, & teks di atas warna aksen */
+  --color-brand-purple-fg: #8231f2; /* ungu untuk TEKS/ikon (di dark mode dibuat lebih terang) */
 
   --font-display: "Baloo 2", ui-rounded, system-ui, sans-serif;
   --font-body: "Nunito", ui-sans-serif, system-ui, sans-serif;
@@ -40,6 +48,44 @@
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ───────────────────────── Tema ─────────────────────────
+ * Light = tampilan asli. Dark = override token warna saja, jadi semua utility
+ * (text-brand-ink, bg-brand-cream, border-brand-ink/10, dst.) ikut berubah otomatis.
+ */
+:root { color-scheme: light; }
+
+.dark {
+  color-scheme: dark;
+
+  --color-brand-cream: #150d22;   /* latar halaman */
+  --color-brand-ink: #f1ebfb;     /* teks & garis (opacity modifier tetap jalan) */
+  --color-surface: #1f1433;       /* kartu, input, panel */
+  --color-brand-purple-fg: #b78cff;
+  --color-brand-blue-dark: #4cb8ff;
+
+  /* Warna status Tailwind yang dipakai (error / sukses) */
+  --color-red-50: #3a1520;
+  --color-red-200: #7f1d2d;
+  --color-red-300: #b4384a;
+  --color-red-400: #f87171;
+  --color-red-500: #f87171;
+  --color-red-600: #fb8a8a;
+  --color-red-700: #fca5a5;
+  --color-green-700: #86efac;
+  --color-emerald-600: #34d399;
+}
+
+/* Pulau warna: area berlatar aksen terang (mis. kartu check-in amber) yang isinya
+ * dirancang untuk teks gelap. Di dalamnya token dikembalikan ke nilai light mode. */
+.keep-light {
+  color-scheme: light;
+  --color-brand-ink: #231334;
+  --color-brand-cream: #fffcf3;
+  --color-surface: #ffffff;
+  --color-brand-purple-fg: #8231f2;
 }
 
 @layer base {
@@ -183,3 +229,25 @@
   .ziya-panel, .ziya-backdrop { animation: none !important; }
   .ziya-launcher { transition: none; }
 }
+
+/* ───────── Ziya widget — dark mode ───────── */
+.dark .ziya-backdrop { background: rgba(0,0,0,.45); }
+.dark .ziya-panel { border-color: rgba(183,140,255,.22); background: #1b1130; box-shadow: 0 24px 80px rgba(0,0,0,.55); }
+.dark .ziya-launcher__label { border-color: rgba(183,140,255,.3); background: rgba(31,20,51,.95); color: #dcc8ff; box-shadow: 0 12px 24px rgba(0,0,0,.35); }
+.dark .ziya-launcher__ping { border-color: #1b1130; }
+.dark .ziya-day-label { color: #a995c8; }
+.dark .ziya-message--assistant { border-color: #34244f; color: #ece4fa; background: #28193f; box-shadow: none; }
+.dark .ziya-message .ziya-failed { color: #fca5a5; }
+.dark .ziya-sources { border-top-color: #34244f; color: #b7a6d3; }
+.dark .ziya-quick-questions > span { color: #a995c8; }
+.dark .ziya-quick-questions button { border-color: #3a2a58; color: #d9c4ff; background: #231638; }
+.dark .ziya-quick-questions button:hover { border-color: #7b57c4; background: #2d1d49; }
+.dark .ziya-composer { border-color: #3a2a58; background: #231638; box-shadow: none; }
+.dark .ziya-composer:focus-within { border-color: #9a6fe0; box-shadow: 0 0 0 3px rgba(183,140,255,.16); }
+.dark .ziya-composer textarea { color: #ece4fa; }
+.dark .ziya-composer textarea::placeholder { color: #8f7fb0; }
+.dark .ziya-panel__footer { border-top-color: #2a1c42; color: #8f7fb0; }
+.dark .ziya-notice { color: #fecaca; background: #3a1520; }
+.dark .ziya-guest-card h3 { color: #f1ebfb; }
+.dark .ziya-guest-card p, .dark .ziya-loading-session { color: #b7a6d3; }
+.dark .ziya-secondary-link { color: #c9a8ff; }

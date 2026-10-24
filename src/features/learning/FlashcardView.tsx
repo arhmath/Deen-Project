@@ -48,7 +48,7 @@ export function FlashcardView({ content }: { content: ContentDetail }) {
         aria-pressed={flipped}
         className={clsx(
           "grid min-h-64 w-full place-items-center rounded-3xl border-2 p-8 text-center shadow-[0_6px_0_0_rgba(35,19,52,0.1)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue",
-          flipped ? "border-brand-purple-dark bg-brand-purple text-white" : "border-brand-ink/10 bg-white text-brand-ink"
+          flipped ? "border-brand-purple-dark bg-brand-purple text-white" : "border-brand-ink/10 bg-surface text-brand-ink"
         )}
       >
         <span className="flex flex-col items-center gap-3">
@@ -77,7 +77,7 @@ export function FlashcardView({ content }: { content: ContentDetail }) {
         complete.data ? (
           <RewardPanel outcome={complete.data} />
         ) : content.completed ? (
-          <p role="status" className="rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-brand-ink/70">Kamu sudah menyelesaikan kartu ini.</p>
+          <p role="status" className="rounded-2xl bg-surface px-4 py-3 text-sm font-semibold text-brand-ink/70">Kamu sudah menyelesaikan kartu ini.</p>
         ) : (
           <div>
             <Button fullWidth disabled={!allSeen} isLoading={complete.isPending} onClick={() => complete.mutate()}>

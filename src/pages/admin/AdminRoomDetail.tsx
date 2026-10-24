@@ -6,6 +6,8 @@ import { Button } from "../../components/ui/Button";
 import { Badge } from "../../components/ui/Badge";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { CopyButton } from "../../components/ui/CopyButton";
+import { QrCode, QrDialogButton } from "../../components/ui/QrCode";
+import { roomJoinUrl } from "../../utils/deepLink";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ErrorState, PermissionDenied } from "../../components/ui/ErrorState";
 import { Skeleton } from "../../components/ui/Skeleton";
@@ -46,7 +48,7 @@ export default function AdminRoomDetail() {
 
   return (
     <>
-      <Link to="/admin/rooms" className="mb-3 inline-flex items-center gap-1 text-sm font-bold text-brand-purple hover:underline">
+      <Link to="/admin/rooms" className="mb-3 inline-flex items-center gap-1 text-sm font-bold text-brand-purple-fg hover:underline">
         <ChevronLeftIcon className="h-4 w-4" /> Semua room
       </Link>
       <PageHeader
@@ -112,7 +114,7 @@ export default function AdminRoomDetail() {
               <ul className="flex flex-col gap-2">
                 {courses.map((c) => (
                   <li key={c.id} className="flex flex-wrap items-center gap-3 rounded-2xl bg-brand-cream/70 px-3 py-2.5">
-                    <Link to={`/admin/courses/${c.id}`} className="min-w-0 flex-1 truncate font-display font-extrabold text-brand-ink hover:text-brand-purple">{c.title}</Link>
+                    <Link to={`/admin/courses/${c.id}`} className="min-w-0 flex-1 truncate font-display font-extrabold text-brand-ink hover:text-brand-purple-fg">{c.title}</Link>
                     <span className="text-xs text-brand-ink/55">{c.contentCount} materi</span>
                     <StatusBadge status={c.status} />
                   </li>
@@ -125,9 +127,22 @@ export default function AdminRoomDetail() {
         <div className="flex flex-col gap-6">
           <Card>
             <p className="text-sm font-semibold text-brand-ink/60">Kode gabung</p>
-            <p className="mt-1 font-display text-4xl font-extrabold tracking-widest text-brand-purple">{room.joinCode}</p>
-            <CopyButton text={room.joinCode} label="Salin kode" className="mt-3" />
-            <p className="mt-3 text-sm text-brand-ink/60">Santri memasukkan kode ini di dashboard atau halaman Pembelajaran mereka.</p>
+            <p className="mt-1 font-display text-4xl font-extrabold tracking-widest text-brand-purple-fg">{room.joinCode}</p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <CopyButton text={room.joinCode} label="Salin kode" />
+              <QrDialogButton
+                value={roomJoinUrl(room.joinCode)}
+                code={room.joinCode}
+                title={`QR room ${room.name}`}
+                description="Santri memindai QR ini dengan kamera HP, lalu kode gabung terisi otomatis."
+                filename={`qr-room-${room.joinCode}.png`}
+                label="QR besar"
+              />
+            </div>
+            <div className="mt-4 flex justify-center">
+              <QrCode value={roomJoinUrl(room.joinCode)} size={168} label={`QR code gabung room ${room.name}`} />
+            </div>
+            <p className="mt-3 text-sm text-brand-ink/60">Santri memasukkan kode ini di dashboard atau halaman Pembelajaran mereka, atau memindai QR di atas.</p>
           </Card>
 
           <Card>

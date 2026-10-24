@@ -5,6 +5,8 @@ import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Badge } from "../../components/ui/Badge";
 import { CopyButton } from "../../components/ui/CopyButton";
+import { QrDialogButton } from "../../components/ui/QrCode";
+import { roomJoinUrl } from "../../utils/deepLink";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ErrorState } from "../../components/ui/ErrorState";
 import { FormDialog } from "../../components/ui/FormDialog";
@@ -87,7 +89,7 @@ export default function AdminRooms() {
               <Card className="flex h-full flex-col">
                 <div className="flex items-start justify-between gap-3">
                   <h2 className="font-display text-lg font-extrabold leading-snug text-brand-ink">
-                    <Link to={`/admin/rooms/${r.id}`} className="hover:text-brand-purple focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
+                    <Link to={`/admin/rooms/${r.id}`} className="hover:text-brand-purple-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
                       {r.name}
                     </Link>
                   </h2>
@@ -97,9 +99,19 @@ export default function AdminRooms() {
                 <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl bg-brand-cream p-3">
                   <div>
                     <p className="text-xs font-semibold text-brand-ink/55">Kode gabung</p>
-                    <p className="font-display text-2xl font-extrabold tracking-widest text-brand-purple">{r.joinCode}</p>
+                    <p className="font-display text-2xl font-extrabold tracking-widest text-brand-purple-fg">{r.joinCode}</p>
                   </div>
-                  <CopyButton text={r.joinCode} label="Salin kode" className="ml-auto" />
+                  <div className="ml-auto flex flex-wrap items-center gap-2">
+                    <QrDialogButton
+                      value={roomJoinUrl(r.joinCode)}
+                      code={r.joinCode}
+                      title={`QR room ${r.name}`}
+                      description="Santri memindai QR ini dengan kamera HP, lalu kode gabung terisi otomatis."
+                      filename={`qr-room-${r.joinCode}.png`}
+                      label="QR"
+                    />
+                    <CopyButton text={r.joinCode} label="Salin kode" />
+                  </div>
                 </div>
 
                 <dl className="mt-4 flex gap-6 text-sm text-brand-ink/70">

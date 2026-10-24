@@ -22,11 +22,11 @@ const VARIANT_CLASSES: Record<Variant, string> = {
   primary:
     "bg-brand-purple text-white shadow-[0_5px_0_0_#5B1FB0] hover:brightness-105 active:shadow-[0_1px_0_0_#5B1FB0]",
   secondary:
-    "bg-brand-amber text-brand-ink shadow-[0_5px_0_0_#CC8A00] hover:brightness-105 active:shadow-[0_1px_0_0_#CC8A00]",
+    "bg-brand-amber text-night shadow-[0_5px_0_0_#CC8A00] hover:brightness-105 active:shadow-[0_1px_0_0_#CC8A00]",
   sky:
     "bg-brand-blue text-white shadow-[0_5px_0_0_#0072B8] hover:brightness-105 active:shadow-[0_1px_0_0_#0072B8]",
   outline:
-    "bg-white text-brand-purple border-2 border-brand-purple shadow-[0_5px_0_0_#E4D6FB] active:shadow-[0_1px_0_0_#E4D6FB]",
+    "bg-surface text-brand-purple-fg border-2 border-brand-purple shadow-[0_5px_0_0_#E4D6FB] active:shadow-[0_1px_0_0_#E4D6FB]",
   ghost:
     "bg-transparent text-brand-ink hover:bg-brand-purple/5 shadow-none active:translate-y-0",
 };

@@ -42,7 +42,7 @@ export default function ParentOverview() {
       ) : (
         <>
           <ul className="mb-6 grid gap-3 sm:grid-cols-3" aria-label="Ringkasan">
-            <li><StatTile icon={<UsersIcon />} iconClassName="bg-brand-purple/12 text-brand-purple" label="Anak terhubung" value={kids.length} /></li>
+            <li><StatTile icon={<UsersIcon />} iconClassName="bg-brand-purple/12 text-brand-purple-fg" label="Anak terhubung" value={kids.length} /></li>
             <li><StatTile icon={<CheckIcon />} iconClassName="bg-brand-amber/20 text-brand-amber-dark" label="Sudah check-in hari ini" value={`${checked} dari ${kids.length}`} /></li>
             <li><StatTile icon={<ChartIcon />} iconClassName="bg-brand-blue/15 text-brand-blue" label="Rata-rata progres" value={`${avg}%`} /></li>
           </ul>

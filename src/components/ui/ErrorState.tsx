@@ -27,7 +27,7 @@ export function ErrorState({
 export function PermissionDenied({ message }: { message?: string }) {
   return (
     <div role="alert" className="mx-auto flex max-w-md flex-col items-center gap-2 px-6 py-16 text-center">
-      <ShieldIcon className="h-12 w-12 text-brand-purple" />
+      <ShieldIcon className="h-12 w-12 text-brand-purple-fg" />
       <h1 className="font-display text-2xl font-extrabold text-brand-ink">Halaman ini bukan untukmu</h1>
       <p className="text-brand-ink/65">{message ?? "Akunmu tidak punya izin untuk membuka halaman ini."}</p>
       <a

@@ -8,6 +8,7 @@ import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { Skeleton } from "./components/ui/Skeleton";
 
 // Halaman dashboard di-lazy-load supaya bundle landing page tetap ringan.
+const TermsPage = lazy(() => import("./pages/TermsPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const LeaderboardPage = lazy(() => import("./pages/LeaderboardPage"));
 const LearningPage = lazy(() => import("./pages/LearningPage"));
@@ -48,6 +49,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/terms" element={<TermsPage />} />
 
         {/* Area terautentikasi */}
         <Route element={<RequireAuth />}>

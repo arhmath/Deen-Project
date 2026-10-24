@@ -2,7 +2,7 @@ import type { LeaderboardEntry } from "../../types/leaderboard";
 import { clsx } from "../../lib/clsx";
 import { formatNumber, initials } from "../../utils/format";
 
-const MEDAL = ["bg-brand-gold text-brand-ink", "bg-brand-ink/15 text-brand-ink", "bg-brand-amber-dark/70 text-white"];
+const MEDAL = ["bg-brand-gold text-night", "bg-brand-ink/15 text-night", "bg-brand-amber-dark/70 text-white"];
 
 export function RankBadge({ rank }: { rank: number }) {
   return (
@@ -23,7 +23,7 @@ export function LeaderboardRow({ entry }: { entry: LeaderboardEntry }) {
       aria-current={entry.isMe ? "true" : undefined}
       className={clsx(
         "flex items-center gap-3 rounded-2xl border-2 px-3 py-2.5",
-        entry.isMe ? "border-brand-purple bg-brand-purple/8" : "border-transparent bg-white"
+        entry.isMe ? "border-brand-purple bg-brand-purple/8" : "border-transparent bg-surface"
       )}
     >
       <RankBadge rank={entry.rank} />

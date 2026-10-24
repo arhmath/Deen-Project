@@ -37,7 +37,7 @@ export default function AdminDashboard() {
       />
 
       <ul className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Ringkasan">
-        <li><StatTile icon={<UsersIcon />} iconClassName="bg-brand-purple/12 text-brand-purple" label="Total santri" value={o.totalStudents} hint={`${o.totalRooms} room`} /></li>
+        <li><StatTile icon={<UsersIcon />} iconClassName="bg-brand-purple/12 text-brand-purple-fg" label="Total santri" value={o.totalStudents} hint={`${o.totalRooms} room`} /></li>
         <li><StatTile icon={<ClockIcon />} iconClassName="bg-brand-blue/15 text-brand-blue" label="Aktif hari ini" value={o.activeToday} /></li>
         <li><StatTile icon={<CheckIcon />} iconClassName="bg-brand-amber/20 text-brand-amber-dark" label="Check-in hari ini" value={o.checkInsToday} /></li>
         <li><StatTile icon={<ChartIcon />} iconClassName="bg-brand-gold/25 text-brand-gold-dark" label="Progres rata-rata" value={`${o.avgCourseProgress}%`} hint={`Skor rata-rata ${o.avgScore}`} /></li>

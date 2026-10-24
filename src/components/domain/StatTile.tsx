@@ -15,7 +15,7 @@ export function StatTile({
   iconClassName?: string;
 }) {
   return (
-    <div className="flex items-center gap-4 rounded-2xl border-2 border-brand-ink/10 bg-white p-4">
+    <div className="flex items-center gap-4 rounded-2xl border-2 border-brand-ink/10 bg-surface p-4">
       <span className={clsx("grid h-12 w-12 shrink-0 place-items-center rounded-2xl [&>svg]:h-6 [&>svg]:w-6", iconClassName)}>
         {icon}
       </span>

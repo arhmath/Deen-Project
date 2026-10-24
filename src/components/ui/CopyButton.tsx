@@ -26,7 +26,7 @@ export function CopyButton({ text, label = "Salin", className }: { text: string;
       type="button"
       onClick={copy}
       className={clsx(
-        "inline-flex items-center gap-1.5 rounded-xl border-2 border-brand-ink/10 bg-white px-3 py-1.5 font-display text-sm font-bold text-brand-ink/75 transition-colors hover:border-brand-purple/40 hover:text-brand-purple focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue",
+        "inline-flex items-center gap-1.5 rounded-xl border-2 border-brand-ink/10 bg-surface px-3 py-1.5 font-display text-sm font-bold text-brand-ink/75 transition-colors hover:border-brand-purple/40 hover:text-brand-purple-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue",
         className
       )}
     >

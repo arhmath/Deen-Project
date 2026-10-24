@@ -3,8 +3,8 @@ import { clsx } from "../../lib/clsx";
 
 const VARIANT = {
   primary: "bg-brand-purple text-white shadow-[0_5px_0_0_#5B1FB0] hover:brightness-110",
-  secondary: "bg-brand-amber text-brand-ink shadow-[0_5px_0_0_#CC8A00] hover:brightness-105",
-  outline: "border-2 border-brand-ink/15 bg-white text-brand-ink hover:border-brand-purple/50",
+  secondary: "bg-brand-amber text-night shadow-[0_5px_0_0_#CC8A00] hover:brightness-105",
+  outline: "border-2 border-brand-ink/15 bg-surface text-brand-ink hover:border-brand-purple/50",
 };
 
 /** Link bergaya tombol — menghindari <a><button> bersarang. */

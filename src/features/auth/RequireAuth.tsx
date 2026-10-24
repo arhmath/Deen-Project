@@ -15,7 +15,7 @@ export function RequireAuth({ roles }: { roles?: Role[] }) {
   const me = useMe();
 
   if (!tokenStore.get()) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
   }
   if (me.isPending) {
     return (
@@ -27,7 +27,7 @@ export function RequireAuth({ roles }: { roles?: Role[] }) {
   if (me.isError) {
     if (me.error instanceof ApiError && me.error.status === 401) {
       tokenStore.clear();
-      return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+      return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
     }
     return (
       <div className="mx-auto max-w-lg p-6">

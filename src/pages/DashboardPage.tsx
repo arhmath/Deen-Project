@@ -72,7 +72,7 @@ function SantriDashboard() {
           <ul className="grid gap-3 sm:grid-cols-3" aria-label="Statistik">
             <li><StatTile icon={<CoinIcon />} iconClassName="bg-brand-blue/15 text-brand-blue" label="Point" value={formatNumber(g.point)} /></li>
             <li><StatTile icon={<FlameIcon />} iconClassName="bg-brand-amber/20 text-brand-amber-dark" label="Streak" value={`${g.streak} hari`} hint={`Rekor ${g.longestStreak} hari`} /></li>
-            <li><StatTile icon={<TrophyIcon />} iconClassName="bg-brand-purple/12 text-brand-purple" label="Peringkat" value={rank.position ? `#${rank.position}` : "-"} hint={`dari ${rank.total} santri`} /></li>
+            <li><StatTile icon={<TrophyIcon />} iconClassName="bg-brand-purple/12 text-brand-purple-fg" label="Peringkat" value={rank.position ? `#${rank.position}` : "-"} hint={`dari ${rank.total} santri`} /></li>
           </ul>
 
           {/* Lanjutkan belajar */}

@@ -22,7 +22,7 @@ const SORTS = [
   { value: "name", label: "Nama (A–Z)" },
 ];
 
-const field = "rounded-2xl border-2 border-brand-ink/10 bg-white px-4 py-2.5 font-body text-sm text-brand-ink outline-none focus:border-brand-blue";
+const field = "rounded-2xl border-2 border-brand-ink/10 bg-surface px-4 py-2.5 font-body text-sm text-brand-ink outline-none focus:border-brand-blue";
 
 export default function AdminMonitoring() {
   const [search, setSearch] = useState("");

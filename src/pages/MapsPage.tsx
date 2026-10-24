@@ -20,7 +20,7 @@ function Legend() {
     <ul className="flex flex-wrap gap-x-5 gap-y-1 text-sm font-semibold text-brand-ink/70" aria-label="Keterangan peta">
       <li><span className={`${dot} border-brand-amber-dark bg-brand-amber`} aria-hidden="true" /> Selesai</li>
       <li><span className={`${dot} border-brand-purple-dark bg-brand-purple`} aria-hidden="true" /> Berikutnya</li>
-      <li><span className={`${dot} border-brand-ink/20 bg-white`} aria-hidden="true" /> Belum dikerjakan</li>
+      <li><span className={`${dot} border-brand-ink/20 bg-surface`} aria-hidden="true" /> Belum dikerjakan</li>
     </ul>
   );
 }
@@ -58,7 +58,7 @@ export default function MapsPage() {
             icon={<MapIcon />}
             title="Belum ada wilayah di petamu"
             description="Gurumu belum mempublikasikan course di room kamu. Coba lagi nanti ya."
-            action={<Link to="/learning" className="font-display text-sm font-bold text-brand-purple hover:underline">Lihat pembelajaran</Link>}
+            action={<Link to="/learning" className="font-display text-sm font-bold text-brand-purple-fg hover:underline">Lihat pembelajaran</Link>}
           />
         )
       ) : (

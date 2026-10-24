@@ -88,7 +88,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
       <div className="flex justify-end">
         <Link
           to="/forgot-password"
-          className="font-body text-sm font-bold text-brand-purple hover:underline"
+          className="font-body text-sm font-bold text-brand-purple-fg hover:underline"
         >
           Lupa password?
         </Link>

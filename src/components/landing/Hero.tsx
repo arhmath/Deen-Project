@@ -125,18 +125,18 @@ export function Hero() {
             />
           </div>
 
-          <div className="absolute -left-8 top-6 motion-safe:animate-float rounded-2xl bg-white px-4 py-2.5 shadow-[0_4px_0_0_#E4D6FB]">
-            <p className="font-display text-sm font-extrabold text-brand-purple">
+          <div className="absolute -left-8 top-6 motion-safe:animate-float rounded-2xl bg-surface px-4 py-2.5 shadow-[0_4px_0_0_#E4D6FB]">
+            <p className="font-display text-sm font-extrabold text-brand-purple-fg">
               +50 XP
             </p>
           </div>
-          <div className="absolute -right-6 top-1/2 motion-safe:animate-float [animation-delay:1.2s] rounded-2xl bg-white px-4 py-2.5 shadow-[0_4px_0_0_#FCE7A8] flex items-center gap-1.5">
+          <div className="absolute -right-6 top-1/2 motion-safe:animate-float [animation-delay:1.2s] rounded-2xl bg-surface px-4 py-2.5 shadow-[0_4px_0_0_#FCE7A8] flex items-center gap-1.5">
             <FlameIcon className="h-4 w-4 text-brand-amber" />
             <p className="font-display text-sm font-extrabold text-brand-ink">
               7 Hari
             </p>
           </div>
-          <div className="absolute -bottom-6 left-10 motion-safe:animate-float [animation-delay:0.6s] rounded-2xl bg-white px-4 py-2.5 shadow-[0_4px_0_0_#BFE7FF]">
+          <div className="absolute -bottom-6 left-10 motion-safe:animate-float [animation-delay:0.6s] rounded-2xl bg-surface px-4 py-2.5 shadow-[0_4px_0_0_#BFE7FF]">
             <p className="font-display text-sm font-extrabold text-brand-blue">
               Level Up!
             </p>

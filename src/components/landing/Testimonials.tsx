@@ -33,7 +33,7 @@ export function Testimonials() {
           {TESTIMONIALS.map((t) => (
             <figure
               key={t.name}
-              className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-brand-ink/5"
+              className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-brand-ink/5"
             >
               <blockquote className="font-body text-brand-ink/80">
                 “{t.quote}”

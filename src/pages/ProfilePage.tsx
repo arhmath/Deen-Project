@@ -11,6 +11,8 @@ import { ME_KEY } from "../features/auth/useAuth";
 import { ApiError } from "../services/api";
 import { useLinkCode, useSantriDashboard } from "../features/dashboard/queries";
 import { CopyButton } from "../components/ui/CopyButton";
+import { QrCode, QrDialogButton } from "../components/ui/QrCode";
+import { parentLinkUrl } from "../utils/deepLink";
 import { USE_MOCK } from "../services/api";
 import { resetMockState } from "../services/mock/server";
 import { ROLE_LABEL } from "../types/user";
@@ -143,12 +145,12 @@ export default function ProfilePage() {
                 disabled={saving}
                 aria-label="Ganti foto profil"
                 title="Ganti foto profil"
-                className="relative grid h-16 w-16 place-items-center overflow-visible rounded-full bg-brand-amber font-display text-2xl font-extrabold text-brand-ink ring-1 ring-brand-ink/10 focus-visible:outline-2 focus-visible:outline-brand-blue disabled:opacity-60"
+                className="relative grid h-16 w-16 place-items-center overflow-visible rounded-full bg-brand-amber font-display text-2xl font-extrabold text-night ring-1 ring-brand-ink/10 focus-visible:outline-2 focus-visible:outline-brand-blue disabled:opacity-60"
               >
                 <span className="absolute inset-0 grid place-items-center overflow-hidden rounded-full">
                   {avatarPreview ? <img src={avatarPreview} alt={`Foto profil ${user.name}`} className="h-full w-full object-cover" /> : initials(user.name)}
                 </span>
-                <span className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full border-2 border-white bg-brand-purple text-white shadow-sm" aria-hidden="true">
+                <span className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full border-2 border-surface bg-brand-purple text-white shadow-sm" aria-hidden="true">
                   <svg viewBox="0 0 20 20" fill="none" className="h-3.5 w-3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M11.5 4.5 15.5 8.5M3.5 16.5l3.6-.7L16 6.9a2.1 2.1 0 0 0-3-3l-8.9 8.9-.6 3.7Z" /></svg>
                 </span>
               </button>
@@ -163,7 +165,7 @@ export default function ProfilePage() {
             <form className="mt-5 space-y-4" onSubmit={saveProfile}>
               <div>
                 <label className="mb-1 block text-sm font-bold" htmlFor="profile-name">Nama lengkap</label>
-                <input id="profile-name" name="name" value={name} onChange={(event) => setName(event.target.value)} minLength={2} maxLength={100} required className="w-full rounded-xl border-2 border-brand-ink/15 bg-white px-4 py-3 outline-none focus:border-brand-purple" />
+                <input id="profile-name" name="name" value={name} onChange={(event) => setName(event.target.value)} minLength={2} maxLength={100} required className="w-full rounded-xl border-2 border-brand-ink/15 bg-surface px-4 py-3 outline-none focus:border-brand-purple" />
               </div>
               <p className="text-xs text-brand-ink/55">Foto dipilih melalui ikon pensil pada avatar di bagian atas. Format JPG, PNG, atau WebP · Maks. 2 MB.</p>
               <p className="text-xs text-brand-ink/55">Username dan email tidak dapat diubah dari halaman ini.</p>
@@ -187,7 +189,7 @@ export default function ProfilePage() {
             <CardTitle className="mb-4">Level kamu</CardTitle>
             {dash.data ? (
               <>
-                <p className="mb-3 font-display text-2xl font-extrabold text-brand-purple">Level {dash.data.gamification.level.level} · {dash.data.gamification.level.name}</p>
+                <p className="mb-3 font-display text-2xl font-extrabold text-brand-purple-fg">Level {dash.data.gamification.level.level} · {dash.data.gamification.level.name}</p>
                 <XPProgress level={dash.data.gamification.level} xp={dash.data.gamification.xp} />
               </>
             ) : <Skeleton className="h-20" />}
@@ -201,9 +203,22 @@ export default function ProfilePage() {
               Berikan kode ini ke orang tuamu. Mereka memasukkannya di akun Deen mereka untuk memantau belajarmu.
             </p>
             {link.data ? (
-              <div className="flex flex-wrap items-center gap-3">
-                <p className="rounded-2xl bg-brand-cream px-4 py-2 font-display text-2xl font-extrabold tracking-widest text-brand-purple">{link.data.code}</p>
-                <CopyButton text={link.data.code} label="Salin kode" />
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
+                <QrCode value={parentLinkUrl(link.data.code)} size={144} label="QR code untuk orang tua" />
+                <div className="flex flex-col items-start gap-3">
+                  <p className="rounded-2xl bg-brand-cream px-4 py-2 font-display text-2xl font-extrabold tracking-widest text-brand-purple-fg">{link.data.code}</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <CopyButton text={link.data.code} label="Salin kode" />
+                    <QrDialogButton
+                      value={parentLinkUrl(link.data.code)}
+                      code={link.data.code}
+                      title="QR untuk orang tua"
+                      description="Orang tua memindai QR ini dengan kamera HP, lalu kode anak terisi otomatis."
+                      filename={`qr-orang-tua-${link.data.code}.png`}
+                      label="QR besar"
+                    />
+                  </div>
+                </div>
               </div>
             ) : link.isError ? (
               <p role="alert" className="text-sm font-bold text-red-600">Kode belum bisa dimuat. Muat ulang halaman ya.</p>
