@@ -9,14 +9,15 @@ async function postJson(url: string, headers: Record<string, string>, body: unkn
   try {
     const res = await fetch(url, { method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify(body), signal: ctrl.signal });
     if (!res.ok) {
-      // detail provider TIDAK diteruskan ke client (hanya dilog tanpa kunci)
-      logger.error("ai_provider_http_error", { status: res.status });
+      // detail provider TIDAK diteruskan ke client (hanya dilog; logger menyamarkan field berisi kunci)
+      const detail = (await res.text().catch(() => "")).slice(0, 300);
+      logger.error("ai_provider_http_error", { status: res.status, url, detail });
       throw Errors.unavailable("Layanan AI sedang tidak tersedia. Silakan coba kembali.");
     }
     return (await res.json()) as Record<string, unknown>;
   } catch (err) {
     if (err instanceof Error && err.name === "AppError") throw err;
-    logger.error("ai_provider_failed", { reason: err instanceof Error ? err.name : "unknown" });
+    logger.error("ai_provider_failed", { reason: err instanceof Error ? err.name : "unknown", message: err instanceof Error ? err.message : undefined });
     throw Errors.unavailable("Layanan AI sedang tidak tersedia. Silakan coba kembali.");
   } finally {
     clearTimeout(timer);
@@ -43,14 +44,23 @@ const openai: AIProvider = {
   name: "openai",
   async generateReply(req: AIRequest) {
     const e = env();
+    const base = (e.AI_BASE_URL ?? "https://api.openai.com/v1").trim().replace(/\/+$/, "");
     const data = await postJson(
-      `${e.AI_BASE_URL ?? "https://api.openai.com/v1"}/chat/completions`,
-      { authorization: `Bearer ${e.AI_API_KEY ?? ""}` },
-      { model: e.AI_MODEL ?? "gpt-4o-mini", max_tokens: req.maxTokens, temperature: 0.3, messages: [{ role: "system", content: req.system }, ...req.messages] },
+      `${base}/chat/completions`,
+      { authorization: `Bearer ${(e.AI_API_KEY ?? "").trim()}` },
+      {
+        model: e.AI_MODEL ?? "gpt-4o-mini",
+        max_tokens: req.maxTokens,
+        temperature: 0.3,
+        ...(e.AI_REASONING_EFFORT ? { reasoning_effort: e.AI_REASONING_EFFORT } : {}),
+        messages: [{ role: "system", content: req.system }, ...req.messages],
+      },
       req.timeoutMs
     );
-    const choices = (data.choices as { message?: { content?: string } }[] | undefined) ?? [];
-    return (choices[0]?.message?.content ?? "").trim();
+    const choices = (data.choices as { message?: { content?: string }; finish_reason?: string }[] | undefined) ?? [];
+    const content = (choices[0]?.message?.content ?? "").trim();
+    if (!content) logger.warn("ai_provider_empty_reply", { finishReason: choices[0]?.finish_reason ?? "unknown", model: e.AI_MODEL });
+    return content;
   },
 };
 
@@ -81,6 +91,8 @@ export const localProvider: AIProvider = {
 
 export function getProvider(): AIProvider {
   const e = env();
+  if (e.AI_PROVIDER !== "local" && !e.AI_API_KEY) logger.warn("ai_key_missing_fallback_local", { provider: e.AI_PROVIDER });
   if (e.AI_PROVIDER === "local" || !e.AI_API_KEY) return localProvider;
+  logger.info("ai_provider_selected", { provider: e.AI_PROVIDER, model: e.AI_MODEL, base: e.AI_BASE_URL });
   return e.AI_PROVIDER === "anthropic" ? anthropic : openai;
 }

@@ -31,6 +31,10 @@ const schema = z.object({
   AI_MODEL: z.string().optional(),
   AI_BASE_URL: z.string().optional(),
   AI_TIMEOUT_MS: z.coerce.number().int().min(1000).default(30000),
+  // Batas token keluaran. Naikkan (mis. 2000+) bila AI_REASONING_EFFORT diaktifkan.
+  AI_MAX_TOKENS: z.coerce.number().int().min(100).max(8192).default(700),
+  // Opsional, hanya untuk endpoint OpenAI-compatible yang mendukungnya (mis. Gemini 3.x). Kosongkan = tidak dikirim.
+  AI_REASONING_EFFORT: z.preprocess((v) => (v === "" ? undefined : v), z.enum(["minimal", "low", "medium", "high"]).optional()),
   AI_RAG_TOP_K: z.coerce.number().int().min(1).max(20).default(5),
   AI_RAG_MIN_SCORE: z.coerce.number().min(0).max(1).default(0.7),
   AI_MAX_RECENT_MESSAGES: z.coerce.number().int().min(2).max(50).default(12),

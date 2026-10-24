@@ -131,7 +131,7 @@ export async function handleChat(user: AuthUser, input: ChatInput): Promise<Chat
   const raw = await provider.generateReply({
     system: buildSystemPrompt({ role: user.role, chunks: hits, tools: toolResults, summary, toolNotes }),
     messages: [...history, { role: "user", content: message }],
-    maxTokens: 700,
+    maxTokens: e.AI_MAX_TOKENS,
     timeoutMs: e.AI_TIMEOUT_MS,
     context: { domain, userMessage: message, chunks: hits, tools: toolResults },
   });
