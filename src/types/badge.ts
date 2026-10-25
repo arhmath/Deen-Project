@@ -64,7 +64,7 @@ export const BADGE_CATEGORY_LABEL: Record<BadgeCategory, string> = {
 export const BADGE_CATEGORY_HINT: Record<BadgeCategory, string> = {
   LEVEL: "Tunjukkan progres belajarmu. Semakin tinggi level, semakin keren!",
   STREAK: "Konsisten hari ini, luar biasa di kemudian hari!",
-  LEARNING: "Selesaikan modul dan kuis untuk meraih badge ini!",
+  LEARNING: "Selesaikan modul dan kuis!",
   CHECKIN: "Jangan lupa check-in setiap hari!",
   EXPLORATION: "Jelajahi fitur dan raih pengalaman baru!",
   SPECIAL: "Pencapaian spesial untuk momen luar biasa!",

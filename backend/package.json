@@ -11,7 +11,8 @@
     "seed": "tsx --env-file=apps/api/.env scripts/seed.ts",
     "smoke": "tsx --env-file=apps/api/.env scripts/smoke.ts",
     "typecheck": "tsc --noEmit",
-    "seed:knowledge": "tsx scripts/seed-knowledge.ts"
+    "seed:knowledge": "tsx scripts/seed-knowledge.ts",
+    "mail:verify": "dotenv -e ./apps/api/.env -- tsx scripts/verify-mail.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
