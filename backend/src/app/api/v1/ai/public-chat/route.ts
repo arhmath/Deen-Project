@@ -25,7 +25,8 @@ function suggestedKnowledgeIds(message: string): string[] {
 
   if (/^(apa saja )?fitur utama deen$/.test(m) || /fitur utama/.test(m)) return ["kb-about"];
   if (/cara mulai belajar|mulai belajar|bagaimana .*mulai belajar/.test(m)) return ["kb-course", "kb-progress"];
-  if (/cara (join|gabung|bergabung) room|join room|gabung( ke)? room|bergabung (ke )?room/.test(m)) return ["kb-join-room"];
+  if (/cara (join|gabung|bergabung) room|join room|gabung( ke)? room|bergabung (ke )?room|bagaimana cara (join|gabung|bergabung) room/.test(m)) return ["kb-join-room"];
+  if (/cara mengerjakan (quiz|kuis)|mengerjakan (quiz|kuis)|bagaimana (cara )?(mengerjakan|ikut|menjawab) (quiz|kuis)/.test(m)) return ["kb-quiz"];
   if (/apa itu xp dan streak|xp dan streak/.test(m)) return ["kb-xp-point", "kb-checkin-streak"];
   return [];
 }

@@ -104,6 +104,29 @@ export async function handleChat(user: AuthUser, input: ChatInput): Promise<Chat
     return finish(GREETING_REPLY, domain, false, [], false);
   }
 
+  // FAQ statis yang sudah disediakan dipetakan langsung ke knowledge terkurasi.
+  // Ini menghindari pembacaan Firestore (course/curated KB) dan retrieval seluruh korpus pada FAQ umum.
+  const normalizedQuestion = message.normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+  const directKnowledgeIds = (() => {
+    if (/^(apa saja )?fitur utama deen$/.test(normalizedQuestion) || /fitur utama deen/.test(normalizedQuestion)) return ["kb-about"];
+    if (/bagaimana cara mulai belajar|cara mulai belajar|mulai belajar di deen/.test(normalizedQuestion)) return ["kb-course", "kb-progress"];
+    if (/bagaimana cara (mengerjakan|ikut|menjawab) (quiz|kuis)|cara mengerjakan (quiz|kuis)|mengerjakan (quiz|kuis)/.test(normalizedQuestion)) return ["kb-quiz"];
+    if (/bagaimana cara (join|gabung|bergabung) room|cara (join|gabung|bergabung) room|join room|gabung room/.test(normalizedQuestion)) return ["kb-join-room"];
+    if (/apa itu xp di deen|apa itu streak|apa itu xp dan streak/.test(normalizedQuestion)) return normalizedQuestion.includes("streak") && normalizedQuestion.includes("xp") ? ["kb-xp-point", "kb-checkin-streak"] : [normalizedQuestion.includes("streak") ? "kb-checkin-streak" : "kb-xp-point"];
+    return [];
+  })();
+  if (directKnowledgeIds.length) {
+    const chunks = directKnowledgeIds
+      .map((id) => DEEN_KNOWLEDGE.find((chunk) => chunk.id === id))
+      .filter((chunk): chunk is (typeof DEEN_KNOWLEDGE)[number] => Boolean(chunk));
+    if (chunks.length) {
+      const answer = chunks.map((chunk) => chunk.text).join("\n\n");
+      const safe = guardOutput(answer);
+      const directSources: AISource[] = chunks.map((chunk) => ({ id: chunk.id, title: chunk.title, type: chunk.type }));
+      return finish(safe.text, domain, safe.ok, directSources, false, rulesMeta());
+    }
+  }
+
   // ---- data dinamis lewat tool terotorisasi ----
   const toolResults: ToolResult[] = [];
   const toolNotes: string[] = [];
