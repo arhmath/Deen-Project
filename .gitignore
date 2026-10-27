@@ -1,0 +1,11 @@
+node_modules
+.next
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+next-env.d.ts
+# Kunci service account Firebase — JANGAN di-commit. (Jangan memakai pola "*.json": itu ikut membuang package.json, tsconfig.json, firebase.json, dst.)
+serviceAccount*.json
+*-firebase-adminsdk-*.json
+firebase-debug.log
