@@ -9,10 +9,15 @@ const STOPWORDS = new Set(
 );
 
 const SUFFIXES = ["nya", "kan", "lah", "kah", "pun", "an", "i"];
+const NORMALIZED_TERMS: Record<string, string> = {
+  nambah: "tambah", bertambah: "tambah", menambah: "tambah", tambahan: "tambah",
+  hilang: "hilang", kehilangan: "hilang",
+};
 
 export function stem(w: string): string {
-  for (const s of SUFFIXES) if (w.length > s.length + 3 && w.endsWith(s)) return w.slice(0, -s.length);
-  return w;
+  const normalized = NORMALIZED_TERMS[w] ?? w;
+  for (const s of SUFFIXES) if (normalized.length > s.length + 3 && normalized.endsWith(s)) return normalized.slice(0, -s.length);
+  return normalized;
 }
 
 export function tokenize(text: string): string[] {
@@ -29,7 +34,10 @@ export function tokenize(text: string): string[] {
 /**
  * Pencarian leksikal berbobot IDF. Tiap istilah query yang cocok memberi "keyakinan" w = idf(t)/idfMax
  * (istilah langka/spesifik ≈ 1, istilah umum kecil; cocok di judul minimal 0.75, di isi ×0.85); skor chunk = 1 − Π(1 − w) ∈ [0,1]
- * (noisy-OR). Jadi satu istilah spesifik ("streak") cukup, sedangkan kata umum saja tidak lolos ambang.
+ * (noisy-OR). Skor saja tidak cukup: untuk pertanyaan dengan beberapa istilah bermakna,
+ * dokumen juga harus cocok dengan minimal dua istilah query. Ini mencegah satu kata seperti
+ * "streak" menarik jawaban tentang streak ketika pertanyaan sebenarnya membahas hal lain.
+ * Query satu istilah tetap diizinkan agar pencarian singkat seperti "streak" bisa bekerja.
  * Antarmuka sama dengan retriever vektor sehingga bisa diganti kelak tanpa mengubah orkestrator.
  */
 export function search(query: string, corpus: Chunk[], topK: number, minScore: number): ScoredChunk[] {
@@ -49,16 +57,24 @@ export function search(query: string, corpus: Chunk[], topK: number, minScore: n
   return docs
     .map(({ chunk, body, title }) => {
       let miss = 1;
+      let matchedTerms = 0;
       for (const [t, w] of weight) {
         // judul = label topik terkurasi → keyakinan minimal 0.75 walau istilahnya umum ("xp", "room")
-        if (title.has(t)) miss *= 1 - Math.max(w, 0.75);
-        else if (body.has(t)) miss *= 1 - w * 0.85;
+        if (title.has(t)) {
+          matchedTerms++;
+          miss *= 1 - Math.max(w, 0.75);
+        } else if (body.has(t)) {
+          matchedTerms++;
+          miss *= 1 - w * 0.85;
+        }
       }
-      return { chunk, score: 1 - miss };
+      return { chunk, score: 1 - miss, matchedTerms };
     })
-    .filter((r) => r.score >= minScore)
+    // Query multi-istilah perlu kecocokan konteks, bukan hanya satu keyword yang kebetulan sama.
+    .filter((r) => (q.length <= 1 || r.matchedTerms >= 2) && r.score >= minScore)
     .sort((a, b) => b.score - a.score)
-    .slice(0, topK);
+    .slice(0, topK)
+    .map(({ chunk, score }) => ({ chunk, score }));
 }
 
 /** Pecah teks panjang menjadi potongan ≤ maxLen berdasarkan paragraf/kalimat. */

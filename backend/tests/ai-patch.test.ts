@@ -47,6 +47,14 @@ describe("retriever: stopword percakapan tidak menimbulkan hit palsu", () => {
     expect(ids).toContain("kb-xp-point");
     expect(ids).not.toContain("kb-maps");
   });
+  it("satu keyword tidak cukup untuk pertanyaan multi-istilah yang konteksnya berbeda", () => {
+    const hits = search("Bagaimana mengatasi streak hilang karena sakit?", DEEN_KNOWLEDGE, 5, 0.7);
+    expect(hits.some((h) => /streak/i.test(h.chunk.title + " " + h.chunk.text))).toBe(false);
+  });
+  it("query singkat satu istilah tetap bisa menemukan topik terkait", () => {
+    const hits = search("streak", DEEN_KNOWLEDGE, 5, 0.7);
+    expect(hits.some((h) => /streak/i.test(h.chunk.title + " " + h.chunk.text))).toBe(true);
+  });
 });
 
 describe("sumber & format", () => {

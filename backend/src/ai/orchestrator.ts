@@ -59,6 +59,19 @@ const rulesMeta = (reason?: AIMessageMeta["reason"]): AIMessageMeta => ({
   engine: "rules", label: RULES_LABEL, provider: "local", model: null, mode: "rules", tokens: null, ...(reason ? { reason } : {}),
 });
 const LIMIT_NOTE = "Batas token AI hari ini sudah habis, jadi aku hanya bisa menjawab dari materi dan data Deen. Coba lagi besok ya.";
+// Pertanyaan tombol saran harus selalu bebas LLM, termasuk saat retrieval gagal menemukan sumber.
+const SUGGESTION_ONLY = new Set([
+  "apa itu xp di deen?",
+  "bagaimana cara mengerjakan quiz?",
+  "berapa xp saya sekarang?",
+  "bagaimana cara join room?",
+  "bagaimana orang tua melihat progress anak?",
+  "bagaimana progress anak saya?",
+  "apa itu streak?",
+  "berikan ringkasan statistik belajar",
+  "santri mana yang perlu perhatian?",
+  "bagaimana struktur course dan modul?",
+]);
 
 /**
  * Alur 05B §32: ownership → injection guard → domain guard → intent router → (RAG | tool terotorisasi)
@@ -129,6 +142,12 @@ export async function handleChat(user: AuthUser, input: ChatInput): Promise<Chat
   }
 
   const grounded = hits.length > 0 || toolResults.length > 0;
+  const isSuggestedQuestion = SUGGESTION_ONLY.has(message.trim().toLowerCase());
+  // Tombol saran tidak pernah memanggil LLM. Jika sumber tidak tersedia, jawab jujur daripada mengarang.
+  if (isSuggestedQuestion && !grounded) {
+    const note = toolNotes.length ? toolNotes.join(" ") : NO_CONTEXT;
+    return finish(note, domain, false, [], false);
+  }
   // Materi keagamaan tanpa sumber Deen: jawaban dari tool/RAG umum saja tidak cukup untuk topik ini.
   const noDeenReligiousSource = domain === "RELIGIOUS_KNOWLEDGE" && !hits.some((h) => h.chunk.type !== "knowledge" || !h.chunk.id.startsWith("kb-"));
   // Catatan otorisasi/klarifikasi dari tool dijawab apa adanya — tidak boleh "diperkaya" LLM.
@@ -162,6 +181,13 @@ export async function handleChat(user: AuthUser, input: ChatInput): Promise<Chat
     timeoutMs: e.AI_TIMEOUT_MS,
     context: { domain, userMessage: message, chunks: hits, tools: toolResults },
   };
+
+  // Jalur deterministik: jika jawaban sudah memiliki sumber Deen/tools, jangan panggil provider eksternal.
+  // Ini memastikan pertanyaan saran dan pertanyaan grounded lain tidak mengonsumsi token LLM.
+  if (!general) {
+    const local = guardOutput((await localProvider.generate(request)).text || NO_CONTEXT);
+    return finish(local.text, domain, local.ok, sources, false, rulesMeta(), newSummary, null);
+  }
 
   /** LLM tidak dipakai/gagal: jalur data Deen dijawab dari aturan + RAG + tool (tanpa LLM); jalur umum memakai pesan standar. */
   const degrade = async (reason: NonNullable<AIMessageMeta["reason"]>): Promise<ChatOutcome> => {
