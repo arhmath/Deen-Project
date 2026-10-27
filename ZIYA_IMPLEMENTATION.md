@@ -19,3 +19,10 @@ The widget reuses the existing `chatService.send()` and its `/ai/chat` contract.
 ## Validation before release
 
 Run `npm ci`, `npm run build`, and `npm run lint` in the project directory. Verify login and chat behavior against the configured backend, including 401/403/429/503 errors. This archive does not include `.env` credentials.
+
+
+## Akses pengunjung dan jawaban RAG-only
+
+Widget Ziya dapat dipakai pengunjung tanpa login. Pengunjung menggunakan `POST /api/v1/ai/public-chat`. Endpoint mencari di knowledge base fitur Deen publik terlebih dahulu dan menjawab langsung tanpa LLM jika sumber ditemukan. Jika tidak ada sumber yang memadai, endpoint dapat menggunakan provider LLM yang aktif untuk domain yang diizinkan. Endpoint tidak membaca profil/course privat, tidak menjalankan tools personal, dan tidak menyimpan riwayat. Endpoint menerapkan rate limit berbasis IP. Pengguna yang login tetap memakai `/ai/chat`.
+
+Pada chatbot terautentikasi, pertanyaan yang memiliki sumber RAG atau hasil tools sekarang dijawab melalui `localProvider` secara langsung, tanpa memanggil provider LLM eksternal. Pertanyaan tanpa konteks yang memadai masih mengikuti jalur general yang sudah ada.

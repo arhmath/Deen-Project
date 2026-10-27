@@ -15,9 +15,9 @@ const MODE_LABEL = { deen_data: "berdasarkan data Deen", general: "pengetahuan u
 
 /** Teks status + warna indikator. Hanya menyatakan "berbicara dengan <LLM>" bila jawaban terakhir memang dari LLM. */
 function describe(status: AIStatus | undefined, last: AIMessageMeta | null, waiting: boolean) {
-  const label = status?.label ?? "AI";
+  const label = "Ziya";
   if (waiting) return { dot: "bg-brand-amber", text: "Menunggu jawaban…" };
-  if (last?.engine === "llm") return { dot: "bg-emerald-500", text: `Sedang berbicara dengan ${last.label}`, chip: MODE_LABEL[last.mode] };
+  if (last?.engine === "llm") return { dot: "bg-emerald-500", text: "Ziya sedang menjawab dengan bantuan AI", chip: MODE_LABEL[last.mode] };
   if (last?.reason === "limit_reached") return { dot: "bg-red-500", text: `Batas token ${label} hari ini habis — dijawab dari materi Deen` };
   if (last?.reason === "unavailable") return { dot: "bg-brand-amber", text: `${label} sedang tidak tersedia — dijawab dari materi Deen` };
   if (last) return { dot: "bg-brand-ink/30", text: "Dijawab oleh aturan Deen (tanpa AI)" };

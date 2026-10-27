@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
 import { useMe } from "../../features/auth/useAuth";
 import { chatService } from "../../services/chatService";
 import { ApiError } from "../../services/api";
@@ -128,10 +127,6 @@ export function ZiyaChatWidget() {
   async function sendMessage(raw: string) {
     const text = raw.trim();
     if (!text || sending || text.length > 4000) return;
-    if (!signedIn) {
-      setNotice("Masuk ke akun Deen untuk mulai bertanya kepada Ziya.");
-      return;
-    }
     setNotice(null);
     const tempId = makeId();
     const userMessage: ChatMessage = { id: tempId, role: "user", content: text, created_at: new Date().toISOString(), status: "sending" };
@@ -139,7 +134,9 @@ export function ZiyaChatWidget() {
     setDraft("");
     setSending(true);
     try {
-      const response = await chatService.send({ message: text, ...(conversationId ? { conversation_id: conversationId } : {}) });
+      const response = signedIn
+        ? await chatService.send({ message: text, ...(conversationId ? { conversation_id: conversationId } : {}) })
+        : await chatService.sendPublic({ message: text });
       const data = response.data;
       setConversationId(data.conversation_id);
       setMessages((current) => [
@@ -192,15 +189,7 @@ export function ZiyaChatWidget() {
             </header>
 
             <div className="ziya-panel__messages" aria-live="polite" aria-relevant="additions text">
-              {!signedIn && !checkingSession ? (
-                <div className="ziya-guest-card">
-                  <ZiyaAvatar />
-                  <h3>Hai, aku Ziya! ✨</h3>
-                  <p>Aku siap membantu menjelaskan fitur dan cara menggunakan Deen. Masuk dulu agar aku bisa menjawab melalui asisten AI Deen.</p>
-                  <Link to="/login" className="ziya-primary-link" onClick={closePanel}>Masuk ke Deen</Link>
-                  <Link to="/register" className="ziya-secondary-link" onClick={closePanel}>Belum punya akun? Daftar</Link>
-                </div>
-              ) : checkingSession ? (
+              {checkingSession ? (
                 <div className="ziya-loading-session" role="status"><span className="ziya-dots"><i /><i /><i /></span> Memeriksa sesi Deen…</div>
               ) : (
                 <>
@@ -214,7 +203,7 @@ export function ZiyaChatWidget() {
                           <div className="ziya-sources"><span>Sumber:</span> {message.sources.map((source) => source.title).join(" · ")}</div>
                         )}
                         {message.meta?.ai?.engine === "llm" && (
-                          <div className="ziya-sources"><span>{message.meta.ai.label}</span> · {message.meta.ai.mode === "general" ? "pengetahuan umum" : "data Deen"}{message.meta.ai.tokens ? ` · ${message.meta.ai.tokens.total.toLocaleString("id-ID")} token` : ""}</div>
+                          <div className="ziya-sources"><span>Ziya</span> · {message.meta.ai.mode === "general" ? "pengetahuan umum" : "data Deen"}{message.meta.ai.tokens ? ` · ${message.meta.ai.tokens.total.toLocaleString("id-ID")} token` : ""}</div>
                         )}
                         {message.status === "sending" && <small>Mengirim…</small>}
                         {message.status === "failed" && <small className="ziya-failed">Belum terkirim. Kamu bisa mencoba mengirim ulang.</small>}
@@ -231,7 +220,7 @@ export function ZiyaChatWidget() {
             </div>
 
             {notice && <p className="ziya-notice" role="alert">{notice}</p>}
-            {signedIn && (
+            {(!checkingSession || signedIn) && (
               <form className="ziya-composer" onSubmit={submit}>
                 <label className="sr-only" htmlFor="ziya-input">Tulis pertanyaan untuk Ziya</label>
                 <textarea id="ziya-input" ref={inputRef} value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); void sendMessage(draft); } }} placeholder="Tanya seputar fitur Deen…" rows={1} maxLength={4000} disabled={sending} />

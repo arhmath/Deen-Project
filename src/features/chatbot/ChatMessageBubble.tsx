@@ -65,6 +65,12 @@ export function ChatMessageBubble({ message, onRetry }: { message: ChatMessage; 
   return (
     <li className={clsx("flex", mine ? "justify-end" : "justify-start")}>
       <div className={clsx("flex max-w-[88%] flex-col gap-1.5 sm:max-w-[78%]", mine ? "items-end" : "items-start")}>
+        {!mine && (
+          <div className="flex items-center gap-2 px-1 text-xs font-extrabold text-brand-purple-fg">
+            <img src="/ziya-idle.png" alt="" aria-hidden="true" className="h-7 w-7 rounded-full border border-brand-purple/20 bg-white object-contain" />
+            <span>Ziya <span className="font-semibold text-brand-ink/50">· Asisten AI Deen</span></span>
+          </div>
+        )}
         <div
           className={clsx(
             "whitespace-pre-wrap break-words rounded-3xl px-4 py-3 text-[0.95rem] leading-relaxed",
@@ -93,12 +99,12 @@ export function ChatMessageBubble({ message, onRetry }: { message: ChatMessage; 
 
         {ai?.engine === "llm" && (
           <p className="px-1 text-xs text-brand-ink/55">
-            <span className="font-bold text-brand-blue-dark">{ai.label}</span> · {ai.mode === "general" ? "pengetahuan umum" : "data Deen"}
+            <span className="font-bold text-brand-blue-dark">Ziya</span> · {ai.mode === "general" ? "pengetahuan umum" : "data Deen"}
             {ai.tokens ? ` · ${ai.tokens.total.toLocaleString("id-ID")} token${ai.tokens.estimated ? " (perkiraan)" : ""}` : ""}
           </p>
         )}
         {general && (
-          <p className="px-1 text-xs text-brand-ink/55">Jawaban ini dari pengetahuan umum {ai?.label}, di luar materi Deen. Untuk hal penting, tanyakan ke ustadz/ustadzah.</p>
+          <p className="px-1 text-xs text-brand-ink/55">Jawaban ini dari pengetahuan umum yang disampaikan Ziya, di luar materi Deen. Untuk hal penting, tanyakan ke ustadz/ustadzah.</p>
         )}
 
         <div className="flex items-center gap-3 px-1 text-xs text-brand-ink/45">

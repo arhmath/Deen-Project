@@ -135,7 +135,7 @@ export default function ChatPage() {
     <>
       <PageHeader
         title="Chatbot"
-        subtitle="Asisten belajar Deen — tanya seputar materi, quiz, XP, room, dan fitur Deen."
+        subtitle={`Ziya · Asisten AI Deen untuk ${user.role === "SANTRI" ? "santri" : user.role === "PARENT" ? "orang tua/wali" : "admin"}. Tanya seputar materi, quiz, XP, room, dan fitur Deen.`}
         actions={
           <Button size="sm" variant="outline" className="lg:hidden" onClick={() => setHistoryOpen(true)} leftIcon={<MenuIcon className="h-4 w-4" />}>Riwayat</Button>
         }
@@ -162,7 +162,7 @@ export default function ChatPage() {
                 <span className="grid h-16 w-16 place-items-center rounded-full bg-brand-purple/10 text-brand-purple-fg"><ChatIcon className="h-8 w-8" /></span>
                 <div>
                   <p className="font-display text-xl font-extrabold text-brand-ink">Halo, {user.name.split(" ")[0]}!</p>
-                  <p className="mt-1 text-sm text-brand-ink/60">Aku asisten belajar Deen. Pilih pertanyaan di bawah atau tulis sendiri.</p>
+                  <p className="mt-1 text-sm text-brand-ink/60">Aku Ziya, asisten AI Deen. Aku siap membantu {user.role === "SANTRI" ? "kamu belajar" : user.role === "PARENT" ? "memahami progres belajar anak" : "mengelola pembelajaran"} di Deen. Pilih pertanyaan di bawah atau tulis sendiri.</p>
                 </div>
                 <ul className="flex flex-wrap justify-center gap-2" aria-label="Contoh pertanyaan">
                   {SUGGESTIONS[user.role].map((s) => (
