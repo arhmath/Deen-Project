@@ -903,6 +903,10 @@ async function route<T>(req: MockReq): Promise<T> {
       throw new ApiError("Email sudah terdaftar.", 409, { email: "Email ini sudah terdaftar. Coba masuk saja." });
     }
 
+    if (b.role !== "SANTRI" && b.role !== "PARENT") {
+      throw new ApiError("Role pendaftaran tidak valid.", 422);
+    }
+
     const created: RegisteredUser = {
       id: `u-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
       name,
@@ -978,18 +982,61 @@ async function route<T>(req: MockReq): Promise<T> {
   }
 
   if (method === "PATCH" && path === "/users/me") {
-    const body = (req.body ?? {}) as { name?: unknown; avatarUrl?: unknown };
-    const name = typeof body.name === "string" ? body.name.trim() : user.name;
-    const avatarUrl = body.avatarUrl;
-    if (typeof body.name === "string" && (name.length < 2 || name.length > 100)) {
-      throw new ApiError("Nama harus terdiri dari 2–100 karakter.", 422, { name: "Nama harus terdiri dari 2–100 karakter." });
+
+    const body = (req.body ?? {}) as {
+      name?: unknown;
+      avatarUrl?: unknown;
+    };
+
+    const name =
+      typeof body.name === "string" ? body.name.trim() : user.name;
+
+    const rawAvatarUrl = body.avatarUrl;
+    let avatarUrl: string | null | undefined;
+
+    if (rawAvatarUrl === undefined || rawAvatarUrl === null) {
+      avatarUrl = rawAvatarUrl;
+    } else if (typeof rawAvatarUrl !== "string") {
+      throw new ApiError(
+        "Avatar harus berupa URL HTTPS yang valid.",
+        422,
+        { avatarUrl: "Masukkan URL foto HTTPS yang valid." }
+      );
+    } else {
+      const isDataUrl =
+        /^data:image\/(jpeg|png|webp);base64,/i.test(rawAvatarUrl);
+
+      if (
+        (!isDataUrl &&
+          (rawAvatarUrl.length > 500 ||
+            !/^https:\/\//i.test(rawAvatarUrl))) ||
+        rawAvatarUrl.length > 2_800_000
+      ) {
+        throw new ApiError(
+          "Avatar harus berupa URL HTTPS yang valid.",
+          422,
+          { avatarUrl: "Masukkan URL foto HTTPS yang valid." }
+        );
+      }
+
+      avatarUrl = rawAvatarUrl;
     }
-    if (avatarUrl !== undefined && avatarUrl !== null && (typeof avatarUrl !== "string" || (!/^data:image\/(jpeg|png|webp);base64,/i.test(avatarUrl) && (avatarUrl.length > 500 || !/^https:\/\//i.test(avatarUrl))) || avatarUrl.length > 2_800_000)) {
-      throw new ApiError("Avatar harus berupa URL HTTPS yang valid.", 422, { avatarUrl: "Masukkan URL foto HTTPS yang valid." });
+
+    if (
+      typeof body.name === "string" &&
+      (name.length < 2 || name.length > 100)
+    ) {
+      throw new ApiError(
+        "Nama harus terdiri dari 2–100 karakter.",
+        422,
+        { name: "Nama harus terdiri dari 2–100 karakter." }
+      );
     }
+
     if (body.name === undefined && avatarUrl === undefined) {
       throw new ApiError("Tidak ada data yang diubah.", 422);
     }
+
     const registered = loadRegistered();
     const registeredIndex = registered.findIndex((account) => account.id === user.id);
     if (registeredIndex >= 0) {
