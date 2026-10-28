@@ -5,6 +5,8 @@ import { FormDialog } from "../../components/ui/FormDialog";
 import { fieldCls, labelCls } from "../../components/ui/fieldStyles";
 import { ApiError, errorMessage } from "../../services/api";
 import { useAdminRooms, useCreateCourse } from "./queries";
+import { adminService } from "../../services/adminService";
+import { COURSE_TEMPLATES, instantiateCourseTemplate } from "./courseTemplates";
 
 /** Buat course baru (selalu DRAFT). `roomId` diisi jika dibuka dari halaman room. */
 export function CreateCourseDialog({
@@ -22,6 +24,7 @@ export function CreateCourseDialog({
   const [pickedRoom, setPickedRoom] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [templateId, setTemplateId] = useState("");
 
   const activeRooms = (rooms.data ?? []).filter((r) => !r.archived);
   const selectedRoom = roomId ?? (pickedRoom || activeRooms[0]?.id || "");
@@ -32,9 +35,27 @@ export function CreateCourseDialog({
     create.mutate(
       { roomId: selectedRoom, title, description },
       {
-        onSuccess: (course) => {
+        onSuccess: async (course) => {
+          const template = COURSE_TEMPLATES.find((item) => item.id === templateId);
+          try {
+            if (template) {
+              const seededCourse = instantiateCourseTemplate(template, {
+                ...course,
+                roomName: activeRooms.find((room) => room.id === selectedRoom)?.name ?? "",
+                title,
+                description,
+                status: "DRAFT",
+                modules: [],
+                updatedAt: new Date().toISOString(),
+              });
+              await adminService.saveCourse(course.id, seededCourse);
+            }
+          } catch {
+            // Course tetap dibuat; pengajar bisa membuka editor dan menyimpan ulang.
+          }
           setTitle("");
           setDescription("");
+          setTemplateId("");
           onClose();
           navigate(`/admin/courses/${course.id}`);
         },
@@ -54,6 +75,29 @@ export function CreateCourseDialog({
             {activeRooms.length === 0 && <p className="mt-1.5 text-sm text-brand-ink/60">Buat room dulu sebelum membuat course.</p>}
           </div>
         )}
+        <div>
+          <label htmlFor="course-template" className={labelCls}>Mulai dari template materi (opsional)</label>
+          <select
+            id="course-template"
+            value={templateId}
+            onChange={(e) => {
+              const nextId = e.target.value;
+              const template = COURSE_TEMPLATES.find((item) => item.id === nextId);
+              setTemplateId(nextId);
+              if (template) {
+                setTitle(template.title);
+                setDescription(template.description);
+              }
+            }}
+            className={fieldCls}
+          >
+            <option value="">Course kosong — buat sendiri</option>
+            {COURSE_TEMPLATES.map((template) => (
+              <option key={template.id} value={template.id}>{template.title}</option>
+            ))}
+          </select>
+          <p className="mt-1.5 text-sm text-brand-ink/60">Template berisi modul, materi, kartu hafalan, dan kuis yang bisa diedit sebelum dipublikasikan.</p>
+        </div>
         <div>
           <label htmlFor="course-judul" className={labelCls}>Judul course</label>
           <input
