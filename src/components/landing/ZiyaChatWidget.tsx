@@ -22,7 +22,7 @@ type ZiyaAvatarState = "idle" | "clicked" | "loading" | "typing" | "blink";
 
 function ZiyaAvatar({ small = false, state = "idle" }: { small?: boolean; state?: ZiyaAvatarState }) {
   const sources: Record<ZiyaAvatarState, string> = {
-    idle: "/ziya-blink.png",
+    idle: "/ziya-blink.webp",
     clicked: "/ziya-clicked.png",
     loading: "/ziya-loading.png",
     typing: "/ziya-typing.png",
