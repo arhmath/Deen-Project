@@ -81,7 +81,7 @@ export function CreateCourseDialog({
   }
 
   return (
-    <FormDialog open={open} onClose={onClose} title="Buat course baru">
+    <FormDialog open={open} onClose={onClose} title="Buat course baru" wide>
       <form onSubmit={submit} noValidate className="flex flex-col gap-4">
         {!roomId && (
           <div>
@@ -92,41 +92,41 @@ export function CreateCourseDialog({
             {activeRooms.length === 0 && <p className="mt-1.5 text-sm text-brand-ink/60">Buat room dulu sebelum membuat course.</p>}
           </div>
         )}
-        <div>
-          <label htmlFor="course-kategori" className={labelCls}>Kategori</label>
-          <select
-            id="course-kategori"
-            value={categoryId}
-            onChange={(e) => {
-              setCategoryId(e.target.value);
-              selectTemplate("");
-            }}
-            className={fieldCls}
-          >
-            <option value="">Tanpa kategori — course kosong</option>
-            {COURSE_CATEGORIES.map((category) => (
-              <option key={category.id} value={category.id}>{category.label}</option>
-            ))}
-          </select>
-          <p className="mt-1.5 text-sm text-brand-ink/60">Pilih kategori untuk melihat materi default yang bisa langsung dipakai.</p>
-        </div>
-        {categoryId && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="course-template" className={labelCls}>Isi materi default (opsional)</label>
+            <label htmlFor="course-kategori" className={labelCls}>Kategori</label>
+            <select
+              id="course-kategori"
+              value={categoryId}
+              onChange={(e) => {
+                setCategoryId(e.target.value);
+                selectTemplate("");
+              }}
+              className={fieldCls}
+            >
+              <option value="">Tanpa kategori</option>
+              {COURSE_CATEGORIES.map((category) => (
+                <option key={category.id} value={category.id}>{category.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="course-template" className={labelCls}>Isi materi default</label>
             <select
               id="course-template"
               value={templateId}
               onChange={(e) => selectTemplate(e.target.value)}
+              disabled={!categoryId}
               className={fieldCls}
             >
-              <option value="">Course kosong — buat sendiri</option>
+              <option value="">{categoryId ? "Course kosong — buat sendiri" : "Pilih kategori dulu"}</option>
               {categoryTemplates.map((template) => (
                 <option key={template.id} value={template.id}>{template.title}</option>
               ))}
             </select>
-            <p className="mt-1.5 text-sm text-brand-ink/60">Materi default berisi modul, materi, kartu hafalan, dan kuis yang bisa diedit sebelum dipublikasikan.</p>
           </div>
-        )}
+        </div>
+        <p className="-mt-2 text-sm text-brand-ink/60">Pilih kategori untuk melihat materi default (modul, kartu hafalan, dan kuis) yang bisa diedit sebelum dipublikasikan.</p>
         <div>
           <label htmlFor="course-judul" className={labelCls}>Judul course</label>
           <input
@@ -144,7 +144,7 @@ export function CreateCourseDialog({
         </div>
         <div>
           <label htmlFor="course-deskripsi" className={labelCls}>Deskripsi singkat (opsional)</label>
-          <textarea id="course-deskripsi" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={500} className={fieldCls} />
+          <textarea id="course-deskripsi" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} maxLength={500} className={fieldCls} />
         </div>
         {create.isError && !titleError && <p role="alert" className="text-sm font-bold text-red-600">{errorMessage(create.error)}</p>}
         <p className="text-sm text-brand-ink/60">Course baru berstatus Draft dan belum terlihat oleh santri sampai kamu mempublikasikannya.</p>

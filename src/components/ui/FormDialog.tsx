@@ -6,16 +6,18 @@ export function FormDialog({
   open,
   onClose,
   title,
+  wide,
   children,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
+  wide?: boolean;
   children: ReactNode;
 }) {
   const id = useId();
   return (
-    <Dialog open={open} onClose={onClose} labelledBy={id}>
+    <Dialog open={open} onClose={onClose} labelledBy={id} wide={wide}>
       <div className="rounded-3xl border-2 border-brand-ink/10 bg-surface p-6 shadow-xl">
         <div className="mb-4 flex items-start justify-between gap-3">
           <h2 id={id} className="font-display text-xl font-extrabold text-brand-ink">{title}</h2>
