@@ -120,7 +120,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.1, ease: "easeOut" }}
-            className="mt-6 flex flex-wrap gap-4"
+            className="mt-6 flex flex-wrap justify-center gap-4 md:justify-start"
           >
             <Link to="/register">
               <Button size="lg">Mulai Petualangan</Button>
@@ -136,7 +136,7 @@ export function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 1.25, ease: "easeOut" }}
-            className="mt-4 font-body text-sm font-semibold text-brand-ink/50"
+            className="mt-4 text-center font-body text-sm font-semibold text-brand-ink/50 md:text-left"
           >
             Gratis · Daftar cuma semenit · Bisa dibuka dari HP maupun komputer
           </motion.p>
