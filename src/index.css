@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Noto+Naskh+Arabic:wght@700&display=swap"); /* BARU */
 @import "tailwindcss";
 
 /* Dark mode berbasis class `.dark` di <html> (diatur oleh src/app/theme.tsx). */

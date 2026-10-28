@@ -2,11 +2,14 @@ import { lazy, Suspense } from "react";
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import LandingPage from "./pages/LandingPage";
-import { LoginPage } from "./pages/LoginPage";
-import { RegisterPage } from "./pages/RegisterPage";
 import { RequireAuth } from "./features/auth/RequireAuth";
-import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { Skeleton } from "./components/ui/Skeleton";
+
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const RegisterPage = lazy(() => import("./pages/RegisterPage"));
+const DashboardLayout = lazy(() =>
+  import("./components/layout/DashboardLayout").then((m) => ({ default: m.DashboardLayout }))
+);
 
 // Halaman dashboard di-lazy-load supaya bundle landing page tetap ringan.
 const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));

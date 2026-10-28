@@ -88,10 +88,9 @@ export function HeroParticles() {
     let visible = true;
     const mouse = { x: -9999, y: -9999 };
 
-    function resize() {
-      const rect = host!.getBoundingClientRect();
-      w = rect.width;
-      h = rect.height;
+    function resize(width: number, height: number) {
+      w = width;
+      h = height;
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas!.width = Math.round(w * dpr);
       canvas!.height = Math.round(h * dpr);
@@ -179,8 +178,11 @@ export function HeroParticles() {
       last = performance.now();
     }
 
-    resize();
-    const ro = new ResizeObserver(resize);
+    // Ukuran dari ResizeObserver (terpanggil otomatis saat observe) -> tanpa getBoundingClientRect sinkron saat mount.
+    const ro = new ResizeObserver(([entry]) => {
+      const box = entry?.borderBoxSize?.[0];
+      if (box) resize(box.inlineSize, box.blockSize);
+    });
     ro.observe(host);
 
     let io: IntersectionObserver | undefined;

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
   <head>
     <meta charset="UTF-8" />
     <meta name="color-scheme" content="light dark" />
@@ -46,6 +46,11 @@
         #initial-loader-spinner { animation-duration: 1.8s; }
       }
     </style>
+    <!-- Font: preconnect + stylesheet non-blocking (tidak lagi lewat @import di CSS, yang membuat rantai CSS -> font CSS -> woff2). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Noto+Naskh+Arabic:wght@700&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Noto+Naskh+Arabic:wght@700&display=swap" /></noscript>
     <link rel="icon" type="image/svg+xml" href="/logoo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Deen</title>

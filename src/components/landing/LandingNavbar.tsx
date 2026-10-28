@@ -31,10 +31,12 @@ export function LandingNavbar() {
   useEffect(() => {
     const el = headerRef.current;
     if (!el) return;
-    const publish = () =>
-      document.documentElement.style.setProperty("--landing-nav-h", `${el.offsetHeight}px`);
-    publish();
-    const ro = new ResizeObserver(publish);
+    // Tinggi diambil dari ResizeObserver (borderBoxSize) — tidak memicu forced reflow
+    // seperti membaca el.offsetHeight secara sinkron. Observer langsung terpanggil saat observe().
+    const ro = new ResizeObserver(([entry]) => {
+      const h = entry?.borderBoxSize?.[0]?.blockSize ?? el.getBoundingClientRect().height;
+      document.documentElement.style.setProperty("--landing-nav-h", `${h}px`);
+    });
     ro.observe(el);
     return () => {
       ro.disconnect();

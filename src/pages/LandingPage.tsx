@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SmoothScroll } from "../components/ui/SmoothScroll";
 import { LandingNavbar } from "../components/landing/LandingNavbar";
@@ -8,7 +8,11 @@ import { Features } from "../components/landing/Features";
 import { Testimonials } from "../components/landing/Testimonials";
 import { CtaBanner } from "../components/landing/CtaBanner";
 import { LandingFooter } from "../components/landing/LandingFooter";
-import { ZiyaChatWidget } from "../components/landing/ZiyaChatWidget";
+
+// Widget chat tidak dibutuhkan untuk render pertama -> dimuat terpisah.
+const ZiyaChatWidget = lazy(() =>
+  import("../components/landing/ZiyaChatWidget").then((m) => ({ default: m.ZiyaChatWidget }))
+);
 
 export function LandingPage() {
   useEffect(() => {
@@ -24,7 +28,9 @@ export function LandingPage() {
     <div className="min-h-screen bg-brand-cream">
       {/* Navbar fixed di LUAR SmoothScroll: elemen fixed/sticky tidak jalan di dalam konten ber-transform. */}
       <LandingNavbar />
-      <ZiyaChatWidget />
+      <Suspense fallback={null}>
+        <ZiyaChatWidget />
+      </Suspense>
       <SmoothScroll>
         {/* Ruang di bawah navbar fixed — tingginya diukur & dipublikasikan oleh LandingNavbar. */}
         <div aria-hidden="true" style={{ height: "var(--landing-nav-h, 4.5rem)" }} />
