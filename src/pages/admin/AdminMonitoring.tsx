@@ -7,9 +7,10 @@ import { Badge } from "../../components/ui/Badge";
 import { Skeleton } from "../../components/ui/Skeleton";
 import { ErrorState } from "../../components/ui/ErrorState";
 import { EmptyState } from "../../components/ui/EmptyState";
-import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, UsersIcon } from "../../components/ui/DashIcons";
+import { SearchIcon, UsersIcon } from "../../components/ui/DashIcons";
 import { FlameIcon } from "../../components/landing/DecorativeIcons";
 import { useAdminStudents } from "../../features/dashboard/queries";
+import { Pagination } from "../../components/ui/Pagination";
 import { clsx } from "../../lib/clsx";
 import { formatNumber, timeAgo } from "../../utils/format";
 import { exportStudentsXlsx } from "../../utils/exportStudents";
@@ -135,11 +136,7 @@ export default function AdminMonitoring() {
                 </tbody>
               </table>
             </div>
-            <nav aria-label="Halaman monitoring" className="flex items-center justify-between gap-3 border-t-2 border-brand-ink/10 p-3">
-              <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} leftIcon={<ChevronLeftIcon className="h-4 w-4" />}>Sebelumnya</Button>
-              <p className="text-sm font-bold text-brand-ink/60">Halaman {page} dari {totalPages} · {query.data.total} santri</p>
-              <Button size="sm" variant="outline" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} rightIcon={<ChevronRightIcon className="h-4 w-4" />}>Berikutnya</Button>
-            </nav>
+            <Pagination label="Halaman monitoring" page={page} totalPages={totalPages} total={query.data.total} unit="santri" onPageChange={setPage} className="border-t-2 border-brand-ink/10 p-3" />
           </>
         )}
       </Card>

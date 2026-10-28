@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { PageHeader } from "../components/layout/PageHeader";
 import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
 import { Skeleton } from "../components/ui/Skeleton";
 import { ErrorState } from "../components/ui/ErrorState";
 import { EmptyState } from "../components/ui/EmptyState";
 import { LeaderboardRow, RankBadge } from "../components/domain/LeaderboardRow";
-import { ChevronLeftIcon, ChevronRightIcon, TrophyIcon } from "../components/ui/DashIcons";
+import { TrophyIcon } from "../components/ui/DashIcons";
 import { useLeaderboard, useRooms } from "../features/dashboard/queries";
+import { Pagination } from "../components/ui/Pagination";
 import { clsx } from "../lib/clsx";
 import { formatNumber } from "../utils/format";
 
@@ -63,11 +63,7 @@ export default function LeaderboardPage() {
               <ol className={clsx("flex flex-col gap-1.5", q.isPlaceholderData && "opacity-60")} start={(page - 1) * PAGE_SIZE + 1}>
                 {q.data.entries.map((e) => <LeaderboardRow key={e.studentId} entry={e} />)}
               </ol>
-              <nav aria-label="Halaman leaderboard" className="mt-4 flex items-center justify-between">
-                <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} leftIcon={<ChevronLeftIcon className="h-4 w-4" />}>Sebelumnya</Button>
-                <p className="text-sm font-bold text-brand-ink/60">Halaman {page} dari {totalPages}</p>
-                <Button size="sm" variant="outline" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} rightIcon={<ChevronRightIcon className="h-4 w-4" />}>Berikutnya</Button>
-              </nav>
+              <Pagination label="Halaman leaderboard" page={page} totalPages={totalPages} onPageChange={setPage} className="mt-4" />
             </>
           )}
         </Card>
