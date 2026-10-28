@@ -164,7 +164,7 @@ export function Hero() {
         </div>
 
         {/* Gambar besar tanpa bingkai/kotak, menyesuaikan lebar kolom */}
-        <ScrollAnimation direction="left" delay={0.3} className="relative mx-auto w-full">
+        <ScrollAnimation direction="left" delay={0.3} className="relative mx-auto hidden w-full md:block">
           <img
             src={HERO_IMAGE}
             alt="Ilustrasi belajar di Deen"

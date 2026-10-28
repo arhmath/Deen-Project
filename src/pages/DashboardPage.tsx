@@ -49,13 +49,13 @@ function SantriDashboard() {
         subtitle={g.checkedInToday ? "Hari ini sudah check-in. Yuk lanjut belajar!" : "Check-in dulu, lalu lanjut petualangan belajarmu."}
       />
       {/*
-        Mobile: Check-in → Level/Statistik/Lanjut belajar/Leaderboard → Reward.
+        Mobile: (sapaan) → Level → Statistik (point/streak/peringkat) → Check-in → Lanjut belajar → Leaderboard → Reward.
         Desktop: kolom kiri (konten utama) + kolom kanan (Check-in di atas, Reward di bawah).
       */}
       <div className="grid gap-6 lg:grid-cols-[1fr_21rem] lg:grid-rows-[auto_1fr] lg:items-start">
-        <div className="order-2 flex min-w-0 flex-col gap-6 lg:col-start-1 lg:row-span-2 lg:row-start-1">
+        <div className="contents min-w-0 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:flex lg:flex-col lg:gap-6">
           {/* Level */}
-          <section aria-labelledby="level-title" className="relative overflow-hidden rounded-3xl border-2 border-brand-purple-dark bg-brand-purple p-6 text-white shadow-[0_6px_0_0_#5B1FB0]">
+          <section aria-labelledby="level-title" className="order-1 lg:order-none relative overflow-hidden rounded-3xl border-2 border-brand-purple-dark bg-brand-purple p-6 text-white shadow-[0_6px_0_0_#5B1FB0]">
             <SparkleIcon className="absolute right-6 top-5 h-6 w-6 text-brand-gold motion-safe:animate-twinkle" aria-hidden="true" />
             <div className="flex items-center gap-4">
               <div className="grid h-20 w-20 shrink-0 place-items-center rounded-full border-4 border-brand-gold bg-brand-purple-dark" aria-hidden="true">
@@ -73,14 +73,14 @@ function SantriDashboard() {
           </section>
 
           {/* Statistik */}
-          <ul className="grid gap-3 sm:grid-cols-3" aria-label="Statistik">
+          <ul className="order-2 lg:order-none grid gap-3 sm:grid-cols-3" aria-label="Statistik">
             <li><StatTile icon={<CoinIcon />} iconClassName="bg-brand-blue/15 text-brand-blue" label="Point" value={formatNumber(g.point)} /></li>
             <li><StatTile icon={<FlameIcon />} iconClassName="bg-brand-amber/20 text-brand-amber-dark" label="Streak" value={`${g.streak} hari`} hint={`Rekor ${g.longestStreak} hari`} /></li>
             <li><StatTile icon={<TrophyIcon />} iconClassName="bg-brand-purple/12 text-brand-purple-fg" label="Peringkat" value={rank.position ? `#${rank.position}` : "-"} hint={`dari ${rank.total} santri`} /></li>
           </ul>
 
           {/* Lanjutkan belajar */}
-          <section aria-labelledby="continue-title">
+          <section aria-labelledby="continue-title" className="order-4 min-w-0 lg:order-none">
             <h2 id="continue-title" className="mb-3 font-display text-lg font-extrabold">Lanjutkan belajar</h2>
             {continueLearning ? (
               <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-stretch">
@@ -101,14 +101,16 @@ function SantriDashboard() {
             )}
           </section>
 
-          <MiniLeaderboard />
+          <div className="order-5 min-w-0 lg:order-none">
+            <MiniLeaderboard />
+          </div>
         </div>
 
-        <div className="order-1 min-w-0 lg:col-start-2 lg:row-start-1">
+        <div className="order-3 min-w-0 lg:order-none lg:col-start-2 lg:row-start-1">
           <CheckInCard gamification={g} />
         </div>
 
-        <Card className="order-3 min-w-0 lg:col-start-2 lg:row-start-2">
+        <Card className="order-6 min-w-0 lg:order-none lg:col-start-2 lg:row-start-2">
           <CardTitle className="mb-3">Reward terbaru</CardTitle>
           <RewardList items={recentRewards} />
         </Card>
