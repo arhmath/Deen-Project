@@ -1,7 +1,7 @@
 import { FieldValue, db, toIso, ts } from "@/lib/firebase";
 import { C } from "@/shared/collections";
 import { Errors } from "@/shared/errors";
-import { docId, generateJoinCode } from "@/shared/ids";
+import { docId, generateJoinCode, newId } from "@/shared/ids";
 import { getByIds } from "@/shared/firestore-utils";
 import { uniqueRef } from "@/shared/unique";
 import { auditInTx } from "../audit/audit";
@@ -99,7 +99,13 @@ export const roomService = {
     const patch: Record<string, unknown> = { updatedAt: ts() };
     if (input.name !== undefined) patch.name = input.name;
     if (input.description !== undefined) patch.description = input.description;
-    await db().collection(C.rooms).doc(roomId).update(patch);
+    if (input.archived !== undefined) patch.status = input.archived ? "ARCHIVED" : "ACTIVE";
+    await db().runTransaction(async (tx) => {
+      tx.update(db().collection(C.rooms).doc(roomId), patch);
+      if (input.archived !== undefined) {
+        auditInTx(tx, { actorId: admin.id, action: input.archived ? "ROOM_ARCHIVED" : "ROOM_RESTORED", entityType: "room", entityId: roomId });
+      }
+    });
     return this.get(admin, roomId);
   },
 
@@ -110,6 +116,24 @@ export const roomService = {
       tx.update(db().collection(C.rooms).doc(roomId), { status: "ARCHIVED", updatedAt: ts() });
       auditInTx(tx, { actorId: admin.id, action: "ROOM_ARCHIVED", entityType: "room", entityId: roomId });
     });
+  },
+
+  /**
+   * Hapus room dari arsip (soft delete). Hanya room ARCHIVED yang boleh dihapus.
+   * Course di dalamnya ikut disembunyikan (deletedAt) supaya tidak jadi data yatim di daftar admin.
+   */
+  async remove(admin: AuthUser, roomId: string): Promise<void> {
+    const room = await assertRoomOwner(admin, roomId);
+    if (room.status !== "ARCHIVED") throw Errors.conflict("Arsipkan room dulu sebelum menghapusnya.");
+    const courses = await db().collection(C.courses).where("roomId", "==", roomId).where("deletedAt", "==", null).get();
+    const now = ts();
+    const batch = db().batch();
+    batch.update(db().collection(C.rooms).doc(roomId), { deletedAt: now, updatedAt: now });
+    courses.docs.forEach((c) => batch.update(c.ref, { deletedAt: now, updatedAt: now }));
+    batch.set(db().collection(C.auditLogs).doc(newId()), {
+      actorId: admin.id, action: "ROOM_DELETED", entityType: "room", entityId: roomId, metadata: { courses: courses.size }, createdAt: now,
+    });
+    await batch.commit();
   },
 
   /** POST /rooms/join — SANTRI bergabung dengan kode (BR-002, BR-014). */

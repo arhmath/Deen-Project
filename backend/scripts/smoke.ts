@@ -3,7 +3,7 @@
  * Jalankan: npm run dev (terminal 1) → npm run smoke (terminal 2).   BASE_URL opsional.
  * Membuat 1 santri baru per run (batas register: 10/jam per IP).
  */
-const BASE = process.env.BASE_URL ?? "http://localhost:3001/api/v1";
+const BASE = process.env.BASE_URL ?? "http://deen-project-api.vercel.app/api/v1";
 const PASSWORD = "deen1234";
 
 let passed = 0;

@@ -11,6 +11,7 @@ import { FlameIcon, StarIcon } from "../landing/DecorativeIcons";
 import { CoinIcon } from "../ui/DashIcons";
 import { ROLE_LABEL } from "../../types/user";
 import { initials, formatNumber } from "../../utils/format";
+import { ConfirmDialog } from "../ui/ConfirmDialog";
 import { ErrorBoundary } from "../ui/ErrorBoundary";
 import { ThemeToggle } from "../ui/ThemeToggle";
 
@@ -46,6 +47,7 @@ function UserCard() {
   const user = useSessionUser();
   const navigate = useNavigate();
   const logout = useLogout();
+  const [confirming, setConfirming] = useState(false);
   return (
     <div className="flex items-center gap-3 rounded-2xl border-2 border-brand-ink/10 bg-surface p-3">
       <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full bg-brand-amber font-display font-extrabold text-night" aria-hidden="true">
@@ -76,11 +78,21 @@ function UserCard() {
         type="button"
         aria-label="Keluar"
         title="Keluar"
-        onClick={() => logout.mutate(undefined, { onSettled: () => navigate("/login", { replace: true }) })}
+        onClick={() => setConfirming(true)}
         className="grid h-9 w-9 place-items-center rounded-xl text-brand-ink/55 hover:bg-red-50 hover:text-red-500 focus-visible:outline-2 focus-visible:outline-brand-blue"
       >
         <LogoutIcon className="h-5 w-5" />
       </button>
+
+      <ConfirmDialog
+        open={confirming}
+        title="Keluar dari Deen?"
+        message="Kamu perlu masuk lagi untuk melanjutkan belajar."
+        confirmLabel="Ya, keluar"
+        isLoading={logout.isPending}
+        onCancel={() => setConfirming(false)}
+        onConfirm={() => logout.mutate(undefined, { onSettled: () => navigate("/login", { replace: true }) })}
+      />
     </div>
   );
 }

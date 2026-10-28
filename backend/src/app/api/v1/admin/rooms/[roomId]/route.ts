@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { db, toIso } from "@/lib/firebase";
 import { C } from "@/shared/collections";
 import { protectedRoute } from "@/shared/http";
@@ -79,7 +80,13 @@ export const PATCH = protectedRoute({ roles: ["ADMIN"], body: updateRoomSchema }
   };
 });
 
-export const DELETE = protectedRoute({ roles: ["ADMIN"] }, async ({ user, params }) => {
-  await roomService.archive(user, params.roomId!);
+/**
+ * DELETE /admin/rooms/:id
+ *  - tanpa query            → arsipkan (perilaku lama)
+ *  - ?permanent=true        → hapus room yang SUDAH diarsipkan
+ */
+export const DELETE = protectedRoute({ roles: ["ADMIN"], query: z.object({ permanent: z.enum(["true", "false"]).optional() }) }, async ({ user, params, query }) => {
+  if (query.permanent === "true") await roomService.remove(user, params.roomId!);
+  else await roomService.archive(user, params.roomId!);
   return { ok: true };
 });

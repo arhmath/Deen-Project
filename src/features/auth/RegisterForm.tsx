@@ -95,7 +95,7 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
             <label
               key={opt.value}
               className={clsx(
-                "flex cursor-pointer items-center gap-3 rounded-2xl border-2 px-3.5 py-2.5 transition-colors",
+                "flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl border-2 px-3 py-3 text-center transition-colors sm:flex-row sm:justify-start sm:gap-3 sm:px-3.5 sm:py-2.5 sm:text-left",
                 selectedRole === opt.value
                   ? "border-brand-purple bg-brand-purple/5"
                   : "border-brand-ink/10 bg-surface hover:border-brand-purple/40"
@@ -223,17 +223,19 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
       </div>
 
       <div>
-        <label className="flex items-start gap-2.5 font-body text-sm text-brand-ink/70">
+        <label className="flex items-center gap-2.5 font-body text-sm leading-snug text-brand-ink/70">
           <input
             type="checkbox"
-            className="mt-0.5 h-4 w-4 rounded border-2 border-brand-ink/20 text-brand-purple-fg focus:ring-brand-purple"
+            className="h-4 w-4 shrink-0 rounded border-2 border-brand-ink/20 text-brand-purple-fg focus:ring-brand-purple"
             {...register("agreeToTerms")}
           />
-          Saya setuju dengan{" "}
-          <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-bold text-brand-purple-fg hover:underline">
-            Syarat & Ketentuan
-          </a>{" "}
-          Deen.
+          <span className="min-w-0">
+            Saya setuju dengan{" "}
+            <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-bold text-brand-purple-fg hover:underline">
+              Syarat & Ketentuan
+            </a>{" "}
+            Deen.
+          </span>
         </label>
         {errors.agreeToTerms?.message && (
           <p className="mt-1.5 text-sm font-semibold text-red-500">

@@ -43,7 +43,10 @@ export function LearningPath() {
     const fill = fillRef.current;
     if (!section || !list || !fill) return;
 
-    const ctx = gsap.context(() => {
+    const mm = gsap.matchMedia();
+
+    // Desktop: pin + scrub seperti semula.
+    mm.add("(min-width: 768px)", () => {
       const items = gsap.utils.toArray<HTMLElement>("li", list);
       const slides = gsap.utils.toArray<HTMLElement>(".slide", section);
       const icons = gsap.utils.toArray<HTMLElement>(".step-icon", list);
@@ -85,16 +88,37 @@ export function LearningPath() {
         { scaleY: 1, transformOrigin: "top left", ease: "none", duration: tl.duration() },
         0
       );
-    }, section);
+    });
 
-    return () => ctx.revert();
+    // Mobile: tanpa pin/scrub (penyebab patah-patah saat scroll). Semua langkah tampil
+    // berurutan dan muncul halus satu per satu ketika masuk layar.
+    mm.add("(max-width: 767px)", () => {
+      const items = gsap.utils.toArray<HTMLElement>("li", list);
+      const cards = gsap.utils.toArray<HTMLElement>(".mobile-detail", section);
+      const icons = gsap.utils.toArray<HTMLElement>(".step-icon", list);
+
+      gsap.set(fill, { scaleY: 1, transformOrigin: "top left" });
+      gsap.set(icons, { scale: 1 });
+
+      items.forEach((item, i) => {
+        gsap.from([item, cards[i]], {
+          autoAlpha: 0,
+          y: 24,
+          duration: 0.5,
+          ease: "power2.out",
+          scrollTrigger: { trigger: item, start: "top 88%", once: true },
+        });
+      });
+    });
+
+    return () => mm.revert();
   }, []);
 
   return (
     <section
       ref={sectionRef}
       id="cara-belajar"
-      className="relative flex min-h-screen w-full flex-col justify-center overflow-hidden px-5 py-20"
+      className="relative flex w-full flex-col justify-center overflow-hidden px-5 py-16 md:min-h-screen md:py-20"
     >
       <div className="mx-auto max-w-6xl w-full">
         <div className="mx-auto max-w-xl text-center">
@@ -116,9 +140,9 @@ export function LearningPath() {
               style={{ transform: "scaleY(0)" }}
             />
 
-            <ol ref={listRef} className="space-y-8">
+            <ol ref={listRef} className="space-y-8 max-md:space-y-6">
               {STEPS.map((step, i) => (
-                <li key={step.title} className="relative flex items-center gap-4">
+                <li key={step.title} className="relative flex items-start gap-4 md:items-center">
                   <div
                     className={`step-icon relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${step.tone} text-white shadow-[0_4px_0_0_rgba(0,0,0,0.15)]`}
                   >
@@ -127,16 +151,22 @@ export function LearningPath() {
                       {i + 1}
                     </span>
                   </div>
-                  <h3 className="font-display text-lg font-bold text-brand-ink/50 transition-colors md:text-xl">
-                    {step.title}
-                  </h3>
+                  <div className="min-w-0">
+                    <h3 className="font-display text-lg font-bold text-brand-ink/50 transition-colors max-md:text-brand-ink md:text-xl">
+                      {step.title}
+                    </h3>
+                    {/* Mobile: deskripsi langsung di bawah judul (tanpa panel pin di kanan) */}
+                    <p className="mobile-detail mt-1 font-body text-sm text-brand-ink/70 md:hidden">
+                      {step.desc}
+                    </p>
+                  </div>
                 </li>
               ))}
             </ol>
           </div>
 
           {/* Kanan: detail step aktif */}
-          <div className="relative min-h-[220px]">
+          <div className="relative hidden min-h-[220px] md:block">
             {STEPS.map((step) => (
               <div key={step.title} className="slide absolute inset-0 invisible opacity-0">
                 <div className="rounded-3xl bg-surface p-8 shadow-[0_10px_0_0_var(--color-outline-shadow)]">

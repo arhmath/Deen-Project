@@ -50,3 +50,13 @@ export function useSaveCourse(id: string) {
     onSuccess: () => invalidate(["santri", "parent"]),
   });
 }
+
+export function useDeleteCourse() {
+  const invalidate = useInvalidate();
+  return useMutation({ mutationFn: adminService.deleteCourse, onSuccess: () => invalidate(["santri", "parent"]) });
+}
+
+export function useDeleteRoom() {
+  const invalidate = useInvalidate();
+  return useMutation({ mutationFn: adminService.deleteRoom, onSuccess: () => invalidate(["santri", "parent", "leaderboard"]) });
+}

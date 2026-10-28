@@ -7,11 +7,14 @@ import { Badge } from "../../components/ui/Badge";
 import { Skeleton } from "../../components/ui/Skeleton";
 import { ErrorState } from "../../components/ui/ErrorState";
 import { EmptyState } from "../../components/ui/EmptyState";
-import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, UsersIcon } from "../../components/ui/DashIcons";
+import { SearchIcon, UsersIcon } from "../../components/ui/DashIcons";
 import { FlameIcon } from "../../components/landing/DecorativeIcons";
 import { useAdminStudents } from "../../features/dashboard/queries";
+import { Pagination } from "../../components/ui/Pagination";
 import { clsx } from "../../lib/clsx";
 import { formatNumber, timeAgo } from "../../utils/format";
+import { exportStudentsXlsx } from "../../utils/exportStudents";
+import { errorMessage } from "../../services/api";
 
 const PAGE_SIZE = 8;
 const SORTS = [
@@ -38,11 +41,33 @@ export default function AdminMonitoring() {
   }, [search]);
 
   const query = useAdminStudents({ page, pageSize: PAGE_SIZE, q, room, sort });
+  const [exporting, setExporting] = useState(false);
+  const [exportMsg, setExportMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  async function handleExport() {
+    setExporting(true);
+    setExportMsg(null);
+    try {
+      const n = await exportStudentsXlsx({ q, room, sort });
+      setExportMsg(n === 0 ? { ok: false, text: "Tidak ada data santri untuk diunduh." } : { ok: true, text: `${n} santri berhasil diunduh.` });
+    } catch (e) {
+      setExportMsg({ ok: false, text: errorMessage(e, "Gagal membuat spreadsheet. Coba lagi ya.") });
+    } finally {
+      setExporting(false);
+    }
+  }
   const totalPages = query.data ? Math.max(1, Math.ceil(query.data.total / PAGE_SIZE)) : 1;
 
   return (
     <>
-      <PageHeader title="Monitoring santri" subtitle="Pantau XP, streak, progres, dan skor setiap santri." />
+      <PageHeader
+        title="Monitoring santri"
+        subtitle="Pantau XP, streak, progres, dan skor setiap santri."
+        actions={<Button size="sm" variant="outline" isLoading={exporting} onClick={handleExport}>Unduh spreadsheet</Button>}
+      />
+      <div aria-live="polite">
+        {exportMsg && <p role={exportMsg.ok ? "status" : "alert"} className={clsx("mb-3 text-sm font-bold", exportMsg.ok ? "text-green-700" : "text-red-600")}>{exportMsg.text}</p>}
+      </div>
 
       <div className="mb-4 flex flex-wrap gap-3">
         <div className="relative min-w-56 flex-1">
@@ -111,11 +136,7 @@ export default function AdminMonitoring() {
                 </tbody>
               </table>
             </div>
-            <nav aria-label="Halaman monitoring" className="flex items-center justify-between gap-3 border-t-2 border-brand-ink/10 p-3">
-              <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} leftIcon={<ChevronLeftIcon className="h-4 w-4" />}>Sebelumnya</Button>
-              <p className="text-sm font-bold text-brand-ink/60">Halaman {page} dari {totalPages} · {query.data.total} santri</p>
-              <Button size="sm" variant="outline" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} rightIcon={<ChevronRightIcon className="h-4 w-4" />}>Berikutnya</Button>
-            </nav>
+            <Pagination label="Halaman monitoring" page={page} totalPages={totalPages} total={query.data.total} unit="santri" onPageChange={setPage} className="border-t-2 border-brand-ink/10 p-3" />
           </>
         )}
       </Card>

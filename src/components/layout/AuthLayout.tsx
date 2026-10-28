@@ -105,7 +105,7 @@ export function AuthLayout({
         {/* Background Pattern Tipis (Opsional untuk estetika tambahan) */}
         <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#7c3aed_0.75px,transparent_0.75px)] [bg-size:16px_16px]" />
 
-        <div className="absolute right-4 top-4 z-20 sm:right-6 sm:top-6">
+        <div className="absolute right-4 top-4 z-20 hidden sm:right-6 sm:top-6 md:block">
           <ThemeToggle />
         </div>
 
@@ -116,6 +116,11 @@ export function AuthLayout({
             compact ? "max-w-md lg:max-w-xl p-6" : "max-w-md p-6 sm:p-10"
           )}
         >
+          {/* Mobile: toggle tema di pojok kanan atas kartu (login & register sama posisinya) */}
+          <div className="absolute right-3 top-3 z-20 md:hidden">
+            <ThemeToggle />
+          </div>
+
           <Link to="/" className={clsx("flex justify-center md:hidden", compact ? "mb-4" : "mb-6")}>
             <Logo />
           </Link>

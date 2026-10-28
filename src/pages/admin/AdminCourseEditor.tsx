@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
@@ -53,6 +53,7 @@ function Editor({ course }: { course: CourseDoc }) {
   const [pending, setPending] = useState<Pending | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const save = useSaveCourse(course.id);
+  const navigate = useNavigate();
 
   // peringatan sebelum menutup tab bila masih ada perubahan yang belum disimpan
   useEffect(() => {
@@ -86,6 +87,8 @@ function Editor({ course }: { course: CourseDoc }) {
         setDoc(res);
         setDirty(false);
         setNotice(okMessage);
+        // setelah diarsipkan, langsung tunjukkan course-nya di folder arsip
+        if (status === "ARCHIVED") navigate("/admin/courses?status=ARCHIVED");
       },
     });
   }
@@ -122,6 +125,9 @@ function Editor({ course }: { course: CourseDoc }) {
           )}
           {doc.status === "PUBLISHED" && (
             <Button size="sm" variant="outline" isLoading={save.isPending} onClick={() => submit("DRAFT", "Course dikembalikan ke draft. Santri tidak bisa melihatnya.")}>Jadikan draft</Button>
+          )}
+          {doc.status === "ARCHIVED" && (
+            <Button size="sm" variant="outline" isLoading={save.isPending} onClick={() => submit("DRAFT", "Course dipulihkan dari arsip sebagai draft.")}>Pulihkan ke draft</Button>
           )}
           {doc.status !== "ARCHIVED" && (
             <Button

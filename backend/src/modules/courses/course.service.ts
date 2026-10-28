@@ -105,13 +105,17 @@ export const courseService = {
     throw Errors.conflict("Gagal membuat slug course. Ubah judulnya sedikit.");
   },
 
-  async list(user: AuthUser, q: { roomId?: string; status?: string }) {
+  /**
+   * `includeArchived` hanya berlaku untuk ADMIN: halaman "Pembelajaran" admin butuh course
+   * ARCHIVED juga supaya folder "Diarsipkan" terisi. Tanpa flag ini, ARCHIVED tetap disembunyikan.
+   */
+  async list(user: AuthUser, q: { roomId?: string; status?: string; includeArchived?: boolean }) {
     let courses: WithId<CourseDoc>[];
     if (user.role === "ADMIN") {
       const snap = await db().collection(C.courses).where("creatorId", "==", user.id).get();
       courses = snap.docs.map((d) => ({ id: d.id, ...(d.data() as CourseDoc) }));
       if (q.status) courses = courses.filter((c) => c.status === q.status);
-      else courses = courses.filter((c) => c.status !== "ARCHIVED");
+      else if (!q.includeArchived) courses = courses.filter((c) => c.status !== "ARCHIVED");
     } else {
       const roomIds = await activeRoomIdsOfStudent(user.id);
       const rows = await queryIn<CourseDoc>((vals) => db().collection(C.courses).where("roomId", "in", vals).where("status", "==", "PUBLISHED"), roomIds);
@@ -179,6 +183,19 @@ export const courseService = {
     await db().runTransaction(async (tx) => {
       tx.update(db().collection(C.courses).doc(courseId), { status: "ARCHIVED", updatedAt: ts() });
       auditInTx(tx, { actorId: admin.id, action: "COURSE_ARCHIVED", entityType: "course", entityId: courseId });
+    });
+  },
+
+  /**
+   * Hapus course dari arsip (soft delete lewat `deletedAt`, sama seperti pola room/user).
+   * Hanya course yang sudah ARCHIVED yang boleh dihapus, supaya tidak terhapus tak sengaja.
+   */
+  async remove(admin: AuthUser, courseId: string): Promise<void> {
+    const course = await assertCourseOwner(admin, courseId);
+    if (course.status !== "ARCHIVED") throw Errors.conflict("Arsipkan course dulu sebelum menghapusnya.");
+    await db().runTransaction(async (tx) => {
+      tx.update(db().collection(C.courses).doc(courseId), { deletedAt: ts(), updatedAt: ts() });
+      auditInTx(tx, { actorId: admin.id, action: "COURSE_DELETED", entityType: "course", entityId: courseId });
     });
   },
 

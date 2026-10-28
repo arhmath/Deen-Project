@@ -9,9 +9,24 @@ import { JoinRoomCard } from "../features/rooms/JoinRoomCard";
 
 export default function LearningPage() {
   const q = useMyCourses();
+  // Nama TPA/room tempat santri belajar, diambil dari course yang tampil.
+  const roomNames = Array.from(new Set((q.data ?? []).map((c) => c.roomName).filter(Boolean)));
   return (
     <>
-      <PageHeader title="Pembelajaran" subtitle="Semua course dari room yang kamu ikuti." />
+      <PageHeader
+        title="Pembelajaran"
+        subtitle="Semua course dari room yang kamu ikuti."
+        actions={
+          roomNames.length > 0 ? (
+            <p
+              className="max-w-full self-start rounded-full bg-brand-purple/12 px-4 py-1.5 text-right font-display text-sm font-extrabold uppercase tracking-wide text-brand-purple-fg"
+              aria-label={`Kamu belajar di ${roomNames.join(", ")}`}
+            >
+              {roomNames.join(" · ")}
+            </p>
+          ) : undefined
+        }
+      />
       {q.isPending ? (
         <div aria-busy="true" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{Array.from({ length: 3 }, (_, i) => <Skeleton key={i} className="h-52 rounded-3xl" />)}</div>
       ) : q.isError ? (
