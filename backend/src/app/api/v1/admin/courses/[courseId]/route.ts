@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { db, toIso, ts } from "@/lib/firebase";
 import { C } from "@/shared/collections";
-import { protectedRoute } from "@/shared/http";
+import { noContent, protectedRoute } from "@/shared/http";
 import { courseService } from "@/modules/courses/course.service";
 import { loadContent } from "@/modules/courses/course.access";
 import type { ContentDoc, CourseDoc, ModuleDoc } from "@/modules/courses/course.types";
@@ -203,4 +203,10 @@ export const PUT = protectedRoute({ roles: ["ADMIN"], body: adminCourseUpdateSch
   await batch.commit();
   const updated = await courseService.get(user, courseId);
   return normalizeCourseDoc(updated);
+});
+
+/** Hapus course yang sudah diarsipkan (soft delete). Course yang belum diarsipkan ditolak (409). */
+export const DELETE = protectedRoute({ roles: ["ADMIN"] }, async ({ user, params }) => {
+  await courseService.remove(user, params.courseId!);
+  return noContent();
 });

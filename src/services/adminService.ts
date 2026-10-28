@@ -8,6 +8,7 @@ export const adminService = {
   room: (id: string) => api.get<RoomDetail>(`/admin/rooms/${id}`),
   updateRoom: (id: string, patch: { name?: string; archived?: boolean }) =>
     api.patch<RoomAdminSummary>(`/admin/rooms/${id}`, patch),
+  deleteRoom: (id: string) => api.delete<void>(`/admin/rooms/${id}`, { params: { permanent: "true" } }),
   removeMember: (roomId: string, studentId: string) =>
     api.delete<void>(`/admin/rooms/${roomId}/members/${studentId}`),
   courses: () => api.get<CourseAdminSummary[]>("/admin/courses"),
@@ -15,4 +16,5 @@ export const adminService = {
     api.post<CourseDoc>("/admin/courses", p),
   course: (id: string) => api.get<CourseDoc>(`/admin/courses/${id}`),
   saveCourse: (id: string, doc: CourseDoc) => api.put<CourseDoc>(`/admin/courses/${id}`, doc),
+  deleteCourse: (id: string) => api.delete<void>(`/admin/courses/${id}`),
 };

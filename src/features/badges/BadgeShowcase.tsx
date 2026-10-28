@@ -100,9 +100,13 @@ function BadgeDetail({ badge, onClose }: { badge: BadgeState | null; onClose: ()
   );
 }
 
+/** Di mobile hanya kategori awal yang tampil; sisanya muncul lewat "Baca selengkapnya". */
+const PREVIEW_CATEGORIES = 2;
+
 export function BadgeShowcase({ className }: { className?: string }) {
   const { badges, isLoading, isError } = useBadges();
   const [selected, setSelected] = useState<BadgeState | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   const countable = badges.filter((b) => !b.comingSoon);
   const earned = countable.filter((b) => b.earned).length;
@@ -128,11 +132,13 @@ export function BadgeShowcase({ className }: { className?: string }) {
         <p role="alert" className="text-sm font-bold text-red-600">Badge belum bisa dimuat. Muat ulang halaman ya.</p>
       ) : (
         <div className="grid gap-4 lg:grid-cols-12">
-          {BADGE_CATEGORY_ORDER.map((cat) => {
+          {BADGE_CATEGORY_ORDER.map((cat, catIndex) => {
             const list = badges.filter((b) => b.category === cat);
             if (!list.length) return null;
+            // mobile: kategori di luar preview disembunyikan sampai diperluas; desktop selalu tampil
+            const hiddenOnMobile = !expanded && catIndex >= PREVIEW_CATEGORIES;
             return (
-              <Card key={cat} className={clsx("p-4 sm:p-5", LAYOUT[cat].card)} aria-labelledby={`badge-cat-${cat}`}>
+              <Card key={cat} className={clsx("p-4 sm:p-5", LAYOUT[cat].card, hiddenOnMobile && "hidden lg:block")} aria-labelledby={`badge-cat-${cat}`}>
                 <div className="mb-3 flex items-center gap-3">
                   <span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand-purple/10 text-xl">{BADGE_CATEGORY_ICON[cat]}</span>
                   <div className="min-w-0">
@@ -147,10 +153,22 @@ export function BadgeShowcase({ className }: { className?: string }) {
             );
           })}
 
-          <Card className="flex items-center gap-4 bg-brand-purple/5 p-4 sm:p-5 lg:col-span-3 lg:flex-col lg:justify-center lg:text-center">
+          <Card className={clsx("items-center gap-4 bg-brand-purple/5 p-4 sm:p-5 lg:col-span-3 lg:flex lg:flex-col lg:justify-center lg:text-center", expanded ? "flex" : "hidden")}>
             <img src="/ziya-idle.png" alt="" className="h-20 w-20 shrink-0 object-contain motion-safe:animate-float" />
             <p className="text-sm font-bold text-brand-ink/70">Kumpulkan semua badge, dan jadilah versi terbaik dari dirimu!</p>
           </Card>
+
+          <div className="flex justify-center lg:hidden">
+            <Button
+              variant="outline"
+              size="sm"
+              fullWidth
+              aria-expanded={expanded}
+              onClick={() => setExpanded((v) => !v)}
+            >
+              {expanded ? "Tampilkan lebih sedikit" : "Baca selengkapnya"}
+            </Button>
+          </div>
         </div>
       )}
 

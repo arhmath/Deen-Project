@@ -26,7 +26,8 @@ const courseSummary = async (course: { id: string; title: string; roomId: string
 };
 
 export const GET = protectedRoute({ roles: ["ADMIN"] }, async ({ user }) => {
-  const courses = await courseService.list(user, {});
+  // includeArchived: course ARCHIVED harus ikut supaya folder "Diarsipkan" di frontend terisi.
+  const courses = await courseService.list(user, { includeArchived: true });
   return Promise.all(courses.map((course) => courseSummary(course)));
 });
 

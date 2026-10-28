@@ -119,7 +119,7 @@ export default function ProfilePage() {
     <>
       <PageHeader title="Profil" />
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
+        <Card className="order-1">
           <div className="flex items-center gap-4">
             <div className="relative h-16 w-16 shrink-0">
               <input
@@ -187,7 +187,7 @@ export default function ProfilePage() {
         </Card>
 
         {user.role === "SANTRI" && (
-          <Card>
+          <Card className="order-2">
             <CardTitle className="mb-4">Level kamu</CardTitle>
             {dash.data ? (
               <>
@@ -198,10 +198,10 @@ export default function ProfilePage() {
           </Card>
         )}
 
-        {user.role === "SANTRI" && <BadgeShowcase className="lg:col-span-2" />}
+        {user.role === "SANTRI" && <BadgeShowcase className="order-4 lg:order-3 lg:col-span-2" />}
 
         {user.role === "SANTRI" && (
-          <Card className="lg:col-span-2">
+          <Card className="order-3 lg:order-4 lg:col-span-2">
             <CardTitle>Kode untuk orang tua</CardTitle>
             <p className="mb-3 mt-1 text-sm text-brand-ink/60">
               Berikan kode ini ke orang tuamu. Mereka memasukkannya di akun Deen mereka untuk memantau belajarmu.
@@ -233,7 +233,7 @@ export default function ProfilePage() {
         )}
 
         {USE_MOCK && (
-          <Card className="lg:col-span-2">
+          <Card className="order-5 lg:col-span-2">
             <CardTitle>Mode demo</CardTitle>
             <p className="mb-4 mt-1 text-sm text-brand-ink/60">Data saat ini berasal dari mock lokal di browser ini. Reset mengembalikan progres, room, course, dan keterhubungan orang tua ke data awal. Akun yang sudah kamu daftarkan tetap ada.</p>
             <Button size="sm" variant="outline" onClick={resetDemo}>Reset data demo</Button>

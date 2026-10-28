@@ -420,3 +420,24 @@ export function saveCourse(w: World, ownerId: string, courseId: string, doc: Par
   saveWorld({ ...w, courses: w.courses.map((c) => (c.id === courseId ? next : c)) });
   return next;
 }
+
+/** Hapus course yang sudah diarsipkan (selaras dengan DELETE /admin/courses/:id di backend). */
+export function deleteCourse(w: World, ownerId: string, courseId: string) {
+  const existing = w.courses.find((c) => c.id === courseId);
+  if (!existing) throw new ApiError("Course tidak ditemukan.", 404);
+  ownedRoomOrThrow(w, ownerId, existing.roomId);
+  if (existing.status !== "ARCHIVED") throw new ApiError("Arsipkan course dulu sebelum menghapusnya.", 409);
+  saveWorld({ ...w, courses: w.courses.filter((c) => c.id !== courseId) });
+}
+
+/** Hapus room yang sudah diarsipkan beserta course-nya (selaras dengan DELETE /admin/rooms/:id?permanent=true). */
+export function deleteRoom(w: World, ownerId: string, roomId: string) {
+  const room = ownedRoomOrThrow(w, ownerId, roomId);
+  if (!room.archived) throw new ApiError("Arsipkan room dulu sebelum menghapusnya.", 409);
+  saveWorld({
+    ...w,
+    rooms: w.rooms.filter((r) => r.id !== roomId),
+    courses: w.courses.filter((c) => c.roomId !== roomId),
+    memberships: w.memberships.filter((m) => m.roomId !== roomId),
+  });
+}

@@ -53,6 +53,8 @@ import {
   roomById,
   saveCourse,
   updateRoom,
+  deleteCourse,
+  deleteRoom,
   visibleCourses,
   type CourseRec,
   type RoomRec,
@@ -1294,6 +1296,10 @@ async function route<T>(req: MockReq): Promise<T> {
     };
     return res as T;
   }
+  if (roomM && method === "DELETE") {
+    deleteRoom(getWorld(), user.id, roomM[1]!);
+    return undefined as T;
+  }
   if (roomM && method === "PATCH") {
     const room = updateRoom(getWorld(), user.id, roomM[1]!, (req.body ?? {}) as { name?: unknown; archived?: unknown });
     return roomSummaryFor(getWorld(), room) as T;
@@ -1323,6 +1329,10 @@ async function route<T>(req: MockReq): Promise<T> {
     if (!course) throw new ApiError("Course tidak ditemukan.", 404);
     ownedRoomOrThrow(w, user.id, course.roomId); // BR-004
     return courseDocFor(w, course) as T;
+  }
+  if (courseAdminM && method === "DELETE") {
+    deleteCourse(getWorld(), user.id, courseAdminM[1]!);
+    return undefined as T;
   }
   if (courseAdminM && method === "PUT") {
     const course = saveCourse(getWorld(), user.id, courseAdminM[1]!, (req.body ?? {}) as Partial<CourseDoc>);

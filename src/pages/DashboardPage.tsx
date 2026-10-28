@@ -48,8 +48,12 @@ function SantriDashboard() {
         title={`${greeting()}, ${firstName}!`}
         subtitle={g.checkedInToday ? "Hari ini sudah check-in. Yuk lanjut belajar!" : "Check-in dulu, lalu lanjut petualangan belajarmu."}
       />
-      <div className="grid gap-6 lg:grid-cols-[1fr_21rem]">
-        <div className="flex min-w-0 flex-col gap-6">
+      {/*
+        Mobile: Check-in → Level/Statistik/Lanjut belajar/Leaderboard → Reward.
+        Desktop: kolom kiri (konten utama) + kolom kanan (Check-in di atas, Reward di bawah).
+      */}
+      <div className="grid gap-6 lg:grid-cols-[1fr_21rem] lg:grid-rows-[auto_1fr] lg:items-start">
+        <div className="order-2 flex min-w-0 flex-col gap-6 lg:col-start-1 lg:row-span-2 lg:row-start-1">
           {/* Level */}
           <section aria-labelledby="level-title" className="relative overflow-hidden rounded-3xl border-2 border-brand-purple-dark bg-brand-purple p-6 text-white shadow-[0_6px_0_0_#5B1FB0]">
             <SparkleIcon className="absolute right-6 top-5 h-6 w-6 text-brand-gold motion-safe:animate-twinkle" aria-hidden="true" />
@@ -100,13 +104,14 @@ function SantriDashboard() {
           <MiniLeaderboard />
         </div>
 
-        <div className="flex min-w-0 flex-col gap-6">
+        <div className="order-1 min-w-0 lg:col-start-2 lg:row-start-1">
           <CheckInCard gamification={g} />
-          <Card>
-            <CardTitle className="mb-3">Reward terbaru</CardTitle>
-            <RewardList items={recentRewards} />
-          </Card>
         </div>
+
+        <Card className="order-3 min-w-0 lg:col-start-2 lg:row-start-2">
+          <CardTitle className="mb-3">Reward terbaru</CardTitle>
+          <RewardList items={recentRewards} />
+        </Card>
       </div>
     </>
   );

@@ -1,16 +1,19 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { PageHeader } from "../../components/layout/PageHeader";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ErrorState } from "../../components/ui/ErrorState";
 import { Skeleton } from "../../components/ui/Skeleton";
 import { StatusBadge } from "../../components/domain/StatusBadge";
 import { BookOpenIcon, PlusIcon } from "../../components/ui/DashIcons";
 import { CreateCourseDialog } from "../../features/admin/CreateCourseDialog";
-import { useAdminCourses } from "../../features/admin/queries";
+import { useAdminCourses, useDeleteCourse } from "../../features/admin/queries";
+import { errorMessage } from "../../services/api";
 import { clsx } from "../../lib/clsx";
+import type { CourseAdminSummary } from "../../types/courseAdmin";
 import type { CourseStatus } from "../../types/learning";
 
 const FILTERS: { value: CourseStatus | "ALL"; label: string }[] = [
@@ -22,10 +25,20 @@ const FILTERS: { value: CourseStatus | "ALL"; label: string }[] = [
 
 export default function AdminCourses() {
   const q = useAdminCourses();
+  const del = useDeleteCourse();
+  const [params, setParams] = useSearchParams();
   const [creating, setCreating] = useState(false);
-  const [filter, setFilter] = useState<CourseStatus | "ALL">("ALL");
+  const [toDelete, setToDelete] = useState<CourseAdminSummary | null>(null);
 
-  const list = (q.data ?? []).filter((c) => filter === "ALL" || c.status === filter);
+  // ?status=ARCHIVED membuka folder arsip langsung (dipakai setelah course diarsipkan dari editor)
+  const requested = params.get("status");
+  const filter: CourseStatus | "ALL" = FILTERS.some((f) => f.value === requested) ? (requested as CourseStatus | "ALL") : "ALL";
+  const setFilter = (value: CourseStatus | "ALL") => setParams(value === "ALL" ? {} : { status: value }, { replace: true });
+
+  const all = q.data ?? [];
+  const archivedCount = all.filter((c) => c.status === "ARCHIVED").length;
+  // "Semua" tidak mencakup arsip: arsip punya folder sendiri
+  const list = all.filter((c) => (filter === "ALL" ? c.status !== "ARCHIVED" : c.status === filter));
 
   return (
     <>
@@ -48,6 +61,7 @@ export default function AdminCourses() {
             )}
           >
             {f.label}
+            {f.value === "ARCHIVED" && archivedCount > 0 && <span className="ml-1.5 opacity-70">({archivedCount})</span>}
           </button>
         ))}
       </div>
@@ -59,8 +73,8 @@ export default function AdminCourses() {
       ) : list.length === 0 ? (
         <EmptyState
           icon={<BookOpenIcon />}
-          title={filter === "ALL" ? "Belum ada course" : "Tidak ada course dengan status ini"}
-          description={filter === "ALL" ? "Buat course pertamamu untuk salah satu room." : "Coba ubah filter status."}
+          title={filter === "ALL" ? "Belum ada course" : filter === "ARCHIVED" ? "Arsip masih kosong" : "Tidak ada course dengan status ini"}
+          description={filter === "ALL" ? "Buat course pertamamu untuk salah satu room." : filter === "ARCHIVED" ? "Course yang kamu arsipkan akan muncul di sini." : "Coba ubah filter status."}
           action={filter === "ALL" ? <Button size="sm" onClick={() => setCreating(true)}>Buat course</Button> : undefined}
         />
       ) : (
@@ -77,13 +91,27 @@ export default function AdminCourses() {
                   <p className="truncate text-sm text-brand-ink/55">{c.roomName} · {c.moduleCount} modul · {c.contentCount} materi</p>
                 </div>
                 <StatusBadge status={c.status} />
-                <Link to={`/admin/courses/${c.id}`} className="font-display text-sm font-bold text-brand-purple-fg hover:underline">Edit</Link>
+                <Link to={`/admin/courses/${c.id}`} className="font-display text-sm font-bold text-brand-purple-fg hover:underline">
+                  {c.status === "ARCHIVED" ? "Buka / pulihkan" : "Edit"}
+                </Link>
+                {c.status === "ARCHIVED" && (
+                  <Button size="sm" variant="ghost" className="text-red-600" onClick={() => { del.reset(); setToDelete(c); }}>Hapus</Button>
+                )}
               </Card>
             </li>
           ))}
         </ul>
       )}
 
+      <ConfirmDialog
+        open={!!toDelete}
+        title="Hapus course ini?"
+        message={del.isError ? errorMessage(del.error) : `“${toDelete?.title ?? "Course"}” akan dihapus dari arsip dan tidak bisa dikembalikan.`}
+        confirmLabel="Hapus"
+        isLoading={del.isPending}
+        onCancel={() => setToDelete(null)}
+        onConfirm={() => toDelete && del.mutate(toDelete.id, { onSuccess: () => setToDelete(null) })}
+      />
       <CreateCourseDialog open={creating} onClose={() => setCreating(false)} />
     </>
   );

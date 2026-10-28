@@ -12,6 +12,8 @@ export const updateRoomSchema = z
   .object({
     name: z.string().trim().min(3).max(150).optional(),
     description: z.string().trim().max(1000).nullable().optional(),
+    /** true → ARCHIVED, false → ACTIVE (dipakai tombol "Arsipkan room" / "Aktifkan lagi"). */
+    archived: z.boolean().optional(),
   })
   .strict()
   .refine((v) => Object.keys(v).length > 0, { message: "Tidak ada data yang diubah" });
