@@ -13,7 +13,7 @@ import { HeroParticles } from "./HeroParticles";
  * Gambar hero (sisi kanan). Taruh file gambarmu di folder `public/` dengan nama ini,
  * atau ubah path-nya ke nama file yang kamu pakai (mis. "/hero-deen.webp").
  */
-const HERO_IMAGE = "/hero-landing.png";
+const HERO_IMAGE = "/hero-landing.webp";
 
 /** Angka ringkas di bawah tombol — semuanya mengacu ke isi aplikasi saat ini. */
 const STATS = [
