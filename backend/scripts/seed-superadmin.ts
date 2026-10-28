@@ -13,12 +13,14 @@ export type SuperadminSeedConfig = {
   role: "SUPERADMIN";
 };
 
+export type SuperadminSeedEnv = Record<string, string | undefined>;
+
 /**
  * Password wajib diberikan lewat environment; tidak ada kredensial default
  * yang aman untuk disimpan di repository.
  */
 export function getSuperadminSeedConfig(
-  source: NodeJS.ProcessEnv = process.env
+  source: SuperadminSeedEnv = process.env as SuperadminSeedEnv
 ): SuperadminSeedConfig {
   const password = source.SUPERADMIN_SEED_PASSWORD ?? "";
   const username = (source.SUPERADMIN_SEED_USERNAME ?? "superadmin").trim();
