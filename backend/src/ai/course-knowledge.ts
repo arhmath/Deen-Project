@@ -26,7 +26,7 @@ function extractText(value: unknown, depth = 0): string[] {
  */
 export async function loadCourseChunks(user: AuthUser): Promise<Chunk[]> {
   let courses: { id: string; title: string; description: string }[] = [];
-  const includeAll = user.role === "ADMIN";
+  const includeAll = (user.role === "ADMIN" || user.role === "SUPERADMIN");
 
   if (user.role === "SANTRI") {
     courses = await progressService.coursesForStudent(user.id);

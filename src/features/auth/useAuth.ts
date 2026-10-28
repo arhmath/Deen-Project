@@ -7,7 +7,7 @@ import type { RegisterRequest } from "../../types/auth";
 export const ME_KEY = ["auth", "me"] as const;
 
 /** Beranda tiap role. */
-export const homePathFor = (role: Role) => (role === "ADMIN" ? "/admin" : "/dashboard");
+export const homePathFor = (role: Role) => (role === "ADMIN" || role === "SUPERADMIN" ? "/admin" : "/dashboard");
 
 /** Sesi dibaca dari server (GET /auth/me) — bukan dari localStorage. */
 export function useMe() {

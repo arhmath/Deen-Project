@@ -22,6 +22,22 @@ isi `FIREBASE_PROJECT_ID/CLIENT_EMAIL/PRIVATE_KEY`. Deploy `firestore.indexes.js
 Frontend: di root buat `.env` → `VITE_USE_MOCK=false` dan `VITE_API_URL=http://localhost:3000/api/v1`.
 `CORS_ORIGIN` harus memuat origin frontend (default `http://localhost:5173`).
 
+## Bootstrap akun Superadmin
+
+Role `ADMIN` tetap dipakai untuk Guru/Ustadz dan mempertahankan batas akses room/course miliknya. Role `SUPERADMIN` dapat mengakses fitur admin lintas room/course.
+
+1. Dari folder `backend`, salin `apps/api/.env.example` menjadi `apps/api/.env` bila belum ada.
+2. Isi `SUPERADMIN_SEED_PASSWORD` dengan password acak minimal 16 karakter. Opsional: atur `SUPERADMIN_SEED_USERNAME`, `SUPERADMIN_SEED_EMAIL`, dan `SUPERADMIN_SEED_NAME`.
+3. Jalankan sekali dari folder `backend`:
+
+   ```bash
+   npm run seed:superadmin
+   ```
+
+Seed tidak menyimpan password di source code, menyimpan hash bcrypt, dan tidak mengubah akun Superadmin yang sudah ada. Jika username/email sudah digunakan akun lain, seed berhenti dengan pesan error. Jangan commit `apps/api/.env` atau membagikan password bootstrap. Setelah akun berhasil dibuat, kosongkan/hapus `SUPERADMIN_SEED_PASSWORD` dari environment bila tidak dibutuhkan lagi.
+
+Registrasi publik tetap hanya menerima `SANTRI` dan `PARENT`; role `ADMIN` maupun `SUPERADMIN` tidak bisa dipilih melalui form registrasi.
+
 ## Endpoint (semua di `/api/v1`)
 
 | Area | Endpoint |
@@ -75,3 +91,12 @@ Respons sukses berupa payload langsung (sesuai frontend, bukan envelope). Error:
 - `RegisterPage` masih TODO (belum memanggil `/auth/register`).
 - Tambah interceptor 401 → `/auth/refresh` di `services/api.ts` (atau naikkan `ACCESS_TOKEN_TTL_MIN`).
 - Halaman konten/kuis & chatbot belum ada; kontrak submit & `/ai/chat` ada di kode (`learning.service.ts`, `orchestrator.ts`).
+
+## Pendaftaran tenaga pendidik
+
+- Landing page membuka formulir publik pada `/daftar-pendidik`.
+- API `POST /api/v1/educator-applications` menyimpan pendaftaran. Superadmin dapat melihatnya melalui `GET /api/v1/educator-applications` dan memprosesnya lewat `PATCH /api/v1/educator-applications/:applicationId`.
+- Persetujuan membuat akun dengan role `ADMIN` (Ustaz/Ustazah), username berdasarkan nama dengan akhiran angka acak, dan password sementara acak. Password hanya dikirim satu kali pada respons persetujuan dan tidak disimpan dalam bentuk plaintext.
+- Untuk demo yang otomatis membuat akun setelah jeda simulasi pada halaman formulir, set `EDUCATOR_APPLICATION_SIMULATION=true` di environment backend. **Jangan aktifkan di production** karena pendaftaran publik akan langsung mendapatkan role pendidik tanpa pemeriksaan Superadmin.
+- Untuk alur verifikasi yang sebenarnya, gunakan `EDUCATOR_APPLICATION_SIMULATION=false` (default), lalu Superadmin meninjau pendaftar di `/admin/pendaftar-pendidik` dan memilih verifikasi atau penolakan.
+- Frontend harus diarahkan ke API backend dengan `VITE_USE_MOCK=false` dan `VITE_API_URL` yang benar. Reset password melalui Gmail memerlukan konfigurasi email/SMTP yang valid pada backend.

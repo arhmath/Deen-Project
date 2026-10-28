@@ -111,8 +111,10 @@ export const courseService = {
    */
   async list(user: AuthUser, q: { roomId?: string; status?: string; includeArchived?: boolean }) {
     let courses: WithId<CourseDoc>[];
-    if (user.role === "ADMIN") {
-      const snap = await db().collection(C.courses).where("creatorId", "==", user.id).get();
+    if (user.role === "ADMIN" || user.role === "SUPERADMIN") {
+      const snap = user.role === "SUPERADMIN"
+        ? await db().collection(C.courses).get()
+        : await db().collection(C.courses).where("creatorId", "==", user.id).get();
       courses = snap.docs.map((d) => ({ id: d.id, ...(d.data() as CourseDoc) }));
       if (q.status) courses = courses.filter((c) => c.status === q.status);
       else if (!q.includeArchived) courses = courses.filter((c) => c.status !== "ARCHIVED");
@@ -128,8 +130,8 @@ export const courseService = {
   },
 
   async get(user: AuthUser, courseId: string) {
-    const course = user.role === "ADMIN" ? await assertCourseOwner(user, courseId) : await assertStudentCourseAccess(user, courseId);
-    const isOwner = user.role === "ADMIN";
+    const course = (user.role === "ADMIN" || user.role === "SUPERADMIN") ? await assertCourseOwner(user, courseId) : await assertStudentCourseAccess(user, courseId);
+    const isOwner = user.role === "ADMIN" || user.role === "SUPERADMIN";
     const { modules, contents } = await loadStructure(courseId, { publishedOnly: !isOwner });
     let done = new Set<string>();
     if (!isOwner) {
@@ -270,7 +272,7 @@ export const courseService = {
 
   async getContent(user: AuthUser, contentId: string) {
     const content = await loadContent(contentId);
-    const isOwner = user.role === "ADMIN";
+    const isOwner = user.role === "ADMIN" || user.role === "SUPERADMIN";
     if (isOwner) await assertCourseOwner(user, content.courseId);
     else {
       await assertStudentCourseAccess(user, content.courseId);

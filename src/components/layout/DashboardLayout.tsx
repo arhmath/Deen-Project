@@ -143,7 +143,7 @@ export function DashboardLayout() {
 
       {/* Sidebar desktop */}
       <aside className="sticky top-0 hidden h-screen flex-col gap-6 border-r-2 border-brand-ink/10 bg-surface/70 p-5 lg:flex">
-        <Link to={user.role === "ADMIN" ? "/admin" : "/dashboard"} className="px-1" aria-label="Deen — beranda">
+        <Link to={user.role === "ADMIN" || user.role === "SUPERADMIN" ? "/admin" : "/dashboard"} className="px-1" aria-label="Deen — beranda">
           <Logo />
         </Link>
         <div className="flex-1 overflow-y-auto"><NavList /></div>

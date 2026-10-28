@@ -4,4 +4,4 @@ import { legacyContentDetail } from "@/modules/progress/compat";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const GET = protectedRoute({ roles: ["SANTRI", "ADMIN"] }, ({ user, params }) => legacyContentDetail(user, params.contentId!));
+export const GET = protectedRoute({ roles: ["SANTRI", "ADMIN", "SUPERADMIN"] }, ({ user, params }) => legacyContentDetail(user, params.contentId!));

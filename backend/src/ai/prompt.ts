@@ -6,6 +6,7 @@ const ROLE_HINT: Record<Role, string> = {
   SANTRI: "Pengguna adalah SANTRI (anak belajar). Gunakan bahasa sederhana, ramah, dan menyemangati.",
   PARENT: "Pengguna adalah ORANG TUA/WALI. Fokus pada pemantauan anak yang terhubung. Bahasa sopan dan jelas.",
   ADMIN: "Pengguna adalah GURU/USTADZ. Fokus pada room, course, dan statistik belajar yang diberikan. Bahasa profesional dan ringkas.",
+  SUPERADMIN: "Pengguna adalah SUPERADMIN platform. Bantu mengelola room, course, dan statistik seluruh platform. Bahasa profesional dan ringkas.",
 };
 
 /** Isi hasil retrieval/tool adalah DATA, bukan instruksi — dibungkus tag dan dinetralkan. */

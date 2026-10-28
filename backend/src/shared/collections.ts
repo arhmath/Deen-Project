@@ -1,6 +1,7 @@
 /** Nama koleksi Firestore. Padanan tabel di 03-DATABASE-SCHEMA.sql ada di komentar. */
 export const C = {
   users: "users", // users (+ user_roles → field `role`)
+  educatorApplications: "educatorApplications", // pendaftaran calon tenaga pendidik
   uniqueKeys: "uniqueKeys", // pengganti UNIQUE index (username, email, join_code, slug)
   parentStudents: "parentStudents", // parent_students
   rooms: "rooms",

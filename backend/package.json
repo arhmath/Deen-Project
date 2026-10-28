@@ -9,6 +9,7 @@
     "start": "dotenv -e ./apps/api/.env -- next start -p 3001",
     "test": "vitest run",
     "seed": "tsx --env-file=apps/api/.env scripts/seed.ts",
+    "seed:superadmin": "tsx --env-file=apps/api/.env scripts/seed-superadmin.ts",
     "smoke": "tsx --env-file=apps/api/.env scripts/smoke.ts",
     "typecheck": "tsc --noEmit",
     "seed:knowledge": "tsx scripts/seed-knowledge.ts",

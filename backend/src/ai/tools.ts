@@ -58,7 +58,7 @@ const child = async (ctx: ToolCtx) => {
 };
 
 export const TOOLS: Tool[] = [
-  { name: "get_my_profile", roles: ["SANTRI", "PARENT", "ADMIN"], source: "profile", run: async ({ user }) => {
+  { name: "get_my_profile", roles: ["SANTRI", "PARENT", "ADMIN", "SUPERADMIN"], source: "profile", run: async ({ user }) => {
     const u = await userService.getMe(user.id);
     return { nama: u.name, username: u.username, peran: u.role };
   } },
@@ -83,8 +83,8 @@ export const TOOLS: Tool[] = [
     const lb = await leaderboardService.page(user, { page: 1, pageSize: 5 });
     return { top: lb.entries.map((e) => ({ peringkat: e.rank, nama: e.name, xp: e.xp })), peringkatSaya: lb.me ? { peringkat: lb.me.rank, xp: lb.me.xp } : null, totalPeserta: lb.total };
   } },
-  { name: "get_my_rooms", roles: ["SANTRI", "ADMIN"], source: "progress", run: async ({ user }) => (await roomService.list(user)).map((r) => ({ room: r.name, anggota: r.memberCount })) },
-  { name: "get_notifications", roles: ["SANTRI", "PARENT", "ADMIN"], source: "notification", run: async ({ user }) => {
+  { name: "get_my_rooms", roles: ["SANTRI", "ADMIN", "SUPERADMIN"], source: "progress", run: async ({ user }) => (await roomService.list(user)).map((r) => ({ room: r.name, anggota: r.memberCount })) },
+  { name: "get_notifications", roles: ["SANTRI", "PARENT", "ADMIN", "SUPERADMIN"], source: "notification", run: async ({ user }) => {
     const n = await notificationService.list(user.id, { unread: "true", page: 1, limit: 5 });
     return { belumDibaca: n.unreadCount, terbaru: n.items.map((i) => ({ judul: i.title, pesan: i.message })) };
   } },
@@ -102,19 +102,19 @@ export const TOOLS: Tool[] = [
     return { anak: d.student.name, rataRataNilai: d.student.avgScore, kuisTerbaru: d.quizScores.slice(0, 5).map((q) => ({ kuis: q.title, nilai: q.score })) };
   } },
   // ---- guru ----
-  { name: "get_room_statistics", roles: ["ADMIN"], source: "progress", run: async ({ user }) => {
+  { name: "get_room_statistics", roles: ["ADMIN", "SUPERADMIN"], source: "progress", run: async ({ user }) => {
     const o = await monitoringService.overview(user);
     return { totalSantri: o.totalStudents, totalRoom: o.totalRooms, aktifHariIni: o.activeToday, checkInHariIni: o.checkInsToday };
   } },
-  { name: "get_learning_statistics", roles: ["ADMIN"], source: "progress", run: async ({ user }) => {
+  { name: "get_learning_statistics", roles: ["ADMIN", "SUPERADMIN"], source: "progress", run: async ({ user }) => {
     const o = await monitoringService.overview(user);
     return { rataRataProgresCourse: o.avgCourseProgress, rataRataNilai: o.avgScore };
   } },
-  { name: "get_student_statistics", roles: ["ADMIN"], source: "progress", run: async ({ user }) => {
+  { name: "get_student_statistics", roles: ["ADMIN", "SUPERADMIN"], source: "progress", run: async ({ user }) => {
     const o = await monitoringService.overview(user);
     return { perluPerhatian: o.needsAttention.map((s) => ({ nama: s.name, room: s.roomName, progres: s.courseProgress, terakhirAktif: s.lastActiveAt })) };
   } },
-  { name: "get_course_statistics", roles: ["ADMIN"], source: "progress", run: async ({ user }) => {
+  { name: "get_course_statistics", roles: ["ADMIN", "SUPERADMIN"], source: "progress", run: async ({ user }) => {
     const list = await courseService.list(user, {});
     return { jumlahCourse: list.length, course: list.slice(0, 10).map((c) => ({ course: c.title, status: c.status, room: c.roomName })) };
   } },

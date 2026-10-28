@@ -18,8 +18,10 @@ const roomSummary = (room: RoomDoc & { id: string }, courseCount: number) => ({
   createdAt: toIso(room.createdAt),
 });
 
-export const GET = protectedRoute({ roles: ["ADMIN"] }, async ({ user }) => {
-  const snap = await db().collection(C.rooms).where("ownerId", "==", user.id).get();
+export const GET = protectedRoute({ roles: ["ADMIN", "SUPERADMIN"] }, async ({ user }) => {
+  const snap = user.role === "SUPERADMIN"
+    ? await db().collection(C.rooms).get()
+    : await db().collection(C.rooms).where("ownerId", "==", user.id).get();
   const rooms = snap.docs
     .map((d) => ({ id: d.id, ...(d.data() as RoomDoc) }))
     .filter((room) => !room.deletedAt)
@@ -35,7 +37,7 @@ export const GET = protectedRoute({ roles: ["ADMIN"] }, async ({ user }) => {
   return rooms.map((room) => roomSummary(room, countMap.get(room.id) ?? 0));
 });
 
-export const POST = protectedRoute({ roles: ["ADMIN"], body: createRoomSchema }, async ({ user, body }) => {
+export const POST = protectedRoute({ roles: ["ADMIN", "SUPERADMIN"], body: createRoomSchema }, async ({ user, body }) => {
   const createdRoom = await roomService.create(user, body);
   const roomSnap = await db().collection(C.rooms).doc(createdRoom.id).get();
   const room = roomSnap.data() as RoomDoc | undefined;

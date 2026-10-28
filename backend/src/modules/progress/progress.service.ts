@@ -191,7 +191,7 @@ export const progressService = {
   async course(user: AuthUser, courseId: string, studentId?: string) {
     let target = user.id;
     let course: WithId<CourseDoc>;
-    if (user.role === "ADMIN") {
+    if (user.role === "ADMIN" || user.role === "SUPERADMIN") {
       course = await assertCourseOwner(user, courseId);
       if (!studentId) throw Errors.badRequest("Parameter studentId wajib untuk guru.");
       const m = await db().collection(C.roomMembers).doc(`${course.roomId}_${studentId}`).get();

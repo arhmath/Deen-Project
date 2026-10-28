@@ -1177,7 +1177,7 @@ async function route<T>(req: MockReq): Promise<T> {
     if (user.role === "SANTRI") {
       const ids = activeRoomIds(w, ctx.studentId);
       visible = w.rooms.filter((r) => ids.includes(r.id));
-    } else if (user.role === "ADMIN") {
+    } else if ((user.role === "ADMIN" || user.role === "SUPERADMIN")) {
       visible = w.rooms.filter((r) => r.ownerId === user.id && !r.archived);
     }
     const res: RoomSummary[] = visible.map((r) => ({
@@ -1195,7 +1195,7 @@ async function route<T>(req: MockReq): Promise<T> {
       const allowed =
         user.role === "SANTRI"
           ? activeRoomIds(w, ctx.studentId).includes(rid)
-          : user.role === "ADMIN"
+          : (user.role === "ADMIN" || user.role === "SUPERADMIN")
             ? w.rooms.some((r) => r.id === rid && r.ownerId === user.id)
             : false;
       if (!allowed) throw new ApiError("Kamu bukan anggota room ini.", 403);
@@ -1204,7 +1204,7 @@ async function route<T>(req: MockReq): Promise<T> {
   }
 
   /* ---- guru ---- */
-  if (path.startsWith("/admin/")) requireRole(user, "ADMIN");
+  if (path.startsWith("/admin/")) requireRole(user, "ADMIN", "SUPERADMIN");
 
   if (method === "GET" && path === "/admin/overview") {
     const all = studentsOfOwner(user.id);

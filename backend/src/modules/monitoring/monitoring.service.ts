@@ -19,7 +19,11 @@ export const studentsQuery = z.object({
 
 /** Santri aktif di seluruh room milik guru (BR-004: hanya room miliknya). */
 export async function adminScope(admin: AuthUser) {
-  const roomIds = await ownedRoomIds(admin.id);
+  const roomIds = admin.role === "SUPERADMIN"
+    ? (await db().collection(C.rooms).get()).docs
+        .filter((d) => !(d.data() as RoomDoc).deletedAt)
+        .map((d) => d.id)
+    : await ownedRoomIds(admin.id);
   const members = await queryIn<RoomMemberDoc>((v) => db().collection(C.roomMembers).where("roomId", "in", v).where("isActive", "==", true), roomIds);
   const studentIds = [...new Set(members.map((m) => m.data.userId))];
   return { roomIds, studentIds };

@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import LandingPage from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
@@ -27,6 +28,8 @@ const AdminRooms = lazy(() => import("./pages/admin/AdminRooms"));
 const AdminRoomDetail = lazy(() => import("./pages/admin/AdminRoomDetail"));
 const AdminCourses = lazy(() => import("./pages/admin/AdminCourses"));
 const AdminCourseEditor = lazy(() => import("./pages/admin/AdminCourseEditor"));
+const EducatorApplicationPage = lazy(() => import("./pages/EducatorApplicationPage"));
+const AdminEducatorApplications = lazy(() => import("./pages/admin/AdminEducatorApplications"));
 
 function PageFallback() {
   return <div aria-busy="true" aria-label="Memuat halaman"><Skeleton className="mb-4 h-10 w-64" /><Skeleton className="h-64 rounded-3xl" /></div>;
@@ -44,9 +47,21 @@ function NotFound() {
   );
 }
 
+function ScrollToTop() {
+  const { pathname, search, hash } = useLocation();
+
+  useEffect(() => {
+    // Start each route at the top instead of preserving the previous page scroll.
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname, search, hash]);
+
+  return null;
+}
+
 function App() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-brand-cream p-6"><PageFallback /></div>}>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -54,6 +69,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/terms" element={<TermsPage />} />
+        <Route path="/daftar-pendidik" element={<EducatorApplicationPage />} />
 
         {/* Area terautentikasi */}
         <Route element={<RequireAuth />}>
@@ -61,7 +77,7 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/chat" element={<ChatPage />} />
 
-            <Route element={<RequireAuth roles={["SANTRI", "PARENT", "ADMIN"]} />}>
+            <Route element={<RequireAuth roles={["SANTRI", "PARENT", "ADMIN", "SUPERADMIN"]} />}>
               <Route path="/profile" element={<ProfilePage />} />
             </Route>
 
@@ -78,13 +94,14 @@ function App() {
               <Route path="/parent/students/:studentId" element={<ParentStudentDetail />} />
             </Route>
 
-            <Route element={<RequireAuth roles={["ADMIN"]} />}>
+            <Route element={<RequireAuth roles={["ADMIN", "SUPERADMIN"]} />}>
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/rooms" element={<AdminRooms />} />
               <Route path="/admin/rooms/:roomId" element={<AdminRoomDetail />} />
               <Route path="/admin/courses" element={<AdminCourses />} />
               <Route path="/admin/courses/:courseId" element={<AdminCourseEditor />} />
               <Route path="/admin/monitoring" element={<AdminMonitoring />} />
+              <Route element={<RequireAuth roles={["SUPERADMIN"]} />}><Route path="/admin/pendaftar-pendidik" element={<AdminEducatorApplications />} /></Route>
             </Route>
           </Route>
         </Route>

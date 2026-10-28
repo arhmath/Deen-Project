@@ -112,12 +112,12 @@ const normalizeCourseDoc = async (course: Awaited<ReturnType<typeof courseServic
   };
 };
 
-export const GET = protectedRoute({ roles: ["ADMIN"] }, async ({ user, params }) => {
+export const GET = protectedRoute({ roles: ["ADMIN", "SUPERADMIN"] }, async ({ user, params }) => {
   const course = await courseService.get(user, params.courseId!);
   return normalizeCourseDoc(course);
 });
 
-export const PUT = protectedRoute({ roles: ["ADMIN"], body: adminCourseUpdateSchema, maxBodyBytes: 5_000_000 }, async ({ user, params, body }) => {
+export const PUT = protectedRoute({ roles: ["ADMIN", "SUPERADMIN"], body: adminCourseUpdateSchema, maxBodyBytes: 5_000_000 }, async ({ user, params, body }) => {
   const input = body;
   const courseId = params.courseId!;
   // Memastikan course ada dan milik admin ini (melempar 404/403 yang sesuai).
@@ -206,7 +206,7 @@ export const PUT = protectedRoute({ roles: ["ADMIN"], body: adminCourseUpdateSch
 });
 
 /** Hapus course yang sudah diarsipkan (soft delete). Course yang belum diarsipkan ditolak (409). */
-export const DELETE = protectedRoute({ roles: ["ADMIN"] }, async ({ user, params }) => {
+export const DELETE = protectedRoute({ roles: ["ADMIN", "SUPERADMIN"] }, async ({ user, params }) => {
   await courseService.remove(user, params.courseId!);
   return noContent();
 });

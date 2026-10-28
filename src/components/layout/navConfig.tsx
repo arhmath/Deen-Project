@@ -44,4 +44,13 @@ export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { label: "Profile", to: "/profile", icon: ProfileIcon },
     { label: "Chatbot", to: "/chat", icon: ChatIcon },
   ],
+  SUPERADMIN: [
+    { label: "Dashboard", to: "/admin", icon: HomeIcon, end: true },
+    { label: "Rooms", to: "/admin/rooms", icon: DoorIcon },
+    { label: "Pembelajaran", to: "/admin/courses", icon: BookOpenIcon },
+    { label: "Monitoring", to: "/admin/monitoring", icon: ChartIcon },
+    { label: "Pendaftar Pendidik", to: "/admin/pendaftar-pendidik", icon: UsersIcon },
+    { label: "Profile", to: "/profile", icon: ProfileIcon },
+    { label: "Chatbot", to: "/chat", icon: ChatIcon },
+  ],
 };

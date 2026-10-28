@@ -21,10 +21,15 @@ export function CtaBanner() {
         <p className="mx-auto mt-3 max-w-md font-body text-white/80">
           Daftar gratis, gabung ke room kelas, dan kumpulkan XP pertamamu.
         </p>
-        <div className="mt-8 flex justify-center gap-4">
+        <div className="mt-8 flex flex-wrap justify-center gap-4">
           <Link to="/register">
             <Button variant="secondary" size="lg" className="text-white font-bold">
               Daftar Sekarang
+            </Button>
+          </Link>
+          <Link to="/daftar-pendidik">
+            <Button variant="outline" size="lg" className="border-white/50 !bg-white !text-brand-purple-fg hover:!bg-white/90">
+              Daftarkan diri sebagai tenaga pendidik
             </Button>
           </Link>
         </div>

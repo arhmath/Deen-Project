@@ -1,7 +1,7 @@
 import type { Timestamp } from "firebase-admin/firestore";
 
-export type Role = "SANTRI" | "PARENT" | "ADMIN";
-export const ROLES: readonly Role[] = ["SANTRI", "PARENT", "ADMIN"];
+export type Role = "SANTRI" | "PARENT" | "ADMIN" | "SUPERADMIN";
+export const ROLES: readonly Role[] = ["SANTRI", "PARENT", "ADMIN", "SUPERADMIN"];
 
 export interface UserDoc {
   name: string;

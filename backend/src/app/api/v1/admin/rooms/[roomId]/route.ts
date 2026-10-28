@@ -19,7 +19,7 @@ const normalizeMember = (m: { id: string; name: string; username: string; level:
   lastActiveAt: m.joinedAt ?? "",
 });
 
-export const GET = protectedRoute({ roles: ["ADMIN"] }, async ({ user, params }) => {
+export const GET = protectedRoute({ roles: ["ADMIN", "SUPERADMIN"] }, async ({ user, params }) => {
   const roomId = params.roomId!;
   const room = await roomService.get(user, roomId);
   const members = await roomService.members(user, roomId);
@@ -66,7 +66,7 @@ export const GET = protectedRoute({ roles: ["ADMIN"] }, async ({ user, params })
   };
 });
 
-export const PATCH = protectedRoute({ roles: ["ADMIN"], body: updateRoomSchema }, async ({ user, params, body }) => {
+export const PATCH = protectedRoute({ roles: ["ADMIN", "SUPERADMIN"], body: updateRoomSchema }, async ({ user, params, body }) => {
   const updated = await roomService.update(user, params.roomId!, body);
   const courseCountSnap = await db().collection(C.courses).where("roomId", "==", params.roomId!).where("deletedAt", "==", null).get();
   return {
@@ -85,7 +85,7 @@ export const PATCH = protectedRoute({ roles: ["ADMIN"], body: updateRoomSchema }
  *  - tanpa query            → arsipkan (perilaku lama)
  *  - ?permanent=true        → hapus room yang SUDAH diarsipkan
  */
-export const DELETE = protectedRoute({ roles: ["ADMIN"], query: z.object({ permanent: z.enum(["true", "false"]).optional() }) }, async ({ user, params, query }) => {
+export const DELETE = protectedRoute({ roles: ["ADMIN", "SUPERADMIN"], query: z.object({ permanent: z.enum(["true", "false"]).optional() }) }, async ({ user, params, query }) => {
   if (query.permanent === "true") await roomService.remove(user, params.roomId!);
   else await roomService.archive(user, params.roomId!);
   return { ok: true };

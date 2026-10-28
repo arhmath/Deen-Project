@@ -15,7 +15,7 @@ export async function loadCourse(courseId: string): Promise<WithId<CourseDoc>> {
 /** Course boleh diubah hanya oleh creator-nya (BR-004). */
 export async function assertCourseOwner(admin: AuthUser, courseId: string): Promise<WithId<CourseDoc>> {
   const c = await loadCourse(courseId);
-  if (c.creatorId !== admin.id) throw Errors.forbidden("Course ini bukan milikmu.");
+  if (admin.role !== "SUPERADMIN" && c.creatorId !== admin.id) throw Errors.forbidden("Course ini bukan milikmu.");
   return c;
 }
 

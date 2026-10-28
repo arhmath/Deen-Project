@@ -122,7 +122,7 @@ function SantriDashboard() {
 /** /dashboard menyesuaikan role dari sesi server. */
 export default function DashboardPage() {
   const user = useSessionUser();
-  if (user.role === "ADMIN") return <Navigate to="/admin" replace />;
+  if (user.role === "ADMIN" || user.role === "SUPERADMIN") return <Navigate to="/admin" replace />;
   if (user.role === "PARENT") return <ParentOverview />;
   return <SantriDashboard />;
 }

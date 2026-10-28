@@ -15,7 +15,7 @@ export async function loadRoom(roomId: string): Promise<RoomDoc> {
 /** ADMIN hanya boleh mengelola room miliknya (BR-004). */
 export async function assertRoomOwner(user: AuthUser, roomId: string): Promise<RoomDoc> {
   const r = await loadRoom(roomId);
-  if (r.ownerId !== user.id) throw Errors.forbidden("Room ini bukan milikmu.");
+  if (user.role !== "SUPERADMIN" && r.ownerId !== user.id) throw Errors.forbidden("Room ini bukan milikmu.");
   return r;
 }
 

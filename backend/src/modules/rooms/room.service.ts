@@ -70,6 +70,10 @@ export const roomService = {
     let ids: string[] = [];
     if (user.role === "SANTRI") ids = await activeRoomIdsOfStudent(user.id);
     else if (user.role === "ADMIN") ids = await ownedRoomIds(user.id);
+    else if (user.role === "SUPERADMIN") {
+      const snap = await db().collection(C.rooms).get();
+      ids = snap.docs.filter((d) => !(d.data() as RoomDoc).deletedAt).map((d) => d.id);
+    }
     else {
       const links = await db().collection(C.parentStudents).where("parentId", "==", user.id).where("status", "==", "ACTIVE").get();
       const sets = await Promise.all(links.docs.map((d) => activeRoomIdsOfStudent(d.data().studentId as string)));
@@ -78,20 +82,20 @@ export const roomService = {
     const rooms = await getByIds<RoomDoc>(C.rooms, ids);
     return rooms
       .filter((r) => !r.data.deletedAt && r.data.status === "ACTIVE")
-      .map((r) => toSummary(r.id, r.data, user.role === "ADMIN" && r.data.ownerId === user.id))
+      .map((r) => toSummary(r.id, r.data, (user.role === "SUPERADMIN" || (user.role === "ADMIN" && r.data.ownerId === user.id))))
       .sort((a, b) => a.name.localeCompare(b.name));
   },
 
   async get(user: AuthUser, roomId: string) {
     const room = await loadRoom(roomId);
-    if (user.role === "ADMIN") {
-      if (room.ownerId !== user.id) throw Errors.forbidden("Room ini bukan milikmu.");
+    if (user.role === "ADMIN" || user.role === "SUPERADMIN") {
+      if (user.role !== "SUPERADMIN" && room.ownerId !== user.id) throw Errors.forbidden("Room ini bukan milikmu.");
     } else if (user.role === "SANTRI") {
       if (!(await isActiveMember(roomId, user.id))) throw Errors.forbidden("Kamu bukan anggota room ini.");
     } else {
       throw Errors.forbidden();
     }
-    return { ...toSummary(roomId, room, room.ownerId === user.id), createdAt: toIso(room.createdAt) };
+    return { ...toSummary(roomId, room, user.role === "SUPERADMIN" || room.ownerId === user.id), createdAt: toIso(room.createdAt) };
   },
 
   async update(admin: AuthUser, roomId: string, input: UpdateRoomInput) {
