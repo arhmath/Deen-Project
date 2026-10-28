@@ -3,7 +3,7 @@ import { z } from "zod";
 const schema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   APP_TIMEZONE: z.string().default("Asia/Jakarta"),
-  CORS_ORIGIN: z.string().default("http://localhost:5173"),
+  CORS_ORIGIN: z.string().default("https://web-deen.vercel.app"),
 
   JWT_ACCESS_SECRET: z.string().min(32, "JWT_ACCESS_SECRET minimal 32 karakter"),
   JWT_REFRESH_SECRET: z.string().min(32, "JWT_REFRESH_SECRET minimal 32 karakter"),
@@ -13,7 +13,7 @@ const schema = z.object({
   PASSWORD_RESET_TTL_MIN: z.coerce.number().int().min(5).max(120).default(30),
 
   // URL frontend (dipakai membentuk tautan reset password di email)
-  APP_URL: z.string().default("http://localhost:5173"),
+  APP_URL: z.string().default("https://web-deen.vercel.app"),
   // SMTP untuk pengiriman email. Kosongkan SMTP_HOST di development: tautan reset hanya dicetak ke log server.
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().int().min(1).max(65535).default(587),

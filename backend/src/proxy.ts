@@ -6,7 +6,7 @@ import { NextResponse, type NextRequest } from "next/server";
  */
 export function proxy(req: NextRequest) {
   const origin = req.headers.get("origin");
-  const allowed = (process.env.CORS_ORIGIN ?? "http://localhost:5173")
+  const allowed = (process.env.CORS_ORIGIN ?? "https://web-deen.vercel.app")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
