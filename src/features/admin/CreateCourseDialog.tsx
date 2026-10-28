@@ -6,7 +6,13 @@ import { fieldCls, labelCls } from "../../components/ui/fieldStyles";
 import { ApiError, errorMessage } from "../../services/api";
 import { useAdminRooms, useCreateCourse } from "./queries";
 import { adminService } from "../../services/adminService";
-import { COURSE_TEMPLATES, instantiateCourseTemplate } from "./courseTemplates";
+import { COURSE_CATEGORIES, COURSE_TEMPLATES, instantiateCourseTemplate, templatesByCategory } from "./courseTemplates";
+
+const optionCls = (selected: boolean) =>
+  [
+    "w-full rounded-2xl border-2 px-4 py-2.5 text-left text-brand-ink transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue",
+    selected ? "border-brand-purple bg-brand-purple/10" : "border-brand-ink/10 bg-surface hover:border-brand-purple/40",
+  ].join(" ");
 
 /** Buat course baru (selalu DRAFT). `roomId` diisi jika dibuka dari halaman room. */
 export function CreateCourseDialog({
@@ -24,10 +30,12 @@ export function CreateCourseDialog({
   const [pickedRoom, setPickedRoom] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [templateId, setTemplateId] = useState("");
 
   const activeRooms = (rooms.data ?? []).filter((r) => !r.archived);
   const selectedRoom = roomId ?? (pickedRoom || activeRooms[0]?.id || "");
+  const categoryTemplates = categoryId ? templatesByCategory(categoryId) : [];
   const titleError = create.error instanceof ApiError ? create.error.fieldErrors?.title : undefined;
 
   function submit(e: FormEvent) {
@@ -55,6 +63,7 @@ export function CreateCourseDialog({
           }
           setTitle("");
           setDescription("");
+          setCategoryId("");
           setTemplateId("");
           onClose();
           navigate(`/admin/courses/${course.id}`);
@@ -76,28 +85,61 @@ export function CreateCourseDialog({
           </div>
         )}
         <div>
-          <label htmlFor="course-template" className={labelCls}>Mulai dari template materi (opsional)</label>
+          <label htmlFor="course-kategori" className={labelCls}>Kategori</label>
           <select
-            id="course-template"
-            value={templateId}
+            id="course-kategori"
+            value={categoryId}
             onChange={(e) => {
-              const nextId = e.target.value;
-              const template = COURSE_TEMPLATES.find((item) => item.id === nextId);
-              setTemplateId(nextId);
-              if (template) {
-                setTitle(template.title);
-                setDescription(template.description);
-              }
+              setCategoryId(e.target.value);
+              setTemplateId("");
             }}
             className={fieldCls}
           >
-            <option value="">Course kosong — buat sendiri</option>
-            {COURSE_TEMPLATES.map((template) => (
-              <option key={template.id} value={template.id}>{template.title}</option>
+            <option value="">Tanpa kategori — course kosong</option>
+            {COURSE_CATEGORIES.map((category) => (
+              <option key={category.id} value={category.id}>{category.label}</option>
             ))}
           </select>
-          <p className="mt-1.5 text-sm text-brand-ink/60">Template berisi modul, materi, kartu hafalan, dan kuis yang bisa diedit sebelum dipublikasikan.</p>
+          <p className="mt-1.5 text-sm text-brand-ink/60">Pilih kategori untuk melihat materi default yang bisa langsung dipakai.</p>
         </div>
+        {categoryId && (
+          <fieldset>
+            <legend className={labelCls}>Isi materi default (opsional)</legend>
+            <div className="mt-1 flex flex-col gap-2">
+              <button
+                type="button"
+                aria-pressed={templateId === ""}
+                onClick={() => setTemplateId("")}
+                className={optionCls(templateId === "")}
+              >
+                <span className="font-display text-sm font-bold">Course kosong — buat sendiri</span>
+              </button>
+              {categoryTemplates.map((template) => {
+                const selected = templateId === template.id;
+                const contentCount = template.modules.reduce((total, mod) => total + mod.contents.length, 0);
+                return (
+                  <button
+                    key={template.id}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => {
+                      setTemplateId(template.id);
+                      setTitle(template.title);
+                      setDescription(template.description);
+                    }}
+                    className={optionCls(selected)}
+                  >
+                    <span className="font-display text-sm font-bold">{template.title}</span>
+                    <span className="mt-0.5 block text-xs text-brand-ink/60">
+                      {template.modules.length} modul · {contentCount} materi — {template.description}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-1.5 text-sm text-brand-ink/60">Materi default berisi modul, materi, kartu hafalan, dan kuis yang bisa diedit sebelum dipublikasikan.</p>
+          </fieldset>
+        )}
         <div>
           <label htmlFor="course-judul" className={labelCls}>Judul course</label>
           <input

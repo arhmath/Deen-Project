@@ -7,8 +7,20 @@ type TemplateContent = Omit<ContentDoc, "id" | "sections" | "cards" | "questions
   questions?: { text: string; options: { id: string; text: string }[]; correctOptionId: string; explanation: string }[];
 };
 type TemplateModule = { title: string; contents: TemplateContent[] };
+/** Kategori materi yang ditetapkan. Ustadz/admin hanya bisa memilih dari daftar ini. */
+export const COURSE_CATEGORIES = [
+  { id: "fikih", label: "Fikih" },
+  { id: "tauhid", label: "Tauhid" },
+  { id: "quran-tajwid", label: "Al Qur'an dan Tajwid" },
+  { id: "hafalan-doa", label: "Hafalan Doa" },
+  { id: "sejarah-nabi", label: "Sejarah Nabi" },
+  { id: "akidah-akhlak", label: "Akidah Akhlak" },
+] as const;
+export type CourseCategoryId = (typeof COURSE_CATEGORIES)[number]["id"];
+
 export interface CourseTemplate {
   id: string;
+  category: CourseCategoryId;
   title: string;
   description: string;
   modules: TemplateModule[];
@@ -23,7 +35,7 @@ const quiz = (title: string, entries: { text: string; options: { id: string; tex
 
 export const COURSE_TEMPLATES: CourseTemplate[] = [
   {
-    id: "tajwid-nun", title: "Tajwid Dasar: Hukum Nun Mati dan Tanwin",
+    id: "tajwid-nun", category: "quran-tajwid", title: "Tajwid Dasar: Hukum Nun Mati dan Tanwin",
     description: "Mengenal empat hukum nun sukun dan tanwin beserta contoh bacaannya.",
     modules: [
       { title: "Mengenal Nun Mati dan Tanwin", contents: [
@@ -51,7 +63,7 @@ export const COURSE_TEMPLATES: CourseTemplate[] = [
     ],
   },
   {
-    id: "tajwid-mim", title: "Tajwid Dasar: Hukum Mim Mati",
+    id: "tajwid-mim", category: "quran-tajwid", title: "Tajwid Dasar: Hukum Mim Mati",
     description: "Belajar izhar syafawi, ikhfa syafawi, dan idgham mimi.",
     modules: [
       { title: "Tiga Hukum Mim Mati", contents: [
@@ -74,7 +86,7 @@ export const COURSE_TEMPLATES: CourseTemplate[] = [
     ],
   },
   {
-    id: "kisah-nabi", title: "Kisah Para Nabi untuk Anak",
+    id: "kisah-nabi", category: "sejarah-nabi", title: "Kisah Para Nabi untuk Anak",
     description: "Mengenal kisah pilihan para nabi dan mengambil pelajaran akhlak dari kisahnya.",
     modules: [
       { title: "Nabi Adam dan Nabi Nuh", contents: [
@@ -104,7 +116,7 @@ export const COURSE_TEMPLATES: CourseTemplate[] = [
     ],
   },
   {
-    id: "doa-harian", title: "Hafalan Doa Sehari-hari",
+    id: "doa-harian", category: "hafalan-doa", title: "Hafalan Doa Sehari-hari",
     description: "Materi dan kartu hafalan doa pendek untuk kegiatan harian anak.",
     modules: [
       { title: "Doa Sebelum dan Sesudah Beraktivitas", contents: [
@@ -132,7 +144,7 @@ export const COURSE_TEMPLATES: CourseTemplate[] = [
     ],
   },
   {
-    id: "hijaiyah", title: "Kartu Hafalan Huruf Hijaiyah",
+    id: "hijaiyah", category: "quran-tajwid", title: "Kartu Hafalan Huruf Hijaiyah",
     description: "Kartu belajar mengenali huruf hijaiyah dan nama hurufnya.",
     modules: [
       { title: "Mengenal Huruf Hijaiyah", contents: [
@@ -155,7 +167,218 @@ export const COURSE_TEMPLATES: CourseTemplate[] = [
       ] },
     ],
   },
+  // ───────────── Fikih ─────────────
+  {
+    id: "fikih-wudhu", category: "fikih", title: "Fikih Dasar: Tata Cara Wudhu",
+    description: "Mengenal rukun, urutan, dan hal yang membatalkan wudhu.",
+    modules: [
+      { title: "Belajar Berwudhu", contents: [
+        lesson("Urutan Wudhu", [
+          { heading: "Pengertian", text: "Wudhu adalah bersuci dengan air pada anggota tubuh tertentu agar sah melaksanakan shalat dan ibadah lain yang mensyaratkan bersuci." },
+          { heading: "Urutan wudhu", text: "Berniat, membasuh wajah, membasuh kedua tangan sampai siku, mengusap sebagian kepala, membasuh kedua kaki sampai mata kaki, lalu dilakukan berurutan. Sebelumnya dianjurkan membaca bismillah dan berkumur serta membersihkan hidung." },
+          { heading: "Catatan", text: "Rincian rukun wudhu mengikuti mazhab yang diajarkan di TPA/pesantren masing-masing. Pengajar dapat menyesuaikan materi ini." },
+        ]),
+        lesson("Hal yang Membatalkan Wudhu", [
+          { heading: "Pembatal wudhu", text: "Di antara yang membatalkan wudhu: keluar sesuatu dari qubul atau dubur (buang air kecil, buang air besar, kentut), tidur nyenyak, dan hilang akal (pingsan)." },
+          { heading: "Jika batal", text: "Jika wudhu batal dan akan shalat, santri perlu berwudhu kembali." },
+        ]),
+        cards("Kartu Anggota Wudhu", [
+          { front: "Anggota wudhu pertama yang dibasuh", back: "Wajah." },
+          { front: "Tangan dibasuh sampai ...", back: "Siku." },
+          { front: "Kaki dibasuh sampai ...", back: "Mata kaki." },
+          { front: "Yang membatalkan wudhu", back: "Buang air, kentut, tidur nyenyak, dan hilang akal." },
+        ]),
+        quiz("Kuis Wudhu", [
+          { text: "Anggota wudhu yang pertama dibasuh setelah niat adalah ...", options: [{ id: "a", text: "Wajah" }, { id: "b", text: "Kaki" }, { id: "c", text: "Tangan" }], correctOptionId: "a", explanation: "Setelah niat, yang dibasuh pertama adalah wajah." },
+          { text: "Manakah yang membatalkan wudhu?", options: [{ id: "a", text: "Makan nasi" }, { id: "b", text: "Buang air kecil" }, { id: "c", text: "Membaca doa" }], correctOptionId: "b", explanation: "Keluarnya sesuatu dari qubul atau dubur membatalkan wudhu." },
+        ]),
+      ] },
+    ],
+  },
+  {
+    id: "fikih-shalat", category: "fikih", title: "Fikih Dasar: Shalat Lima Waktu",
+    description: "Mengenal nama waktu shalat fardhu dan jumlah rakaatnya.",
+    modules: [
+      { title: "Shalat Fardhu", contents: [
+        lesson("Lima Waktu Shalat", [
+          { heading: "Shalat fardhu", text: "Muslim yang sudah baligh wajib melaksanakan shalat lima waktu sehari semalam. Anak-anak dilatih sejak dini agar terbiasa dengan penuh kasih sayang." },
+          { heading: "Nama dan jumlah rakaat", text: "Subuh 2 rakaat, Zuhur 4 rakaat, Asar 4 rakaat, Magrib 3 rakaat, dan Isya 4 rakaat." },
+        ]),
+        cards("Kartu Rakaat Shalat", [
+          { front: "Subuh", back: "2 rakaat" },
+          { front: "Zuhur", back: "4 rakaat" },
+          { front: "Asar", back: "4 rakaat" },
+          { front: "Magrib", back: "3 rakaat" },
+          { front: "Isya", back: "4 rakaat" },
+        ]),
+        quiz("Kuis Shalat Lima Waktu", [
+          { text: "Shalat Magrib terdiri dari ... rakaat.", options: [{ id: "a", text: "2" }, { id: "b", text: "3" }, { id: "c", text: "4" }], correctOptionId: "b", explanation: "Magrib 3 rakaat." },
+          { text: "Shalat yang jumlahnya 2 rakaat adalah ...", options: [{ id: "a", text: "Subuh" }, { id: "b", text: "Asar" }, { id: "c", text: "Isya" }], correctOptionId: "a", explanation: "Subuh 2 rakaat." },
+        ]),
+      ] },
+    ],
+  },
+  {
+    id: "fikih-thaharah", category: "fikih", title: "Fikih Dasar: Thaharah (Bersuci)",
+    description: "Mengenal makna bersuci serta cara bersuci: wudhu, mandi, dan tayamum.",
+    modules: [
+      { title: "Mengenal Thaharah", contents: [
+        lesson("Makna dan Macam Bersuci", [
+          { heading: "Thaharah", text: "Thaharah berarti bersuci dari hadats dan najis. Kebersihan adalah bagian penting dari ajaran Islam dan syarat sahnya shalat." },
+          { heading: "Cara bersuci", text: "Bersuci dari hadats kecil dengan wudhu, dari hadats besar dengan mandi, dan jika tidak ada air atau tidak dapat memakainya, dengan tayamum." },
+        ]),
+        cards("Kartu Bersuci", [
+          { front: "Bersuci dari hadats kecil", back: "Wudhu" },
+          { front: "Bersuci dari hadats besar", back: "Mandi" },
+          { front: "Pengganti wudhu/mandi saat tidak ada air", back: "Tayamum" },
+        ]),
+        quiz("Kuis Thaharah", [
+          { text: "Pengganti wudhu ketika tidak ada air adalah ...", options: [{ id: "a", text: "Tayamum" }, { id: "b", text: "Istirahat" }, { id: "c", text: "Berkumur" }], correctOptionId: "a", explanation: "Tayamum menggantikan wudhu atau mandi saat air tidak ada atau tidak dapat digunakan." },
+          { text: "Thaharah artinya ...", options: [{ id: "a", text: "Bersuci" }, { id: "b", text: "Berpuasa" }, { id: "c", text: "Bersedekah" }], correctOptionId: "a", explanation: "Thaharah berarti bersuci." },
+        ]),
+      ] },
+    ],
+  },
+
+  // ───────────── Tauhid ─────────────
+  {
+    id: "tauhid-allah-esa", category: "tauhid", title: "Tauhid Dasar: Mengenal Allah Yang Maha Esa",
+    description: "Mengenal Allah sebagai satu-satunya Tuhan dan beberapa Asmaul Husna.",
+    modules: [
+      { title: "Allah Yang Maha Esa", contents: [
+        lesson("Allah Itu Esa", [
+          { heading: "Makna tauhid", text: "Tauhid berarti meyakini bahwa Allah itu Esa, pencipta dan pengatur seluruh alam, dan hanya Dia yang berhak disembah." },
+          { heading: "Surat Al-Ikhlas", text: "Surat Al-Ikhlas mengajarkan tentang keesaan Allah dan menjadi dasar keyakinan seorang muslim." },
+        ]),
+        cards("Kartu Asmaul Husna", [
+          { front: "Ar-Rahman", back: "Maha Pengasih" },
+          { front: "Ar-Rahim", back: "Maha Penyayang" },
+          { front: "Al-Khaliq", back: "Maha Pencipta" },
+          { front: "As-Sami'", back: "Maha Mendengar" },
+          { front: "Al-Bashir", back: "Maha Melihat" },
+        ]),
+        quiz("Kuis Tauhid Dasar", [
+          { text: "Allah bersifat ...", options: [{ id: "a", text: "Esa" }, { id: "b", text: "Banyak" }, { id: "c", text: "Dua" }], correctOptionId: "a", explanation: "Allah itu Esa." },
+          { text: "Arti Al-Khaliq adalah ...", options: [{ id: "a", text: "Maha Pencipta" }, { id: "b", text: "Maha Mendengar" }, { id: "c", text: "Maha Melihat" }], correctOptionId: "a", explanation: "Al-Khaliq berarti Maha Pencipta." },
+        ]),
+      ] },
+    ],
+  },
+  {
+    id: "tauhid-hanya-allah", category: "tauhid", title: "Tauhid Dasar: Hanya Allah yang Disembah",
+    description: "Belajar beribadah, berdoa, dan bertawakal hanya kepada Allah.",
+    modules: [
+      { title: "Beribadah Hanya kepada Allah", contents: [
+        lesson("Menyembah dan Memohon kepada Allah", [
+          { heading: "Hanya kepada Allah", text: "Seorang muslim menyembah, berdoa, dan memohon pertolongan hanya kepada Allah. Tidak menyekutukan Allah dengan apa pun." },
+          { heading: "Bertawakal", text: "Setelah berusaha sebaik-baiknya, kita bertawakal, yaitu menyerahkan hasilnya kepada Allah dan percaya bahwa keputusan-Nya terbaik." },
+        ]),
+        cards("Kartu Tauhid", [
+          { front: "Kepada siapa kita menyembah?", back: "Hanya kepada Allah." },
+          { front: "Tawakal", back: "Berusaha lalu menyerahkan hasilnya kepada Allah." },
+        ]),
+        quiz("Kuis Hanya Allah yang Disembah", [
+          { text: "Kepada siapa kita berdoa dan memohon pertolongan?", options: [{ id: "a", text: "Allah" }, { id: "b", text: "Benda keramat" }, { id: "c", text: "Siapa saja" }], correctOptionId: "a", explanation: "Kita berdoa dan memohon pertolongan hanya kepada Allah." },
+          { text: "Menyerahkan hasil usaha kepada Allah disebut ...", options: [{ id: "a", text: "Tawakal" }, { id: "b", text: "Malas" }, { id: "c", text: "Sombong" }], correctOptionId: "a", explanation: "Itulah makna tawakal." },
+        ]),
+      ] },
+    ],
+  },
+
+  // ───────────── Hafalan Doa ─────────────
+  {
+    id: "doa-belajar-orangtua", category: "hafalan-doa", title: "Doa Belajar dan Doa untuk Orang Tua",
+    description: "Hafalan doa menuntut ilmu, doa untuk kedua orang tua, dan doa kebaikan dunia akhirat.",
+    modules: [
+      { title: "Doa-doa Pilihan", contents: [
+        lesson("Doa Menuntut Ilmu dan untuk Orang Tua", [
+          { heading: "Doa menuntut ilmu", text: "رَبِّ زِدْنِي عِلْمًا (Rabbi zidni 'ilma) — “Ya Tuhanku, tambahkanlah ilmu kepadaku.”" },
+          { heading: "Doa untuk orang tua", text: "رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا — mohon ampunan bagi diri sendiri dan kedua orang tua, serta kasih sayang untuk mereka. Pengajar perlu memeriksa pelafalan sebelum materi dipublikasikan." },
+        ]),
+        cards("Kartu Hafalan Doa Pilihan", [
+          { front: "Doa menuntut ilmu", back: "رَبِّ زِدْنِي عِلْمًا — Rabbi zidni 'ilma." },
+          { front: "Doa kebaikan dunia dan akhirat", back: "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ — Rabbana atina fid-dunya hasanah wa fil-akhirati hasanah wa qina 'adzaban-nar." },
+        ]),
+        quiz("Kuis Doa Pilihan", [
+          { text: "Doa “Rabbi zidni 'ilma” dibaca ketika ...", options: [{ id: "a", text: "Ingin bertambah ilmu" }, { id: "b", text: "Mau makan" }, { id: "c", text: "Mau tidur" }], correctOptionId: "a", explanation: "Artinya: Ya Tuhanku, tambahkanlah ilmu kepadaku." },
+        ]),
+      ] },
+    ],
+  },
+
+  // ───────────── Sejarah Nabi ─────────────
+  {
+    id: "kisah-yusuf-musa", category: "sejarah-nabi", title: "Kisah Nabi Yusuf a.s. dan Nabi Musa a.s.",
+    description: "Pelajaran sabar, jujur, memaafkan, dan keberanian dari kisah dua nabi.",
+    modules: [
+      { title: "Nabi Yusuf dan Nabi Musa", contents: [
+        lesson("Kisah Nabi Yusuf a.s.", [
+          { heading: "Sabar dan jujur", text: "Nabi Yusuf a.s. diuji dengan berbagai cobaan sejak kecil, tetapi tetap sabar, jujur, dan menjaga diri dari perbuatan buruk." },
+          { heading: "Pelajaran", text: "Kita belajar bersabar, jujur, dan memaafkan kesalahan orang lain." },
+        ]),
+        lesson("Kisah Nabi Musa a.s.", [
+          { heading: "Berani menyampaikan kebenaran", text: "Nabi Musa a.s. diutus kepada Fir'aun untuk mengajak beribadah kepada Allah. Beliau berani menyampaikan kebenaran dan Allah menolongnya." },
+          { heading: "Pelajaran", text: "Percayalah pada pertolongan Allah dan beranilah dalam kebenaran dengan tetap berakhlak baik." },
+        ]),
+        quiz("Kuis Yusuf dan Musa", [
+          { text: "Sifat yang dapat diteladani dari Nabi Yusuf a.s. adalah ...", options: [{ id: "a", text: "Sabar dan jujur" }, { id: "b", text: "Pemarah" }, { id: "c", text: "Pendendam" }], correctOptionId: "a", explanation: "Nabi Yusuf a.s. teladan dalam kesabaran dan kejujuran." },
+          { text: "Nabi Musa a.s. diutus untuk berdakwah kepada ...", options: [{ id: "a", text: "Fir'aun" }, { id: "b", text: "Kaum Nuh" }, { id: "c", text: "Raja Sulaiman" }], correctOptionId: "a", explanation: "Nabi Musa a.s. berdakwah kepada Fir'aun dan kaumnya." },
+        ]),
+      ] },
+    ],
+  },
+
+  // ───────────── Akidah Akhlak ─────────────
+  {
+    id: "akidah-rukun-iman", category: "akidah-akhlak", title: "Akidah Dasar: Rukun Iman",
+    description: "Mengenal enam rukun iman secara sederhana.",
+    modules: [
+      { title: "Enam Rukun Iman", contents: [
+        lesson("Mengenal Rukun Iman", [
+          { heading: "Rukun iman", text: "Rukun iman ada enam: iman kepada Allah, malaikat-malaikat-Nya, kitab-kitab-Nya, rasul-rasul-Nya, hari akhir, serta qada dan qadar." },
+          { heading: "Makna iman", text: "Iman berarti meyakini dengan hati, mengucapkan dengan lisan, dan mengamalkan dengan perbuatan." },
+        ]),
+        cards("Kartu Rukun Iman", [
+          { front: "Iman ke-1", back: "Iman kepada Allah" },
+          { front: "Iman ke-2", back: "Iman kepada malaikat" },
+          { front: "Iman ke-3", back: "Iman kepada kitab-kitab Allah" },
+          { front: "Iman ke-4", back: "Iman kepada rasul" },
+          { front: "Iman ke-5", back: "Iman kepada hari akhir" },
+          { front: "Iman ke-6", back: "Iman kepada qada dan qadar" },
+        ]),
+        quiz("Kuis Rukun Iman", [
+          { text: "Jumlah rukun iman adalah ...", options: [{ id: "a", text: "Lima" }, { id: "b", text: "Enam" }, { id: "c", text: "Tujuh" }], correctOptionId: "b", explanation: "Rukun iman ada enam." },
+          { text: "Rukun iman yang pertama adalah ...", options: [{ id: "a", text: "Iman kepada Allah" }, { id: "b", text: "Iman kepada hari akhir" }, { id: "c", text: "Iman kepada rasul" }], correctOptionId: "a", explanation: "Rukun iman pertama adalah iman kepada Allah." },
+        ]),
+      ] },
+    ],
+  },
+  {
+    id: "akhlak-terpuji", category: "akidah-akhlak", title: "Akhlak Terpuji Sehari-hari",
+    description: "Membiasakan jujur, sopan, hormat kepada orang tua dan guru, serta berbagi.",
+    modules: [
+      { title: "Akhlak Baik", contents: [
+        lesson("Contoh Akhlak Terpuji", [
+          { heading: "Jujur dan amanah", text: "Berkata benar, menepati janji, dan menjaga amanah adalah akhlak terpuji yang dicintai Allah." },
+          { heading: "Hormat dan santun", text: "Menghormati orang tua dan guru, berbicara dengan santun, serta menyayangi teman dan sesama makhluk." },
+          { heading: "Berbagi", text: "Senang berbagi dengan teman dan membantu orang yang membutuhkan." },
+        ]),
+        cards("Kartu Akhlak Terpuji", [
+          { front: "Jujur", back: "Berkata dan bertindak sesuai kenyataan." },
+          { front: "Sopan santun", back: "Berbicara baik dan menghormati orang lain." },
+          { front: "Berbagi", back: "Membantu dan memberi kepada yang membutuhkan." },
+        ]),
+        quiz("Kuis Akhlak Terpuji", [
+          { text: "Sikap yang baik kepada orang tua dan guru adalah ...", options: [{ id: "a", text: "Menghormati" }, { id: "b", text: "Membantah kasar" }, { id: "c", text: "Mengabaikan" }], correctOptionId: "a", explanation: "Kita wajib menghormati orang tua dan guru." },
+          { text: "Menepati janji termasuk akhlak ...", options: [{ id: "a", text: "Terpuji" }, { id: "b", text: "Tercela" }, { id: "c", text: "Biasa saja" }], correctOptionId: "a", explanation: "Menepati janji adalah akhlak terpuji." },
+        ]),
+      ] },
+    ],
+  },
 ];
+
+export const templatesByCategory = (category: string): CourseTemplate[] =>
+  COURSE_TEMPLATES.filter((template) => template.category === category);
 
 export function instantiateCourseTemplate(template: CourseTemplate, course: CourseDoc): CourseDoc {
   const modules: ModuleDoc[] = template.modules.map((mod) => ({
