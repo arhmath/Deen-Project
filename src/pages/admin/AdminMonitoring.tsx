@@ -12,6 +12,8 @@ import { FlameIcon } from "../../components/landing/DecorativeIcons";
 import { useAdminStudents } from "../../features/dashboard/queries";
 import { clsx } from "../../lib/clsx";
 import { formatNumber, timeAgo } from "../../utils/format";
+import { exportStudentsXlsx } from "../../utils/exportStudents";
+import { errorMessage } from "../../services/api";
 
 const PAGE_SIZE = 8;
 const SORTS = [
@@ -38,11 +40,33 @@ export default function AdminMonitoring() {
   }, [search]);
 
   const query = useAdminStudents({ page, pageSize: PAGE_SIZE, q, room, sort });
+  const [exporting, setExporting] = useState(false);
+  const [exportMsg, setExportMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  async function handleExport() {
+    setExporting(true);
+    setExportMsg(null);
+    try {
+      const n = await exportStudentsXlsx({ q, room, sort });
+      setExportMsg(n === 0 ? { ok: false, text: "Tidak ada data santri untuk diunduh." } : { ok: true, text: `${n} santri berhasil diunduh.` });
+    } catch (e) {
+      setExportMsg({ ok: false, text: errorMessage(e, "Gagal membuat spreadsheet. Coba lagi ya.") });
+    } finally {
+      setExporting(false);
+    }
+  }
   const totalPages = query.data ? Math.max(1, Math.ceil(query.data.total / PAGE_SIZE)) : 1;
 
   return (
     <>
-      <PageHeader title="Monitoring santri" subtitle="Pantau XP, streak, progres, dan skor setiap santri." />
+      <PageHeader
+        title="Monitoring santri"
+        subtitle="Pantau XP, streak, progres, dan skor setiap santri."
+        actions={<Button size="sm" variant="outline" isLoading={exporting} onClick={handleExport}>Unduh spreadsheet</Button>}
+      />
+      <div aria-live="polite">
+        {exportMsg && <p role={exportMsg.ok ? "status" : "alert"} className={clsx("mb-3 text-sm font-bold", exportMsg.ok ? "text-green-700" : "text-red-600")}>{exportMsg.text}</p>}
+      </div>
 
       <div className="mb-4 flex flex-wrap gap-3">
         <div className="relative min-w-56 flex-1">
