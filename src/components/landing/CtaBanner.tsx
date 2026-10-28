@@ -1,5 +1,4 @@
-import { Link } from "react-router-dom";
-import { Button } from "../ui/Button";
+import { ButtonLink } from "../ui/ButtonLink";
 import { StarIcon, SparkleIcon } from "./DecorativeIcons";
 
 export function CtaBanner() {
@@ -22,16 +21,17 @@ export function CtaBanner() {
           Daftar gratis, gabung ke room kelas, dan kumpulkan XP pertamamu.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <Link to="/register">
-            <Button variant="secondary" size="lg" className="text-white font-bold">
-              Daftar Sekarang
-            </Button>
-          </Link>
-          <Link to="/daftar-pendidik">
-            <Button variant="outline" size="lg" className="border-white/50 !bg-white !text-brand-purple-fg hover:!bg-white/90">
-              Daftarkan diri sebagai tenaga pendidik
-            </Button>
-          </Link>
+          <ButtonLink to="/register" variant="secondary" size="lg" className="text-white font-bold">
+            Daftar Sekarang
+          </ButtonLink>
+          <ButtonLink
+            to="/daftar-pendidik"
+            variant="outlineBrand"
+            size="lg"
+            className="border-white/50 !bg-white !text-brand-purple-fg hover:!bg-white/90"
+          >
+            Daftarkan diri sebagai tenaga pendidik
+          </ButtonLink>
         </div>
       </div>
     </section>

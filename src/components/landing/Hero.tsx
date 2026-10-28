@@ -1,9 +1,8 @@
 import { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText"; // ✨
-import { Button } from "../ui/Button";
+import { ButtonLink } from "../ui/ButtonLink";
 import { Badge } from "../ui/Badge";
 import { ScrollAnimation } from "../ui/ScrollAnimation"; // ✨
 import { StarIcon, SparkleIcon } from "./DecorativeIcons";
@@ -122,14 +121,12 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 1.1, ease: "easeOut" }}
             className="mt-6 flex flex-wrap justify-center gap-4 md:justify-start"
           >
-            <Link to="/register">
-              <Button size="lg">Mulai Petualangan</Button>
-            </Link>
-            <Link to="/login">
-              <Button size="lg" variant="outline">
-                Sudah Punya Akun
-              </Button>
-            </Link>
+            <ButtonLink to="/register" size="lg">
+              Mulai Petualangan
+            </ButtonLink>
+            <ButtonLink to="/login" size="lg" variant="outlineBrand">
+              Sudah Punya Akun
+            </ButtonLink>
           </motion.div>
 
           <motion.p
