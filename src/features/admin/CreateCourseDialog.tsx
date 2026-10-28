@@ -8,12 +8,6 @@ import { useAdminRooms, useCreateCourse } from "./queries";
 import { adminService } from "../../services/adminService";
 import { COURSE_CATEGORIES, COURSE_TEMPLATES, instantiateCourseTemplate, templatesByCategory } from "./courseTemplates";
 
-const optionCls = (selected: boolean) =>
-  [
-    "w-full rounded-2xl border-2 px-4 py-2.5 text-left text-brand-ink transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue",
-    selected ? "border-brand-purple bg-brand-purple/10" : "border-brand-ink/10 bg-surface hover:border-brand-purple/40",
-  ].join(" ");
-
 /** Buat course baru (selalu DRAFT). `roomId` diisi jika dibuka dari halaman room. */
 export function CreateCourseDialog({
   open,
@@ -37,6 +31,20 @@ export function CreateCourseDialog({
   const selectedRoom = roomId ?? (pickedRoom || activeRooms[0]?.id || "");
   const categoryTemplates = categoryId ? templatesByCategory(categoryId) : [];
   const titleError = create.error instanceof ApiError ? create.error.fieldErrors?.title : undefined;
+
+  /** Pilih template; judul/deskripsi yang tadinya terisi otomatis dari template lain ikut dibersihkan. */
+  function selectTemplate(nextId: string) {
+    const previous = COURSE_TEMPLATES.find((item) => item.id === templateId);
+    const next = COURSE_TEMPLATES.find((item) => item.id === nextId);
+    setTemplateId(nextId);
+    if (next) {
+      setTitle(next.title);
+      setDescription(next.description);
+    } else if (previous) {
+      if (title === previous.title) setTitle("");
+      if (description === previous.description) setDescription("");
+    }
+  }
 
   function submit(e: FormEvent) {
     e.preventDefault();
@@ -91,7 +99,7 @@ export function CreateCourseDialog({
             value={categoryId}
             onChange={(e) => {
               setCategoryId(e.target.value);
-              setTemplateId("");
+              selectTemplate("");
             }}
             className={fieldCls}
           >
@@ -103,42 +111,21 @@ export function CreateCourseDialog({
           <p className="mt-1.5 text-sm text-brand-ink/60">Pilih kategori untuk melihat materi default yang bisa langsung dipakai.</p>
         </div>
         {categoryId && (
-          <fieldset>
-            <legend className={labelCls}>Isi materi default (opsional)</legend>
-            <div className="mt-1 flex flex-col gap-2">
-              <button
-                type="button"
-                aria-pressed={templateId === ""}
-                onClick={() => setTemplateId("")}
-                className={optionCls(templateId === "")}
-              >
-                <span className="font-display text-sm font-bold">Course kosong — buat sendiri</span>
-              </button>
-              {categoryTemplates.map((template) => {
-                const selected = templateId === template.id;
-                const contentCount = template.modules.reduce((total, mod) => total + mod.contents.length, 0);
-                return (
-                  <button
-                    key={template.id}
-                    type="button"
-                    aria-pressed={selected}
-                    onClick={() => {
-                      setTemplateId(template.id);
-                      setTitle(template.title);
-                      setDescription(template.description);
-                    }}
-                    className={optionCls(selected)}
-                  >
-                    <span className="font-display text-sm font-bold">{template.title}</span>
-                    <span className="mt-0.5 block text-xs text-brand-ink/60">
-                      {template.modules.length} modul · {contentCount} materi — {template.description}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+          <div>
+            <label htmlFor="course-template" className={labelCls}>Isi materi default (opsional)</label>
+            <select
+              id="course-template"
+              value={templateId}
+              onChange={(e) => selectTemplate(e.target.value)}
+              className={fieldCls}
+            >
+              <option value="">Course kosong — buat sendiri</option>
+              {categoryTemplates.map((template) => (
+                <option key={template.id} value={template.id}>{template.title}</option>
+              ))}
+            </select>
             <p className="mt-1.5 text-sm text-brand-ink/60">Materi default berisi modul, materi, kartu hafalan, dan kuis yang bisa diedit sebelum dipublikasikan.</p>
-          </fieldset>
+          </div>
         )}
         <div>
           <label htmlFor="course-judul" className={labelCls}>Judul course</label>
