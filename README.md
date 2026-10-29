@@ -113,11 +113,65 @@ Kemampuan AI yang disiapkan pada backend meliputi:
 | Dashboard guru/admin | `public/screenshots/teacher-dashboard.png` | Pengelolaan kelas atau pemantauan santri |
 | Tampilan orang tua | `public/screenshots/parent-progress.png` | Hubungan santri dan progres yang diizinkan |
 
-### Dashboard Santri
+#### 1. Landing Page
 
-Dashboard santri menampilkan ringkasan aktivitas dan progres pembelajaran pengguna.
+Halaman utama yang memperkenalkan Deen, manfaat platform, serta ajakan untuk mulai belajar.
 
-![Dashboard santri](public/screenshots/dashboard-santri.png)
+![Landing page Deen](public/screenshots/landing.png)
+
+#### 2. Dashboard Santri
+
+Ringkasan aktivitas belajar dan progres santri, termasuk indikator XP atau streak apabila tersedia.
+
+![Dashboard santri Deen](public/screenshots/dashboard-santri.png)
+
+#### 3. Kursus dan Materi Pembelajaran
+
+Halaman untuk menjelajahi kursus, modul, serta materi pembelajaran yang tersedia.
+
+![Kursus dan materi Deen](public/screenshots/learning.png)
+
+#### 4. Detail Materi
+
+Tampilan materi yang digunakan santri untuk mengikuti proses pembelajaran.
+
+![Detail materi Deen](public/screenshots/learning-detail.png)
+
+#### 5. Kuis dan Progres Belajar
+
+Halaman interaksi kuis dan informasi hasil atau progres pembelajaran yang tersedia pada aplikasi.
+
+![Kuis dan progres belajar Deen](public/screenshots/quiz-progress.png)
+
+#### 6. Ruang Belajar
+
+Fitur ruang belajar untuk mendukung aktivitas pembelajaran dalam kelas, termasuk informasi anggota dan alur bergabung jika tersedia.
+
+![Ruang belajar Deen](public/screenshots/learning-room.png)
+
+#### 7. Leaderboard dan Gamifikasi
+
+Halaman peringkat untuk menampilkan pencapaian belajar dan indikator gamifikasi yang diterapkan dalam aplikasi.
+
+![Leaderboard Deen](public/screenshots/leaderboard.png)
+
+#### 8. Asisten AI Ziya
+
+Tampilan asisten AI Ziya yang mendukung interaksi belajar melalui percakapan. Tampilkan sumber atau konteks jawaban hanya jika memang tersedia pada antarmuka.
+
+![Asisten AI Ziya](public/screenshots/ziya-chat.png)
+
+#### 9. Dashboard Guru dan Admin
+
+Antarmuka pendidik untuk mengelola ruang belajar dan memantau aktivitas santri sesuai hak akses.
+
+![Dashboard guru dan admin Deen](public/screenshots/teacher-dashboard.png)
+
+#### 10. Progres Belajar Orang Tua
+
+Tampilan informasi progres santri yang dapat diakses orang tua melalui hubungan akun yang telah diizinkan.
+
+![Progres belajar orang tua](public/screenshots/parent-progress.png)
 
 ## Alur penggunaan
 
