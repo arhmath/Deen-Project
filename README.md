@@ -113,9 +113,11 @@ Kemampuan AI yang disiapkan pada backend meliputi:
 | Dashboard guru/admin | `public/screenshots/teacher-dashboard.png` | Pengelolaan kelas atau pemantauan santri |
 | Tampilan orang tua | `public/screenshots/parent-progress.png` | Hubungan santri dan progres yang diizinkan |
 
-```md
+### Dashboard Santri
+
+Dashboard santri menampilkan ringkasan aktivitas dan progres pembelajaran pengguna.
+
 ![Dashboard santri](public/screenshots/dashboard-santri.png)
-```
 
 ## Alur penggunaan
 
