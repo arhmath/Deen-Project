@@ -1,141 +1,224 @@
-# Deen — Platform Pembelajaran Islami Interaktif
+<div align="center">
 
-Deen adalah aplikasi web pembelajaran Islami yang dirancang untuk membantu santri belajar secara terstruktur, membangun kebiasaan belajar, berinteraksi dalam ruang belajar, serta memantau perkembangan pembelajaran. Proyek ini menggabungkan frontend React dengan backend API berbasis Next.js, penyimpanan data Firestore, dan asisten AI yang dapat menggunakan knowledge base serta materi kursus yang diizinkan.
+<img src="https://raw.githubusercontent.com/arhmath/Deen-Project/main/public/logo-deen.svg" alt="Logo Deen" width="132" />
 
-> **Status proyek:** repository pengembangan. Sebelum digunakan untuk produksi, lakukan audit keamanan, uji alur pengguna secara menyeluruh, dan siapkan konfigurasi Firebase, autentikasi, AI, serta deployment sesuai lingkungan Anda.
+# Deen
+### Belajar Islam Jadi Menyenangkan
 
-## Daftar Isi
+**Platform pembelajaran Islami interaktif untuk membantu santri TPA belajar secara terstruktur, membangun kebiasaan positif, dan memantau progres belajarnya.**
 
-- [Fitur Utama](#fitur-utama)
-- [Teknologi](#teknologi)
-- [Arsitektur](#arsitektur)
-- [Struktur Direktori](#struktur-direktori)
-- [Persyaratan](#persyaratan)
-- [Menjalankan di Lokal](#menjalankan-di-lokal)
-- [Mode Mock dan Backend](#mode-mock-dan-backend)
-- [Konfigurasi Environment](#konfigurasi-environment)
-- [Data Demo](#data-demo)
-- [API](#api)
-- [AI Assistant](#ai-assistant)
-- [Pengujian dan Pemeriksaan](#pengujian-dan-pemeriksaan)
-- [Keamanan](#keamanan)
-- [Troubleshooting](#troubleshooting)
-- [Kontribusi](#kontribusi)
-- [Lisensi](#lisensi)
+[🌐 Buka Aplikasi](https://web-deen.vercel.app/) · [💻 Repository](https://github.com/arhmath/Deen-Project) · [🐞 Laporkan Masalah](https://github.com/arhmath/Deen-Project/issues)
 
-## Fitur Utama
+<br />
 
-### Untuk santri
-- Dashboard untuk melihat ringkasan aktivitas dan progres belajar.
-- Katalog kursus, modul, materi, dan aktivitas pembelajaran.
-- Pengumpulan/penyelesaian konten dan pengerjaan kuis.
-- Check-in belajar serta sistem gamifikasi berbasis XP/poin, level, streak, dan riwayat reward.
-- Leaderboard global maupun berdasarkan ruang belajar.
-- Ruang belajar yang dapat diikuti menggunakan kode gabung.
-- Chat dan asisten AI.
-- Profil pengguna dan halaman peta/fitur petualangan yang tersedia pada aplikasi.
+<img alt="React" src="https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white" />
+<img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&logoColor=white" />
+<img alt="Vite" src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white" />
+<img alt="Next.js API" src="https://img.shields.io/badge/API-Next.js-black?logo=next.js&logoColor=white" />
+<img alt="Firebase" src="https://img.shields.io/badge/Database-Cloud_Firestore-FFCA28?logo=firebase&logoColor=222" />
+<img alt="Status" src="https://img.shields.io/badge/Project-Development-orange" />
 
-### Untuk guru/admin
-- Dashboard ringkasan dan pemantauan santri.
-- Pengelolaan ruang belajar dan anggota ruang.
-- Pengelolaan kursus serta konten pembelajaran.
-- Monitoring data santri dan pengelolaan permintaan tautan orang tua–santri.
+</div>
 
-### Untuk orang tua
-- Melihat daftar santri yang terhubung.
-- Membuka detail santri dan memantau progres pembelajaran.
-- Mengajukan tautan orang tua–santri untuk persetujuan guru yang berwenang.
+---
 
-### Asisten AI
-- Endpoint percakapan dan riwayat percakapan.
-- Umpan balik terhadap pesan AI.
-- Domain guard dan prompt-injection guard.
-- Retrieval-Augmented Generation (RAG) untuk knowledge base Deen dan materi kursus yang dapat diakses pengguna.
-- Provider `local` untuk jawaban berbasis knowledge base tanpa layanan LLM eksternal; provider `openai` (termasuk endpoint OpenAI-compatible) dan `anthropic` tersedia melalui konfigurasi.
+## Tentang Deen
 
-> Ketersediaan setiap fitur bergantung pada konfigurasi, data, role pengguna, dan integrasi backend yang aktif. Mode mock ditujukan untuk demo/pengembangan, bukan penyimpanan produksi.
+Deen adalah platform web pembelajaran Islami yang dirancang dengan pendekatan **belajar, berlatih, dan melihat perkembangan**. Platform ini menggabungkan materi pembelajaran, kuis, gamifikasi, ruang belajar, pemantauan progres, serta asisten AI dalam satu pengalaman digital.
 
-## Teknologi
+Deen dikembangkan untuk membantu proses belajar terasa lebih terarah dan menarik, sekaligus memberi guru dan orang tua cara untuk mendampingi perkembangan santri sesuai peran dan akses masing-masing.
 
-| Bagian | Teknologi |
+> **Gagasan utama:** pembelajaran agama tidak cukup hanya menyajikan materi. Pengalaman belajar juga perlu membantu pengguna menjaga konsistensi, berlatih, dan memahami perkembangan belajarnya.
+
+## Masalah yang ingin dijawab
+
+Dalam kegiatan belajar, penyampaian materi saja belum tentu cukup untuk menjaga keterlibatan santri dan membantu pendamping memantau prosesnya. Deen mencoba menjawab tantangan tersebut melalui beberapa pendekatan:
+
+| Tantangan | Pendekatan Deen |
 |---|---|
-| Frontend | React, TypeScript, Vite |
-| Routing | React Router |
-| Styling | Tailwind CSS v4 |
-| Animasi | GSAP, Framer Motion |
-| Form & validasi | React Hook Form, Zod |
-| Data fetching | TanStack Query |
-| Backend API | Next.js Route Handlers, TypeScript |
-| Database | Firebase Admin SDK + Cloud Firestore |
-| Autentikasi API | JWT (HS256), bcrypt |
-| AI | Provider lokal berbasis knowledge, OpenAI-compatible, atau Anthropic |
-| Testing backend | Vitest |
+| Aktivitas belajar terasa monoton | Materi, kuis, poin pengalaman (XP), level, streak, dan reward untuk mendukung motivasi |
+| Perkembangan belajar sulit dilihat secara ringkas | Dashboard dan informasi progres belajar |
+| Aktivitas belajar perlu dikelola bersama | Ruang belajar, kode bergabung, dan fitur pengelolaan kelas |
+| Guru membutuhkan gambaran perkembangan santri | Dashboard dan fitur pemantauan untuk guru/admin |
+| Orang tua membutuhkan konteks perkembangan anak | Fitur penghubung orang tua–santri dan tampilan progres sesuai otorisasi |
+| Pengguna memerlukan bantuan saat menjelajahi platform | Asisten AI Ziya dengan pembatasan domain dan sumber pengetahuan yang dikonfigurasi |
 
-## Arsitektur
+Pendekatan tersebut merupakan **tujuan desain produk**, bukan klaim bahwa dampak pembelajaran telah terbukti secara empiris. Efektivitasnya tetap perlu dievaluasi melalui pengujian bersama pengguna.
 
-```text
-Browser
-  |
-  v
-Frontend React + Vite (default: http://localhost:5173)
-  |
-  | VITE_USE_MOCK=true (default)
-  +--------------------------> Mock API lokal untuk demo
-  |
-  | VITE_USE_MOCK=false
-  v
-Backend Next.js Route Handlers (default: http://localhost:3001)
-  |
-  +--> autentikasi JWT + bcrypt
-  +--> service/domain logic
-  +--> Firebase Admin SDK
-  |      +--> Cloud Firestore
-  |
-  +--> AI orchestrator
-         +--> domain & injection guards
-         +--> intent routing
-         +--> retrieval / knowledge base
-         +--> provider AI yang dipilih
+## Fitur utama
+
+### 1. Pengalaman belajar santri
+
+- **Dashboard pembelajaran** untuk melihat ringkasan aktivitas dan progres.
+- **Kursus dan modul** untuk mengakses materi pembelajaran secara terstruktur.
+- **Kuis dan penyelesaian materi** sebagai bagian dari aktivitas belajar.
+- **Gamifikasi** melalui XP/poin, level, streak, dan riwayat reward.
+- **Leaderboard** global maupun berdasarkan ruang belajar.
+- **Ruang belajar** yang dapat diikuti menggunakan kode gabung.
+- **Profil santri** dan fitur peta/petualangan yang tersedia pada aplikasi.
+
+### 2. Pengelolaan pembelajaran oleh guru/admin
+
+- Dashboard ringkasan dan pemantauan santri.
+- Pengelolaan ruang belajar dan anggota.
+- Pengelolaan kursus serta konten pembelajaran.
+- Pemantauan data santri.
+- Pengelolaan permintaan tautan orang tua–santri sesuai kewenangan.
+
+### 3. Pendampingan orang tua
+
+- Melihat daftar santri yang telah terhubung.
+- Membuka detail dan progres belajar santri.
+- Mengajukan tautan orang tua–santri untuk persetujuan pihak berwenang.
+
+### 4. Ziya — asisten AI Deen
+
+<img src="https://raw.githubusercontent.com/arhmath/Deen-Project/main/public/ziya-avatar.jpeg" alt="Avatar Ziya, asisten AI Deen" width="160" align="right" />
+
+Ziya adalah karakter asisten yang menjadi bagian dari pengalaman Deen. Implementasi avatar memiliki beberapa aset visual untuk kondisi interaksi seperti idle, clicked, loading, dan typing. Widget chat memanfaatkan layanan chat yang sudah ada, bukan membuat jalur AI terpisah.
+
+Kemampuan AI yang disiapkan pada backend meliputi:
+
+- **Retrieval-Augmented Generation (RAG)** untuk mengambil konteks dari knowledge base Deen dan materi kursus yang diizinkan.
+- **Domain guard** untuk membatasi topik sesuai ruang lingkup aplikasi.
+- **Prompt-injection guard** sebagai lapisan mitigasi terhadap instruksi yang berusaha menyalahgunakan model.
+- **Pilihan provider**: `local`, `openai`/endpoint OpenAI-compatible, atau `anthropic`, bergantung konfigurasi.
+- **Chat publik untuk pengunjung** melalui endpoint khusus dengan pembatasan akses dan rate limit berbasis IP.
+- **Chat terautentikasi** yang menggunakan sesi dan otorisasi backend.
+
+**Catatan kepercayaan:** guard bukan jaminan bahwa semua jawaban pasti benar atau semua serangan dapat dicegah. Jawaban AI perlu diperlakukan sebagai bantuan, bukan pengganti guru atau rujukan keagamaan yang tepercaya. Konten keagamaan idealnya ditinjau oleh pendidik/ahli yang kompeten.
+
+<div align="center">
+  <sub>Aset avatar Ziya yang tersedia di repository:</sub><br />
+  <img src="https://raw.githubusercontent.com/arhmath/Deen-Project/main/public/ziya-idle.png" alt="Ziya — idle" width="110" />
+  <img src="https://raw.githubusercontent.com/arhmath/Deen-Project/main/public/ziya-clicked.png" alt="Ziya — clicked" width="110" />
+  <img src="https://raw.githubusercontent.com/arhmath/Deen-Project/main/public/ziya-loading.png" alt="Ziya — loading" width="110" />
+  <img src="https://raw.githubusercontent.com/arhmath/Deen-Project/main/public/ziya-typing.png" alt="Ziya — typing" width="110" />
+</div>
+
+## Galeri aplikasi
+
+**Lihat versi yang berjalan:** [web-deen.vercel.app](https://web-deen.vercel.app/)
+
+| Halaman | Nama berkas | Uraian |
+|---|---|---|
+| Landing page | `public/screenshots/landing.png` | Identitas produk, manfaat utama, dan CTA |
+| Dashboard santri | `public/screenshots/dashboard-santri.png` | Ringkasan belajar, progres, XP/streak bila tersedia |
+| Kursus atau materi | `public/screenshots/learning.png` | Struktur kursus, modul, dan materi |
+| Detail materi | `public/screenshots/learning-detail.png` | Isi kursus, modul, dan materi |
+| Kuis atau progres | `public/screenshots/quiz-progress.png` | Interaksi belajar dan hasil/progres |
+| Ruang belajar | `public/screenshots/learning-room.png` | Kelas, anggota, atau alur bergabung |
+| Leaderboard | `public/screenshots/leaderboard.png` | Peringkat dan indikator gamifikasi |
+| Asisten Ziya | `public/screenshots/ziya-chat.png` | Avatar, pertanyaan, jawaban, dan sumber/konteks bila ditampilkan |
+| Dashboard guru/admin | `public/screenshots/teacher-dashboard.png` | Pengelolaan kelas atau pemantauan santri |
+| Tampilan orang tua | `public/screenshots/parent-progress.png` | Hubungan santri dan progres yang diizinkan |
+
+```md
+![Dashboard santri](public/screenshots/dashboard-santri.png)
 ```
 
-Frontend memakai satu pintu request di `src/services/api.ts`. Secara default, request diarahkan ke mock server lokal. Untuk memakai API sungguhan, ubah `VITE_USE_MOCK=false` dan atur `VITE_API_URL`.
+## Alur penggunaan
 
-Backend menggunakan Firestore melalui Firebase Admin SDK; browser tidak seharusnya mengakses koleksi database secara langsung. File `backend/apps/api/firestore.rules` dan `firestore.indexes.json` disediakan untuk konfigurasi aturan dan indeks Firestore.
+```mermaid
+flowchart LR
+    A[Santri] --> B[Memilih kursus]
+    B --> C[Mempelajari materi]
+    C --> D[Mengerjakan kuis atau aktivitas]
+    D --> E[Progres dan gamifikasi diperbarui]
+    E --> F[Memantau perkembangan]
+    G[Guru/Admin] --> H[Mengelola kelas dan materi]
+    H --> B
+    I[Orang tua] --> J[Melihat progres santri terhubung]
+    E --> J
+    K[Ziya AI] --> L[Knowledge base dan materi yang diizinkan]
+```
 
-## Struktur Direktori
+Alur dan hasil yang tersedia dapat berbeda menurut role, konfigurasi backend, data yang sudah disiapkan, dan mode aplikasi. Diagram ini menjelaskan alur konseptual produk, bukan hasil pengukuran efektivitas pembelajaran.
+
+## Teknologi yang digunakan
+
+| Lapisan | Teknologi | Peran |
+|---|---|---|
+| Frontend | React 19, TypeScript, Vite 8 | Antarmuka aplikasi web |
+| Routing | React Router | Navigasi halaman |
+| Styling | Tailwind CSS v4 | Sistem styling UI |
+| Animasi | GSAP, Framer Motion | Animasi dan transisi antarmuka |
+| Form & validasi | React Hook Form, Zod | Pengelolaan dan validasi input |
+| Data fetching | TanStack Query | Pengelolaan request dan cache data |
+| Backend API | Next.js Route Handlers, TypeScript | Endpoint dan logika server |
+| Database | Firebase Admin SDK, Cloud Firestore | Penyimpanan data backend |
+| Autentikasi | JWT (`jose`), `bcryptjs` | Token sesi dan hashing password |
+| Media/avatar | Cloudinary (opsional, sesuai konfigurasi) | Pengelolaan aset media |
+| Email | Nodemailer (sesuai konfigurasi SMTP) | Pengiriman email, termasuk alur reset password |
+| AI | Provider lokal, OpenAI-compatible, Anthropic | Pemrosesan asisten AI |
+| Pengujian backend | Vitest | Pengujian otomatis |
+
+Versi dependency yang sebenarnya tercantum di `package.json` dan `backend/package.json`. Daftar teknologi tidak berarti seluruh integrasi aktif pada setiap deployment.
+
+## Gambaran arsitektur
+
+```mermaid
+flowchart TB
+    U[Browser / Pengguna]
+    FE[Frontend React + Vite]
+    MOCK[Mock API dan data demo]
+    API[Backend Next.js Route Handlers]
+    AUTH[Autentikasi dan otorisasi]
+    DOMAIN[Service dan logika domain]
+    DB[(Cloud Firestore)]
+    AI[AI Orchestrator]
+    GUARD[Domain guard dan prompt-injection guard]
+    RAG[Retriever / Knowledge base]
+    PROVIDER[Provider AI yang dikonfigurasi]
+
+    U --> FE
+    FE -->|Mode mock| MOCK
+    FE -->|Mode backend| API
+    API --> AUTH
+    API --> DOMAIN
+    DOMAIN --> DB
+    API --> AI
+    AI --> GUARD
+    GUARD --> RAG
+    RAG --> PROVIDER
+```
+
+Frontend menggunakan satu pintu request di `src/services/api.ts`. Secara default, `VITE_USE_MOCK` aktif kecuali diatur menjadi string `"false"`. Mode mock membantu demonstrasi UI, sedangkan mode backend mengirim request HTTP ke API yang dikonfigurasi.
+
+Backend menggunakan Firebase Admin SDK untuk mengakses Firestore. Akses data sensitif seharusnya tetap melewati backend dengan pemeriksaan autentikasi dan otorisasi; kredensial server tidak boleh dimasukkan ke bundle frontend.
+
+## Struktur repository
 
 ```text
 .
-├── public/                         # Aset publik frontend
+├── public/                   # Logo, ilustrasi, avatar Ziya, aset publik
 ├── src/
-│   ├── app/                        # Provider aplikasi
-│   ├── components/                 # UI, layout, landing page, komponen domain
-│   ├── features/                   # Fitur auth, learning, chatbot, gamification, rooms, dll.
-│   ├── pages/                      # Halaman user, admin, parent, dan pembelajaran
-│   ├── services/                   # API client, service fitur, mock server/data
-│   └── lib/                        # Utilitas dan validasi
+│   ├── app/                  # Provider dan konfigurasi aplikasi
+│   ├── components/           # Komponen UI dan layout
+│   ├── features/             # Fitur berdasarkan domain
+│   ├── pages/                # Halaman pengguna dan pembelajaran
+│   ├── services/             # API client, layanan fitur, mock
+│   └── lib/                  # Utilitas dan validasi
 ├── backend/
-│   ├── package.json                # Script backend
-│   ├── scripts/                    # Seed, smoke test, dan utilitas
+│   ├── scripts/              # Seed, smoke test, dan utilitas
 │   └── apps/api/
-│       ├── src/app/api/            # Next.js Route Handlers
-│       ├── src/ai/                 # Guard, prompt, retrieval, tools, orchestrator
-│       ├── src/shared/              # Shared constants/types/data helpers
-│       ├── tests/                  # Unit/integration tests backend
-│       ├── data/                   # Knowledge data
-│       ├── .env.example             # Template environment backend
-│       ├── firestore.rules
-│       └── firestore.indexes.json
-├── package.json                    # Script dan dependensi frontend
+│       ├── src/app/api/      # Route handlers
+│       ├── src/ai/           # Orkestrasi AI, guard, retrieval, tools
+│       ├── tests/            # Pengujian backend
+│       ├── data/             # Data knowledge base
+│       └── .env.example      # Template environment backend
+├── package.json              # Script frontend
 └── README.md
 ```
 
-## Persyaratan
+## Menjalankan proyek secara lokal
 
-- Node.js versi yang kompatibel dengan Vite 8 dan Next.js 16 (disarankan **Node.js 22 LTS** yang masih didukung).
+### Prasyarat
+
+- Node.js yang kompatibel dengan Vite 8 dan Next.js 16; gunakan versi LTS yang didukung dan cocok dengan environment proyek.
 - npm.
-- Firebase project dengan Cloud Firestore untuk menjalankan backend menggunakan database cloud, **atau** Firestore Emulator untuk pengembangan lokal.
-- API key provider AI hanya jika ingin memakai provider LLM eksternal. Provider `local` dapat digunakan tanpa API key.
+- Untuk backend sungguhan: Firebase/Cloud Firestore atau Firestore Emulator.
+- API key provider eksternal hanya jika memilih provider AI yang memerlukannya.
 
 Periksa instalasi:
 
@@ -144,63 +227,48 @@ node --version
 npm --version
 ```
 
-## Menjalankan di Lokal
-
-Buka terminal di direktori repository.
-
-### 1. Jalankan frontend
+### A. Jalankan frontend dalam mode demo/mock
 
 ```bash
+git clone https://github.com/arhmath/Deen-Project.git
+cd Deen-Project
 npm install
-cp .env.example .env
-npm run dev
 ```
 
-Jika file `.env.example` belum tersedia di root, buat `.env` sendiri dengan isi:
+Buat `.env` di root:
 
 ```dotenv
 VITE_USE_MOCK=true
 VITE_API_URL=http://localhost:3001/api/v1
 ```
 
-Buka URL yang ditampilkan Vite, umumnya `http://localhost:5173`.
+Jalankan frontend:
 
-Pada Windows PowerShell, jika perintah `cp` tidak tersedia, gunakan:
-
-```powershell
-Copy-Item .env.example .env
+```bash
+npm run dev
 ```
 
-### 2. Jalankan backend API
+Buka URL yang ditampilkan Vite, biasanya `http://localhost:5173`.
+
+### B. Jalankan backend
 
 Buka terminal kedua:
 
 ```bash
 cd backend
 npm install
-```
-
-Salin template konfigurasi backend:
-
-```bash
 cp apps/api/.env.example apps/api/.env
 ```
 
-Windows PowerShell:
+Di Windows PowerShell, gunakan `Copy-Item apps/api/.env.example apps/api/.env`.
 
-```powershell
-Copy-Item apps/api/.env.example apps/api/.env
-```
+Isi konfigurasi yang diperlukan di `backend/apps/api/.env`. Minimal, siapkan secret JWT yang kuat dan berbeda untuk access token dan refresh token, lalu konfigurasi Firebase/Firestore Emulator. Jangan menyalin secret produksi ke repository.
 
-Isi setidaknya secret JWT dan konfigurasi Firebase/Firestore Emulator sebelum menjalankan seed atau endpoint yang membutuhkan database.
-
-Buat secret acak yang kuat:
+Contoh membuat secret acak:
 
 ```bash
 node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
 ```
-
-Gunakan nilai acak yang berbeda untuk `JWT_ACCESS_SECRET` dan `JWT_REFRESH_SECRET`, masing-masing minimal 32 karakter.
 
 Jalankan backend:
 
@@ -208,223 +276,134 @@ Jalankan backend:
 npm run dev
 ```
 
-Backend berjalan pada `http://localhost:3001`. Endpoint pemeriksaan tersedia di:
+Backend lokal menggunakan port `3001`. Endpoint pemeriksaan yang disediakan:
 
 - `GET http://localhost:3001/api/health`
 - `GET http://localhost:3001/api/ready`
 
-`/api/health` digunakan untuk pemeriksaan kesehatan proses; `/api/ready` dapat memeriksa kesiapan dependensi. Hasil akhirnya bergantung pada konfigurasi layanan.
+### C. Hubungkan frontend ke backend
 
-### 3. Hubungkan frontend ke backend
-
-Pada file `.env` di root frontend, atur:
+Atur `.env` frontend di root:
 
 ```dotenv
 VITE_USE_MOCK=false
 VITE_API_URL=http://localhost:3001/api/v1
 ```
 
-Pada `backend/apps/api/.env`, pastikan origin frontend diizinkan:
+Pastikan `CORS_ORIGIN` pada `backend/apps/api/.env` mengizinkan origin frontend, misalnya:
 
 ```dotenv
 CORS_ORIGIN=http://localhost:5173
 ```
 
-Restart frontend setelah mengubah environment variable Vite. Jika ingin kembali ke mode demo, ubah `VITE_USE_MOCK=true`.
+Restart frontend setelah mengubah environment variable Vite. Untuk kembali ke mode demo, set `VITE_USE_MOCK=true`.
 
-## Mode Mock dan Backend
-
-| Mode | Konfigurasi | Perilaku |
-|---|---|---|
-| Mock (default) | `VITE_USE_MOCK=true` atau tidak disetel | Menggunakan mock server/data frontend; berguna untuk melihat UI dan demo tanpa backend aktif. |
-| Backend | `VITE_USE_MOCK=false` | Mengirim request HTTP ke `VITE_API_URL`; backend, database, dan konfigurasi terkait harus siap. |
-
-Mode mock bukan pengganti backend produksi. Data mock dapat bersifat lokal/demo dan tidak merepresentasikan keamanan, konsistensi transaksi, atau persistensi Firestore.
-
-## Konfigurasi Environment
+## Konfigurasi penting
 
 ### Frontend — `.env` di root
 
-```dotenv
-# true = mock server; false = backend API sungguhan
-VITE_USE_MOCK=true
-VITE_API_URL=http://localhost:3001/api/v1
-```
+| Variabel | Kegunaan |
+|---|---|
+| `VITE_USE_MOCK` | `true` untuk mock; `false` untuk backend sungguhan |
+| `VITE_API_URL` | Base URL API, misalnya `http://localhost:3001/api/v1` |
 
-`VITE_API_URL` boleh dihilangkan jika nilai default pada client sudah sesuai, tetapi sebaiknya disetel eksplisit saat berpindah lingkungan. Semua variabel berawalan `VITE_` dapat masuk ke bundle frontend; **jangan pernah menaruh secret di variabel frontend**.
+Semua variabel `VITE_*` dapat terekspos ke browser. **Jangan menyimpan password, private key, atau API secret di environment frontend.**
 
 ### Backend — `backend/apps/api/.env`
 
-Salin dari `backend/apps/api/.env.example`.
+Gunakan `backend/apps/api/.env.example` sebagai daftar konfigurasi terbaru. Variabel penting mencakup:
 
-| Variabel | Keterangan |
-|---|---|
-| `NODE_ENV` | Lingkungan aplikasi, misalnya `development` atau `production`. |
-| `APP_TIMEZONE` | Zona waktu bisnis; default `Asia/Jakarta`. |
-| `CORS_ORIGIN` | Daftar origin frontend yang diizinkan, dipisahkan koma. |
-| `JWT_ACCESS_SECRET` | Secret penandatanganan access token; wajib kuat dan rahasia. |
-| `JWT_REFRESH_SECRET` | Secret refresh token; gunakan nilai berbeda dari access secret. |
-| `ACCESS_TOKEN_TTL_MIN` | Masa berlaku access token dalam menit. |
-| `REFRESH_TOKEN_TTL_DAYS` | Masa berlaku refresh token dalam hari. |
-| `BCRYPT_COST` | Cost factor bcrypt. |
-| `FIREBASE_PROJECT_ID` | ID Firebase project. |
-| `FIREBASE_CLIENT_EMAIL` | Email service account Firebase. |
-| `FIREBASE_PRIVATE_KEY` | Private key service account; format newline harus sesuai petunjuk template. |
-| `FIRESTORE_EMULATOR_HOST` | Alternatif untuk menggunakan Firestore Emulator lokal. |
-| `AI_PROVIDER` | `local`, `openai`, atau `anthropic`. |
-| `AI_API_KEY` | API key provider eksternal, jika diperlukan. |
-| `AI_MODEL` | Nama model untuk provider yang dipilih. |
-| `AI_BASE_URL` | Base URL untuk provider OpenAI-compatible, jika digunakan. |
-| `AI_TIMEOUT_MS` | Batas waktu request AI. |
-| `AI_RAG_TOP_K` | Jumlah kandidat dokumen retrieval. |
-| `AI_RAG_MIN_SCORE` | Ambang skor retrieval RAG. |
-| `AI_MAX_RECENT_MESSAGES` | Batas pesan terbaru yang dimasukkan ke konteks. |
-| `AI_MAX_SUMMARY_TOKENS` | Batas token ringkasan percakapan. |
+- **App & CORS:** `NODE_ENV`, `APP_TIMEZONE`, `CORS_ORIGIN`, `APP_URL`
+- **Autentikasi:** `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `ACCESS_TOKEN_TTL_MIN`, `REFRESH_TOKEN_TTL_DAYS`, `BCRYPT_COST`
+- **Firebase:** `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` atau `FIRESTORE_EMULATOR_HOST`
+- **Email:** `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`
+- **Avatar/media:** `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+- **AI:** `AI_PROVIDER`, `AI_API_KEY`, `AI_MODEL`, `AI_BASE_URL`, `AI_TIMEOUT_MS`, `AI_RAG_TOP_K`, `AI_RAG_MIN_SCORE`
+- **Seed admin:** `SUPERADMIN_SEED_USERNAME`, `SUPERADMIN_SEED_PASSWORD`, `SUPERADMIN_SEED_EMAIL`, `SUPERADMIN_SEED_NAME`
 
-Jangan commit file `.env` atau `backend/apps/api/.env`. Gunakan secret manager pada deployment produksi.
+Lihat komentar pada `.env.example` untuk aturan format dan opsi yang lebih lengkap. Jangan commit file `.env`, file service account, atau kredensial lain.
 
-## Data Demo
+## Pengujian dan pemeriksaan kualitas
 
-Backend menyediakan script seed. Setelah environment dan Firestore/Firestore Emulator siap:
-
-```bash
-cd backend
-npm run seed
-```
-
-Terdapat juga script khusus knowledge base dan smoke test:
-
-```bash
-npm run seed:knowledge
-npm run smoke
-```
-
-Periksa isi `backend/scripts/` dan konfigurasi lingkungan sebelum menjalankan script pada database yang berisi data penting. Seed dapat membuat atau mengubah data; gunakan database pengembangan.
-
-Akun demo yang disebut pada dokumentasi backend adalah `ahmad`, `rahma`, dan `hakim` dengan password awal `deen1234`. Gunakan hanya untuk lingkungan demo lokal. Ubah atau hapus kredensial tersebut sebelum deployment publik dan jangan gunakan password demo untuk akun nyata.
-
-## API
-
-Base URL lokal:
-
-```text
-http://localhost:3001/api/v1
-```
-
-Endpoint utama dikelompokkan sebagai berikut. Parameter dinamis ditulis sebagai `:id`.
-
-| Area | Endpoint |
-|---|---|
-| Auth & pengguna | `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/me`, `GET /users/me`, `PATCH /users/me` |
-| Dashboard & progres | `GET /me/dashboard`, `GET /progress/me`, `GET /progress/courses/:courseId`, `GET /me/courses`, `GET /me/courses/:courseId` |
-| Check-in & gamifikasi | `POST /me/check-ins`, `GET /gamification/me`, `GET /gamification/me/history`, `POST /checkins`, `GET /checkins` |
-| Kursus & modul | `GET/POST /courses`, `GET/PATCH/DELETE /courses/:courseId`, `GET/POST /courses/:courseId/modules`, `PATCH/DELETE /modules/:moduleId` |
-| Konten & kuis | `GET/POST /modules/:moduleId/contents`, `GET/PATCH/DELETE /contents/:contentId`, `POST /contents/:contentId/submit`, endpoint attempt kuis di `/me/quizzes/...` dan `/me/quiz-attempts/...` |
-| Ruang belajar | `GET/POST /rooms`, `POST /rooms/join`, `GET/PATCH/DELETE /rooms/:roomId`, `GET /rooms/:roomId/members`, endpoint pengelolaan anggota di `/rooms/:roomId/members/:userId` |
-| Leaderboard | `GET /leaderboard`, `GET /leaderboards/global`, `GET /leaderboards/global/me`, `GET /leaderboards/rooms/:roomId` |
-| Admin | `GET /admin/overview`, `GET /admin/students`, endpoint `/admin/rooms`, `/admin/courses`, dan `/admin/parent-links` |
-| Orang tua | `GET /parent/students`, `GET /parent/students/:studentId`, `GET /parent/students/:studentId/progress`, `POST /parent/links` |
-| Notifikasi | `GET /notifications`, `POST /notifications/:notificationId/read` |
-| AI | `POST /ai/chat`, `GET /ai/conversations`, `GET/DELETE /ai/conversations/:id`, `POST /ai/messages/:id/feedback` |
-
-Daftar di atas merupakan ringkasan endpoint inti, bukan pengganti kontrak API lengkap. Periksa route handlers di `backend/apps/api/src/app/api/` dan spesifikasi yang disimpan di repository untuk detail request/response, validasi, status code, dan izin role.
-
-Respons error umum menggunakan status HTTP yang sesuai dan payload berisi pesan/kode error; validasi input umumnya mengembalikan `422`. Endpoint AI memiliki format error tersendiri. Selalu ikuti respons aktual dari backend saat mengembangkan client.
-
-## AI Assistant
-
-Implementasi AI berada di `backend/apps/api/src/ai/`. Bagian penting meliputi:
-
-- `guards.ts` — pemeriksaan domain dan prompt injection.
-- `intent.ts` — klasifikasi/routing niat pengguna.
-- `knowledge.ts`, `retriever.ts`, `course-knowledge.ts` — sumber pengetahuan dan retrieval.
-- `prompt.ts` — penyusunan instruksi sistem.
-- `providers.ts` — adapter provider model.
-- `tools.ts` — tool yang dapat digunakan orkestrator.
-- `orchestrator.ts` — mengatur alur jawaban AI.
-- `conversation.ts` dan `chat.schema.ts` — dukungan percakapan serta validasi skema.
-
-Provider `local` membantu menjalankan alur knowledge-based tanpa API LLM eksternal, tetapi kemampuannya tidak setara model generatif. Untuk provider eksternal, isi `AI_PROVIDER`, `AI_API_KEY`, dan `AI_MODEL` sesuai provider yang digunakan. `AI_BASE_URL` dipakai bila menggunakan endpoint OpenAI-compatible.
-
-Guard berbasis kode membantu membatasi input dan alur, tetapi tidak menjamin seluruh serangan prompt injection atau keluaran yang keliru dapat dicegah. Lakukan pengujian adversarial, batasi tool dan data berdasarkan otorisasi server, serta jangan gunakan jawaban AI sebagai satu-satunya dasar keputusan berisiko tinggi.
-
-## Pengujian dan Pemeriksaan
-
-Frontend:
+Jalankan dari root frontend:
 
 ```bash
 npm run build
 npm run lint
 ```
 
-Backend:
+Jalankan dari folder `backend`:
 
 ```bash
-cd backend
 npm test
 npm run typecheck
 npm run smoke
 ```
 
-- `build` memeriksa TypeScript dan membangun aset frontend.
-- `lint` menjalankan ESLint.
-- `test` menjalankan suite Vitest backend.
-- `typecheck` memeriksa tipe TypeScript backend.
-- `smoke` menjalankan pemeriksaan alur backend yang disediakan project dan membutuhkan environment yang sesuai.
+Script yang tersedia juga mencakup seed data dan utilitas verifikasi email. Periksa `backend/package.json` sebelum menjalankannya, dan gunakan database pengembangan untuk proses seed.
 
-Pastikan layanan dan emulator yang diperlukan aktif sebelum menjalankan tes integrasi/smoke. Jangan menganggap seluruh fitur siap produksi hanya karena build atau unit test berhasil.
+## Keamanan, privasi, dan batasan
 
-## Keamanan
+- Jangan pernah commit file `.env`, service account Firebase, password, token, atau API key.
+- Jika secret pernah terunggah, cabut dan rotasi secret tersebut. Menghapusnya dari commit terbaru tidak menghapusnya dari riwayat Git.
+- Gunakan HTTPS dan konfigurasi CORS yang spesifik untuk deployment.
+- Pastikan pemeriksaan role dan kepemilikan data dilakukan di server, bukan hanya dengan menyembunyikan elemen UI.
+- Uji alur autentikasi, reset password, pembatasan akses, rate limit, dan penanganan error sebelum demo publik.
+- Mode mock digunakan untuk pengembangan/demo dan bukan bukti bahwa persistensi atau keamanan backend produksi sudah teruji.
+- AI dapat memberikan jawaban tidak akurat. Evaluasi kualitas jawaban, retrieval, prompt injection, privasi, dan pembatasan domain sebelum penggunaan luas.
+- Jangan menggunakan data pribadi santri pada screenshot atau data demo yang dipublikasikan.
 
-Sebelum repository dipublikasikan atau aplikasi di-deploy:
+## Status dan ruang pengembangan
 
-1. **Pastikan `.env` tidak ikut Git.** Arsip pengembangan dapat berisi file `.env`; periksa `git status` dan `.gitignore` sebelum melakukan commit. Jika secret pernah terunggah, cabut/rotasi secret tersebut—menghapus file dari commit terbaru saja tidak menghapus riwayat Git.
-2. Rotasi semua kredensial yang pernah masuk ke ZIP, screenshot, log, atau commit, termasuk Firebase service-account key, JWT secrets, dan API key AI.
-3. Jangan gunakan akun demo atau password bawaan di lingkungan publik.
-4. Terapkan Firestore Security Rules yang sesuai dan deploy indeks yang dibutuhkan. Akses database dari backend dengan service account; jangan pernah mengirim private key ke browser.
-5. Verifikasi otorisasi berdasarkan role dan kepemilikan data pada setiap endpoint, bukan hanya dengan menyembunyikan halaman di frontend.
-6. Pastikan CORS hanya mengizinkan origin tepercaya. CORS bukan mekanisme autentikasi.
-7. Tambahkan rate limiting, logging yang tidak menyimpan token/rahasia, monitoring, backup, dan kebijakan retensi data.
-8. Tinjau privasi percakapan AI, data anak/santri, notifikasi, serta hubungan orang tua–santri sebelum penggunaan nyata.
-9. Uji rotasi refresh token, logout, token kedaluwarsa, akses lintas role, validasi input, dan prompt injection.
-10. Atur TTL untuk koleksi yang memang memiliki field kedaluwarsa, sesuai kebutuhan operasional dan konfigurasi Firestore.
+Deen merupakan proyek yang masih berkembang. Ketersediaan fitur bergantung pada branch, konfigurasi environment, data, dan deployment yang digunakan.
 
-## Troubleshooting
+Arah pengembangan yang relevan untuk tahap berikutnya:
 
-### Frontend tidak terhubung ke API
-- Pastikan backend aktif pada port `3001`.
-- Periksa `VITE_USE_MOCK=false` dan `VITE_API_URL=http://localhost:3001/api/v1`.
-- Pastikan `CORS_ORIGIN` memuat origin frontend, biasanya `http://localhost:5173`.
-- Restart Vite setelah mengubah `.env`.
+- Pengujian usability bersama santri dan guru dengan persetujuan yang sesuai.
+- Evaluasi apakah gamifikasi membantu konsistensi belajar, bukan hanya meningkatkan aktivitas klik.
+- Evaluasi kualitas jawaban AI dengan kumpulan pertanyaan yang ditinjau pendidik/ahli.
+- Pengukuran ketepatan retrieval dan penanganan pertanyaan yang tidak memiliki sumber memadai.
+- Audit keamanan role, relasi orang tua–santri, autentikasi, dan data pengguna.
+- Pengujian aksesibilitas, performa, serta responsivitas pada perangkat sasaran.
 
-### API gagal berjalan
-- Pastikan `backend/apps/api/.env` tersedia dan format nilainya benar.
-- Pastikan `JWT_ACCESS_SECRET` dan `JWT_REFRESH_SECRET` terisi.
-- Pastikan Firebase service-account lengkap atau Firestore Emulator aktif dan `FIRESTORE_EMULATOR_HOST` benar.
-- Periksa terminal untuk detail error dan pastikan port `3001` tidak digunakan proses lain.
+## Tim dan kontribusi
 
-### AI tidak memberi jawaban dari model eksternal
-- Periksa `AI_PROVIDER`, `AI_API_KEY`, `AI_MODEL`, dan `AI_BASE_URL`.
-- Pastikan model dan base URL sesuai provider.
-- Jika `AI_PROVIDER=local`, respons berasal dari mekanisme knowledge lokal dan tidak memerlukan API key model eksternal.
+| Anggota | Peran | Kontribusi |
+|---|---|---|
+| Arham Athillah | Frontend Developer | Mengembangkan antarmuka pengguna (UI) dan pengalaman pengguna (UX) Deen, mengimplementasikan halaman dan komponen interaktif, mengintegrasikan navigasi aplikasi, serta menghubungkan antarmuka dengan layanan API untuk mendukung alur pembelajaran santri. |
+| Ahmad Zamroni T | Backend & AI Developer | Mengembangkan layanan backend, database dan API, mengimplementasikan pengelolaan data serta autentikasi pengguna, mengintegrasikan layanan AI Ziya untuk mendukung pembelajaran interaktif, dan mengembangkan mekanisme pemrosesan respons AI sesuai konteks pembelajaran Deen.. |
 
-### Seed atau test gagal
-- Pastikan command dijalankan dari direktori `backend`.
-- Periksa konfigurasi environment dan koneksi Firestore/Emulator.
-- Jalankan seed hanya pada database pengembangan dan baca output error lengkap.
-
-## Kontribusi
-
-Kontribusi, perbaikan bug, dan saran fitur sangat terbuka.
-
-1. Fork repository.
-2. Buat branch fitur: `git checkout -b feat/nama-fitur`.
-3. Lakukan perubahan dengan mengikuti struktur dan pola yang sudah ada.
-4. Jalankan pemeriksaan yang relevan (`npm run build`, `npm run lint`, `npm test`, dan `npm run typecheck`).
-5. Buat commit yang jelas lalu ajukan Pull Request dengan ringkasan perubahan, alasan, dan langkah pengujian.
-
-Jangan sertakan file `.env`, private key, token, data pribadi, atau dump database dalam Pull Request.
 
 ## Lisensi
 
-Lisensi belum dapat dipastikan dari struktur proyek yang dianalisis. Sebelum repository dipublikasikan, tentukan lisensi proyek dan tambahkan file `LICENSE`. Tanpa lisensi eksplisit, hak penggunaan ulang oleh pihak lain tidak otomatis diberikan.
+MIT License
+
+Copyright (c) 2026 Deen Project Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+<div align="center">
+
+**Deen — Ubah rasa bosan jadi semangat belajar, setiap hari.**
+
+*Dibangun untuk membuat pengalaman belajar lebih terarah, interaktif, dan mudah dipantau.*
+
+</div>
