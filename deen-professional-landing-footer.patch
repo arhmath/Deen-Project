@@ -1,0 +1,138 @@
+--- a/src/components/landing/LandingFooter.tsx
++++ b/src/components/landing/LandingFooter.tsx
+@@ -1,17 +1,126 @@
++import type { MouseEvent } from "react";
+ import { Link } from "react-router-dom";
++import { ScrollSmoother } from "gsap/ScrollSmoother";
+ import { Logo } from "../layout/Logo";
++
++const FOOTER_LINKS = {
++  jelajahi: [
++    { label: "Fitur Deen", href: "#fitur", section: true },
++    { label: "Cara Belajar", href: "#cara-belajar", section: true },
++    { label: "Cerita Pengguna", href: "#testimoni", section: true },
++  ],
++  akun: [
++    { label: "Masuk", href: "/login" },
++    { label: "Daftar sebagai Santri", href: "/register" },
++    { label: "Daftar sebagai Pendidik", href: "/daftar-pendidik" },
++  ],
++} as const;
++
++function handleSectionClick(event: MouseEvent<HTMLAnchorElement>, href: string) {
++  const target = document.querySelector<HTMLElement>(href);
++  if (!target) return;
++
++  event.preventDefault();
++  const offset = 88;
++  const smoother = ScrollSmoother.get();
++
++  if (smoother) {
++    smoother.scrollTo(target, true, `top ${offset}px`);
++  } else {
++    const top = target.getBoundingClientRect().top + window.scrollY - offset;
++    window.scrollTo({ top, behavior: "smooth" });
++  }
++
++  window.history.replaceState(null, "", href);
++}
++
++const linkClass =
++  "inline-flex w-fit items-center rounded-lg py-1 text-sm font-semibold text-white/65 transition-colors hover:text-brand-gold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-gold";
+ 
+ export function LandingFooter() {
+   return (
+-    <footer className="border-t-2 border-brand-ink/5 px-5 py-10">
+-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 md:flex-row">
+-        <Logo size={32} />
+-        <Link to="/terms" className="font-body text-sm font-semibold text-brand-ink/60 hover:text-brand-purple-fg hover:underline">
+-          Syarat & Ketentuan
+-        </Link>
+-        <p className="font-body text-sm text-brand-ink/50">
+-          © {new Date().getFullYear()} Deen. Belajar ngaji jadi seru, setiap hari.
+-        </p>
++    <footer className="relative overflow-hidden bg-[#231334] px-5 pb-6 pt-14 text-white sm:pt-16">
++      <div
++        aria-hidden="true"
++        className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-brand-purple/25 blur-3xl"
++      />
++      <div
++        aria-hidden="true"
++        className="pointer-events-none absolute -bottom-36 left-1/4 h-64 w-64 rounded-full bg-brand-blue/10 blur-3xl"
++      />
++
++      <div className="relative mx-auto max-w-6xl">
++        <div className="grid gap-10 border-b border-white/10 pb-10 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr] lg:gap-12 lg:pb-12">
++          <div className="max-w-sm">
++            <Link to="/" aria-label="Deen — kembali ke beranda" className="inline-flex items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-gold">
++              <Logo size={44} withWordmark={false} />
++              <span className="font-display text-3xl font-extrabold tracking-tight text-white">Deen<span className="text-brand-gold">.</span></span>
++            </Link>
++            <p className="mt-4 max-w-xs font-body text-sm leading-7 text-white/65">
++              Teman belajar ngaji yang bikin proses belajar terasa lebih seru,
++              terarah, dan menyenangkan setiap hari.
++            </p>
++            <span className="mt-5 inline-flex items-center gap-2 rounded-full border border-brand-gold/25 bg-brand-gold/10 px-3 py-1.5 text-xs font-bold text-brand-gold">
++              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brand-gold" />
++              Belajar • Bertumbuh • Istiqamah
++            </span>
++          </div>
++
++          <nav aria-label="Jelajahi Deen">
++            <h2 className="font-display text-base font-extrabold text-white">Jelajahi</h2>
++            <ul className="mt-4 flex flex-col items-start gap-2">
++              {FOOTER_LINKS.jelajahi.map((item) => (
++                <li key={item.href}>
++                  <a
++                    href={item.href}
++                    onClick={(event) => handleSectionClick(event, item.href)}
++                    className={linkClass}
++                  >
++                    {item.label}
++                  </a>
++                </li>
++              ))}
++            </ul>
++          </nav>
++
++          <nav aria-label="Akun Deen">
++            <h2 className="font-display text-base font-extrabold text-white">Mulai Bersama Deen</h2>
++            <ul className="mt-4 flex flex-col items-start gap-2">
++              {FOOTER_LINKS.akun.map((item) => (
++                <li key={item.href}>
++                  <Link to={item.href} className={linkClass}>
++                    {item.label}
++                  </Link>
++                </li>
++              ))}
++            </ul>
++          </nav>
++
++          <div>
++            <h2 className="font-display text-base font-extrabold text-white">Bantuan & Informasi</h2>
++            <p className="mt-4 max-w-xs text-sm leading-6 text-white/60">
++              Punya pertanyaan seputar Deen, akun, atau penggunaan layanan?
++              Hubungi tim kami melalui email.
++            </p>
++            <a
++              href="mailto:halo@deen.app"
++              className="mt-3 inline-flex items-center gap-2 rounded-lg text-sm font-extrabold text-brand-gold transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-gold"
++            >
++              halo@deen.app
++              <span aria-hidden="true">↗</span>
++            </a>
++            <div className="mt-5">
++              <Link to="/terms" className={linkClass}>
++                Syarat & Ketentuan
++              </Link>
++            </div>
++          </div>
++        </div>
++
++        <div className="flex flex-col gap-3 pt-6 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
++          <p>© {new Date().getFullYear()} Deen. Seluruh hak cipta dilindungi.</p>
++          <p className="font-semibold tracking-wide">Belajar ngaji jadi seru, setiap hari.</p>
++        </div>
+       </div>
+     </footer>
+   );
