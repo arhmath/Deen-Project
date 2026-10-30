@@ -74,7 +74,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           }}
           className="inline-flex w-fit shrink-0 items-center rounded-full bg-brand-purple/10 px-3 py-1 text-[11px] font-bold text-brand-purple-fg"
         >
-          Isi akun demo otomatis
+          Isi Otomatis
         </button>
 
           {/* <span className="inline-flex w-fit shrink-0 items-center rounded-full bg-brand-purple/10 px-3 py-1 text-[11px] font-bold text-brand-purple-fg">
