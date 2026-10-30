@@ -40,15 +40,6 @@ const linkClass =
 export function LandingFooter() {
   return (
     <footer className="relative overflow-hidden bg-surface px-5 pb-6 pt-14 text-brand-ink sm:pt-16">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-brand-purple/10 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -bottom-36 left-1/4 h-64 w-64 rounded-full bg-brand-blue/10 blur-3xl"
-      />
-
       <div className="relative mx-auto max-w-6xl">
         <div className="grid gap-10 border-b border-brand-ink/10 pb-10 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr] lg:gap-12 lg:pb-12">
           <div className="max-w-sm">
