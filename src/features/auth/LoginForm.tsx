@@ -55,7 +55,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
               Akses Demo Juri UINIC 8.0
             </p>
             <p className="mt-1 text-xs leading-5 text-brand-ink/65">
-              Gunakan akun Superadmin untuk menjelajahi fitur Deen selama penilaian.
+              Gunakan akun Superadmin untuk menjelajahi fitur Deen selama penilaian. Role Santri, Pendidik, dan Admin dapat didaftarkan secara manual.
             </p>
           </div>
 
@@ -72,44 +72,12 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
               shouldValidate: true,
             });
           }}
-          className="inline-flex w-fit shrink-0 items-center rounded-full bg-brand-purple/10 px-3 py-1 text-[11px] font-bold text-brand-purple-fg"
+          className="inline-flex w-fit shrink-0 items-center rounded-full bg-brand-purple/10 px-3 py-1 text-[11px] font-bold text-brand-purple-fg transition-all duration-200 hover:bg-brand-purple/20 hover:scale-[1.02] active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Isi Otomatis
         </button>
-
-          {/* <span className="inline-flex w-fit shrink-0 items-center rounded-full bg-brand-purple/10 px-3 py-1 text-[11px] font-bold text-brand-purple-fg">
-            SUPERADMIN
-          </span> */}
         </div>
 
-        {/* <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-          <div className="rounded-xl bg-surface px-3 py-2">
-            <span className="block text-brand-ink/50">Username</span>
-            <strong className="mt-0.5 block select-all text-brand-ink">superadmin</strong>
-          </div>
-          <div className="rounded-xl bg-surface px-3 py-2">
-            <span className="block text-brand-ink/50">Password</span>
-            <strong className="mt-0.5 block select-all text-brand-ink">superadmin</strong>
-          </div>
-        </div> */}
-
-        {/* <button
-          type="button"
-          disabled={isSubmitting}
-          onClick={() => {
-            setValue("identifier", "superadmin", {
-              shouldDirty: true,
-              shouldValidate: true,
-            });
-            setValue("password", "superadmin", {
-              shouldDirty: true,
-              shouldValidate: true,
-            });
-          }}
-          className="mt-3 inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-purple disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          Isi akun demo otomatis
-        </button> */}
       </section>
 
       {serverError && (
