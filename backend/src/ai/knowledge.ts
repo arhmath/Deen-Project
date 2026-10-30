@@ -29,7 +29,7 @@ export const DEEN_KNOWLEDGE: Chunk[] = [
   },
   {
     id: "kb-leaderboard", type: "knowledge", title: "Leaderboard",
-    text: "Leaderboard menampilkan peringkat santri, secara global atau per room. Urutan berdasarkan point tertinggi, lalu XP tertinggi; jika sama, santri yang lebih dulu mencapai nilai itu berada di atas. Santri hanya bisa melihat leaderboard room yang ia ikuti.",
+    text: "Leaderboard menampilkan peringkat santri, secara global atau per room. Urutan berdasarkan total XP tertinggi; jika XP sama, points tertinggi menjadi tie-break, lalu waktu pencapaian dan ID santri. Santri hanya bisa melihat leaderboard room yang ia ikuti.",
   },
   {
     id: "kb-join-room", type: "knowledge", title: "Cara bergabung ke room",

@@ -9,6 +9,7 @@ import {
   REWARD_CONFIG,
   appendCheckinDate,
   applyDelta,
+  compareLeaderboardEntries,
   initialGamification,
   levelUpOf,
   rewardLabel,
@@ -150,14 +151,17 @@ export const gamificationService = {
     });
   },
 
-  /** Peringkat global (berdasarkan sortKey: XP ↓, points ↓ sebagai tie-break, updatedAt ↑, userId ↑). */
+  /** Peringkat dashboard memakai aturan yang sama dengan leaderboard: XP aktual DESC. */
   async globalRank(userId: string): Promise<{ position: number; total: number }> {
-    const g = await this.getOrCreate(userId);
-    const col = db().collection(C.userGamification);
-    const [ahead, total] = await Promise.all([
-      col.where("sortKey", "<", g.sortKey).count().get(),
-      col.count().get(),
-    ]);
-    return { position: ahead.data().count + 1, total: total.data().count };
+    await this.getOrCreate(userId);
+    const snapshot = await db().collection(C.userGamification).get();
+    const ranked = snapshot.docs
+      .map((doc) => {
+        const data = doc.data() as UserGamificationDoc;
+        return { ...data, userId: data.userId || doc.id };
+      })
+      .sort(compareLeaderboardEntries);
+    const index = ranked.findIndex((entry) => entry.userId === userId);
+    return { position: index >= 0 ? index + 1 : ranked.length + 1, total: ranked.length };
   },
 };

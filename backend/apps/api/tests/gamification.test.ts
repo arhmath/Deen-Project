@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  REWARD_CONFIG, appendCheckinDate, baseRewardOf, buildSortKey, effectiveStreak, levelFor, levelUpOf,
+  REWARD_CONFIG, appendCheckinDate, baseRewardOf, buildSortKey, compareLeaderboardEntries, effectiveStreak, levelFor, levelUpOf,
   planSubmissionRewards, streakAfterCheckin, weekStrip,
 } from "@/modules/gamification/gamification.logic";
 
@@ -54,38 +54,34 @@ describe("streak", () => {
 
 describe("sortKey leaderboard (XP ↓, points ↓, updatedAt ↑, userId ↑)", () => {
   const sorted = (rows: [number, number, number, string][]) =>
-    rows.map(([p, x, t, u]) => ({ k: buildSortKey(p, x, t, u), u })).sort((a, b) => (a.k < b.k ? -1 : a.k > b.k ? 1 : 0)).map((r) => r.u);
+    rows.map(([p, x, t, u]) => ({ k: buildSortKey(p, x, t, u), u }))
+      .sort((a, b) => a.k.localeCompare(b.k)).map((r) => r.u);
 
-  it("XP selalu menjadi prioritas utama, meskipun points lebih rendah", () => {
-    expect(sorted([
-      [900, 120, 5, "xp-tertinggi"],
-      [9999, 100, 1, "points-tertinggi"],
-      [1, 80, 1, "xp-terendah"],
-    ])).toEqual(["xp-tertinggi", "points-tertinggi", "xp-terendah"]);
+  it("XP lebih tinggi selalu berada di atas meskipun points lebih rendah", () => {
+    expect(sorted([[900, 410, 5, "bilal"], [10, 440, 5, "arham"], [1, 520, 5, "aisyah"]]))
+      .toEqual(["aisyah", "arham", "bilal"]);
   });
 
   it("points hanya menjadi tie-break ketika XP sama", () => {
-    expect(sorted([
-      [100, 100, 5, "points-rendah"],
-      [200, 100, 9, "points-tinggi"],
-      [100, 120, 9, "xp-lebih-tinggi"],
-    ])).toEqual(["xp-lebih-tinggi", "points-tinggi", "points-rendah"]);
-  });
-
-  it("tie-break berikutnya adalah updatedAt paling awal lalu userId", () => {
-    expect(sorted([
-      [100, 100, 5, "b"],
-      [100, 100, 3, "d"],
-      [100, 100, 3, "a"],
-    ])).toEqual(["a", "d", "b"]);
+    expect(sorted([[100, 100, 5, "b"], [200, 100, 9, "a"], [100, 120, 9, "c"]]))
+      .toEqual(["c", "a", "b"]);
   });
 
   it("tetap benar untuk angka dengan jumlah digit berbeda", () => {
-    expect(sorted([
-      [9, 9, 1, "x"],
-      [10, 10, 1, "y"],
-      [1000, 1, 1, "z"],
-    ])).toEqual(["y", "x", "z"]);
+    expect(sorted([[9, 9, 1, "x"], [10, 10, 1, "y"], [1000, 1, 1, "z"]]))
+      .toEqual(["y", "x", "z"]);
+  });
+});
+
+describe("leaderboard ordering by actual XP", () => {
+  const row = (userId: string, totalXp: number, totalPoints: number) => ({
+    userId, totalXp, totalPoints, updatedAt: { toMillis: () => 1 },
+  });
+
+  it("places Arham with 440 XP above Bilal with 410 XP", () => {
+    const sorted = [row("bilal", 410, 900), row("arham", 440, 10), row("aisyah", 520, 1)]
+      .sort(compareLeaderboardEntries);
+    expect(sorted.map((entry) => entry.userId)).toEqual(["aisyah", "arham", "bilal"]);
   });
 });
 

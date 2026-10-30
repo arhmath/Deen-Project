@@ -91,7 +91,7 @@ export interface UserGamificationDoc {
   courseProgress: number;
   lastActiveAt: Timestamp | null;
   roomIds: string[];
-  /** string urut untuk leaderboard: XP DESC, points DESC (tie-break), updatedAt ASC, userId ASC */
+  /** string urut kompatibilitas leaderboard: XP DESC, points DESC (tie-break), updatedAt ASC, userId ASC */
   sortKey: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;

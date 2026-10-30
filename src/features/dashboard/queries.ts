@@ -1,4 +1,4 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { dashboardService } from "../../services/dashboardService";
 
 export const keys = {
@@ -23,9 +23,12 @@ export const useRooms = () => useQuery({ queryKey: keys.rooms, queryFn: dashboar
 
 export const useLeaderboard = (roomId: string | undefined, page: number, pageSize = 10) =>
   useQuery({
-    queryKey: keys.leaderboard(roomId, page),
+    queryKey: [...keys.leaderboard(roomId, page), pageSize],
     queryFn: () => dashboardService.leaderboard({ roomId, page, pageSize }),
-    placeholderData: keepPreviousData,
+    // Leaderboard harus selalu mengambil snapshot terbaru saat halaman dibuka.
+    // Hindari menampilkan cache/halaman sebelumnya seolah-olah hasil final.
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
 export const useAdminOverview = () =>

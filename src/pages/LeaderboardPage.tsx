@@ -52,7 +52,7 @@ export default function LeaderboardPage() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
         <Card className="p-3 sm:p-4">
-          {q.isPending ? (
+          {q.isPending || q.isFetching ? (
             <div className="flex flex-col gap-2" aria-busy="true">{Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="h-14" />)}</div>
           ) : q.isError ? (
             <ErrorState onRetry={() => q.refetch()} />

@@ -101,15 +101,26 @@ const pad = (n: number, w = 13) => String(Math.max(0, Math.trunc(n))).padStart(w
 const CAP = 1e12;
 
 /**
- * Kunci urut leaderboard — XP adalah kriteria UTAMA:
- * ascending lexicographic = XP DESC, points DESC (tie-break), updatedAt ASC, userId ASC.
- *
- * Setiap bagian numerik memiliki lebar tetap agar perbandingan string Firestore
- * identik dengan perbandingan numerik. Points tidak pernah mengalahkan XP.
+ * Kunci urut kompatibilitas leaderboard — XP DESC, points DESC sebagai tie-break,
+ * updatedAt ASC, lalu userId ASC. Ranking utama membandingkan nilai XP aktual.
  */
 export function buildSortKey(points: number, xp: number, updatedAtMs: number, userId: string): string {
   return `${pad(CAP - xp)}${pad(CAP - points)}${pad(updatedAtMs)}${userId}`;
 }
+
+/** Perbandingan leaderboard yang memakai nilai XP aktual, bukan sortKey terdenormalisasi. */
+export function compareLeaderboardEntries(
+  a: Pick<UserGamificationDoc, "totalXp" | "totalPoints" | "updatedAt" | "userId">,
+  b: Pick<UserGamificationDoc, "totalXp" | "totalPoints" | "updatedAt" | "userId">,
+): number {
+  const aUpdatedAt = typeof a.updatedAt?.toMillis === "function" ? a.updatedAt.toMillis() : 0;
+  const bUpdatedAt = typeof b.updatedAt?.toMillis === "function" ? b.updatedAt.toMillis() : 0;
+  return (Number(b.totalXp ?? 0) - Number(a.totalXp ?? 0))
+    || (Number(b.totalPoints ?? 0) - Number(a.totalPoints ?? 0))
+    || (aUpdatedAt - bUpdatedAt)
+    || a.userId.localeCompare(b.userId);
+}
+
 
 export function toGamificationSummary(doc: UserGamificationDoc, today: string): GamificationSummary {
   return {

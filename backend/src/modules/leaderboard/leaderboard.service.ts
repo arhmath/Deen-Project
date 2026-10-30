@@ -6,6 +6,7 @@ import { countOf } from "@/shared/firestore-utils";
 import { SAFE_ID } from "@/shared/ids";
 import type { UserGamificationDoc } from "../gamification/gamification.types";
 import { gamificationService } from "../gamification/gamification.service";
+import { compareLeaderboardEntries } from "../gamification/gamification.logic";
 import { isActiveMember, loadRoom } from "../rooms/room.access";
 import type { AuthUser } from "../users/user.types";
 
@@ -26,25 +27,47 @@ async function assertRoomVisible(user: AuthUser, roomId: string) {
 }
 
 export const leaderboardService = {
-  /** Urutan: XP ↓ (utama), points ↓ (tie-break), updatedAt ↑, userId ↑. Pagination offset (skala TPA). */
+  /** Ranking dihitung dari XP aktual seluruh peserta sebelum pagination. */
   async page(user: AuthUser, q: z.output<typeof leaderboardQuery>) {
     if (q.roomId) await assertRoomVisible(user, q.roomId);
+
+    // Pastikan dokumen santri sendiri sudah ada sebelum membaca seluruh pool.
+    const mine = await gamificationService.getOrCreate(user.id);
     const col = db().collection(C.userGamification);
     const base = q.roomId ? col.where("roomIds", "array-contains", q.roomId) : col;
+    const snapshot = await base.get();
+    const ranked = snapshot.docs
+      .map((doc) => {
+        const data = doc.data() as UserGamificationDoc;
+        return { ...data, userId: data.userId || doc.id };
+      })
+      .sort(compareLeaderboardEntries);
+
+    const total = ranked.length;
     const offset = (q.page - 1) * q.pageSize;
+    const entries: LeaderboardEntry[] = ranked.slice(offset, offset + q.pageSize).map((g, index) => ({
+      rank: offset + index + 1,
+      studentId: g.userId,
+      name: g.name,
+      level: g.level,
+      xp: Number(g.totalXp ?? 0),
+      isMe: g.userId === user.id,
+    }));
 
-    const [total, snap] = await Promise.all([countOf(base), base.orderBy("sortKey").offset(offset).limit(q.pageSize).get()]);
-    const entries: LeaderboardEntry[] = snap.docs.map((d, i) => {
-      const g = d.data() as UserGamificationDoc;
-      return { rank: offset + i + 1, studentId: g.userId, name: g.name, level: g.level, xp: g.totalXp, isMe: g.userId === user.id };
-    });
+    const myIndex = (!q.roomId || mine.roomIds.includes(q.roomId))
+      ? ranked.findIndex((g) => g.userId === user.id)
+      : -1;
+    const me: LeaderboardEntry | null = myIndex >= 0
+      ? {
+          rank: myIndex + 1,
+          studentId: mine.userId,
+          name: mine.name,
+          level: mine.level,
+          xp: Number(mine.totalXp ?? 0),
+          isMe: true,
+        }
+      : null;
 
-    let me: LeaderboardEntry | null = null;
-    const mine = await gamificationService.getOrCreate(user.id);
-    if (!q.roomId || mine.roomIds.includes(q.roomId)) {
-      const ahead = await countOf(base.where("sortKey", "<", mine.sortKey));
-      me = { rank: ahead + 1, studentId: mine.userId, name: mine.name, level: mine.level, xp: mine.totalXp, isMe: true };
-    }
     return { entries, page: q.page, pageSize: q.pageSize, total, me };
   },
 };
