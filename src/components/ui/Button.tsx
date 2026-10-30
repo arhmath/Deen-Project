@@ -58,7 +58,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled || isLoading}
         className={clsx(
-          "inline-flex items-center justify-center font-display font-semibold tracking-wide",
+          "inline-flex cursor-pointer items-center justify-center font-display font-semibold tracking-wide",
           "transition-all duration-150 ease-out",
           "active:translate-y-[4px]",
           "disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-y-0",

@@ -104,6 +104,22 @@
 }
 
 @layer base {
+  /*
+   * Konsistensi pointer untuk elemen yang benar-benar interaktif.
+   * Selector native mencakup button, link, dan elemen ARIA interaktif.
+   */
+  button:not(:disabled),
+  a[href],
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
   body {
     @apply bg-brand-cream font-body text-brand-ink;
   }

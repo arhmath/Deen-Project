@@ -25,7 +25,7 @@ export function ButtonLink({
   return (
     <Link
       className={clsx(
-        "inline-flex items-center justify-center gap-2 rounded-2xl font-display font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue active:translate-y-0.5",
+        "inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl font-display font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue active:translate-y-0.5",
         SIZE[size],
         VARIANT[variant],
         className

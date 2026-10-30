@@ -41,7 +41,7 @@ export function ConversationList({
                   onClick={() => onSelect(c.id)}
                   aria-current={c.id === activeId ? "true" : undefined}
                   className={clsx(
-                    "w-full rounded-2xl border-2 px-3 py-2.5 pr-10 text-left transition-colors focus-visible:outline-2 focus-visible:outline-brand-blue",
+                    "w-full cursor-pointer rounded-2xl border-2 px-3 py-2.5 pr-10 text-left transition-colors focus-visible:outline-2 focus-visible:outline-brand-blue",
                     c.id === activeId ? "border-brand-purple bg-brand-purple/8" : "border-transparent hover:bg-brand-ink/5"
                   )}
                 >
@@ -52,7 +52,7 @@ export function ConversationList({
                   type="button"
                   aria-label={`Hapus percakapan: ${c.title}`}
                   onClick={() => setToDelete(c)}
-                  className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-lg text-brand-ink/40 hover:bg-red-50 hover:text-red-500 focus-visible:outline-2 focus-visible:outline-brand-blue sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
+                  className="absolute right-2 top-2 grid h-8 w-8 cursor-pointer place-items-center rounded-lg text-brand-ink/40 hover:bg-red-50 hover:text-red-500 focus-visible:outline-2 focus-visible:outline-brand-blue sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
                 >
                   <TrashIcon className="h-4 w-4" />
                 </button>
