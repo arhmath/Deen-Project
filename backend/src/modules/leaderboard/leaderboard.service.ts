@@ -26,7 +26,7 @@ async function assertRoomVisible(user: AuthUser, roomId: string) {
 }
 
 export const leaderboardService = {
-  /** Urutan: points ↓, xp ↓, updatedAt ↑, userId ↑ (via sortKey). Pagination offset (skala TPA). */
+  /** Urutan: XP ↓ (utama), points ↓ (tie-break), updatedAt ↑, userId ↑. Pagination offset (skala TPA). */
   async page(user: AuthUser, q: z.output<typeof leaderboardQuery>) {
     if (q.roomId) await assertRoomVisible(user, q.roomId);
     const col = db().collection(C.userGamification);

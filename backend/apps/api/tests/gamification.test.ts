@@ -52,14 +52,40 @@ describe("streak", () => {
   });
 });
 
-describe("sortKey leaderboard (points ↓, xp ↓, updatedAt ↑, userId ↑)", () => {
+describe("sortKey leaderboard (XP ↓, points ↓, updatedAt ↑, userId ↑)", () => {
   const sorted = (rows: [number, number, number, string][]) =>
-    rows.map(([p, x, t, u]) => ({ k: buildSortKey(p, x, t, u), u })).sort((a, b) => (a.k < b.k ? -1 : 1)).map((r) => r.u);
-  it("urut sesuai aturan tie-break", () => {
-    expect(sorted([[100, 100, 5, "b"], [200, 50, 9, "a"], [100, 120, 9, "c"], [100, 100, 3, "d"], [100, 100, 3, "a2"]])).toEqual(["a", "c", "a2", "d", "b"]);
+    rows.map(([p, x, t, u]) => ({ k: buildSortKey(p, x, t, u), u })).sort((a, b) => (a.k < b.k ? -1 : a.k > b.k ? 1 : 0)).map((r) => r.u);
+
+  it("XP selalu menjadi prioritas utama, meskipun points lebih rendah", () => {
+    expect(sorted([
+      [900, 120, 5, "xp-tertinggi"],
+      [9999, 100, 1, "points-tertinggi"],
+      [1, 80, 1, "xp-terendah"],
+    ])).toEqual(["xp-tertinggi", "points-tertinggi", "xp-terendah"]);
   });
-  it("tetap benar untuk angka berbeda digit", () => {
-    expect(sorted([[9, 9, 1, "x"], [10, 10, 1, "y"], [1000, 1, 1, "z"]])).toEqual(["z", "y", "x"]);
+
+  it("points hanya menjadi tie-break ketika XP sama", () => {
+    expect(sorted([
+      [100, 100, 5, "points-rendah"],
+      [200, 100, 9, "points-tinggi"],
+      [100, 120, 9, "xp-lebih-tinggi"],
+    ])).toEqual(["xp-lebih-tinggi", "points-tinggi", "points-rendah"]);
+  });
+
+  it("tie-break berikutnya adalah updatedAt paling awal lalu userId", () => {
+    expect(sorted([
+      [100, 100, 5, "b"],
+      [100, 100, 3, "d"],
+      [100, 100, 3, "a"],
+    ])).toEqual(["a", "d", "b"]);
+  });
+
+  it("tetap benar untuk angka dengan jumlah digit berbeda", () => {
+    expect(sorted([
+      [9, 9, 1, "x"],
+      [10, 10, 1, "y"],
+      [1000, 1, 1, "z"],
+    ])).toEqual(["y", "x", "z"]);
   });
 });
 

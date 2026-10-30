@@ -101,11 +101,14 @@ const pad = (n: number, w = 13) => String(Math.max(0, Math.trunc(n))).padStart(w
 const CAP = 1e12;
 
 /**
- * Kunci urut leaderboard — ascending lexicographic = points DESC, xp DESC, updatedAt ASC, userId ASC
- * (aturan tie-break di 09-DEVELOPMENT-ROADMAP §10).
+ * Kunci urut leaderboard — XP adalah kriteria UTAMA:
+ * ascending lexicographic = XP DESC, points DESC (tie-break), updatedAt ASC, userId ASC.
+ *
+ * Setiap bagian numerik memiliki lebar tetap agar perbandingan string Firestore
+ * identik dengan perbandingan numerik. Points tidak pernah mengalahkan XP.
  */
 export function buildSortKey(points: number, xp: number, updatedAtMs: number, userId: string): string {
-  return `${pad(CAP - points)}${pad(CAP - xp)}${pad(updatedAtMs)}${userId}`;
+  return `${pad(CAP - xp)}${pad(CAP - points)}${pad(updatedAtMs)}${userId}`;
 }
 
 export function toGamificationSummary(doc: UserGamificationDoc, today: string): GamificationSummary {

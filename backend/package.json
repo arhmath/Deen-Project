@@ -13,7 +13,8 @@
     "smoke": "tsx --env-file=apps/api/.env scripts/smoke.ts",
     "typecheck": "tsc --noEmit",
     "seed:knowledge": "tsx scripts/seed-knowledge.ts",
-    "mail:verify": "dotenv -e ./apps/api/.env -- tsx scripts/verify-mail.ts"
+    "mail:verify": "dotenv -e ./apps/api/.env -- tsx scripts/verify-mail.ts",
+    "migrate:leaderboard-sort-key": "tsx --env-file=apps/api/.env scripts/migrate-leaderboard-sort-key.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

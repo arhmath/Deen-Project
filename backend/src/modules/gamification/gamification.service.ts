@@ -150,7 +150,7 @@ export const gamificationService = {
     });
   },
 
-  /** Peringkat global (berdasarkan sortKey: points ↓, xp ↓, updatedAt ↑, userId ↑). */
+  /** Peringkat global (berdasarkan sortKey: XP ↓, points ↓ sebagai tie-break, updatedAt ↑, userId ↑). */
   async globalRank(userId: string): Promise<{ position: number; total: number }> {
     const g = await this.getOrCreate(userId);
     const col = db().collection(C.userGamification);
